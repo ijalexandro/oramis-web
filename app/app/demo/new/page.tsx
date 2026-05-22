@@ -9,41 +9,37 @@ export default function NewDemoPage() {
       <section className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr]">
         <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-            Demo con tus productos
+            Demo gratis
           </p>
           <h1 className="mt-4 text-4xl font-black tracking-[-0.04em]">
-            Cargá tu web y prepará una demo comercial.
+            Ingresá tu web y probalo gratis en segundos.
           </h1>
           <p className="mt-5 text-lg font-medium leading-8 text-slate-600">
-            Ingresá los datos básicos de tu negocio. Vamos a buscar una muestra
-            de productos de tu sitio para que puedas probar cómo respondería
-            Oramis frente a consultas reales.
+            Prepará una demo con productos de tu sitio y mirá cómo Oramis
+            respondería consultas, recomendaría opciones y armaría oportunidades
+            de venta.
           </p>
 
           <div className="mt-7 rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
             <p className="text-sm font-black text-emerald-800">
-              ¿Qué pasa después?
+              Probá la experiencia antes de contratar
             </p>
             <p className="mt-2 text-sm font-semibold leading-6 text-emerald-900">
-              Si encontramos productos, te mostramos una muestra para probar la
-              demo. Si no encontramos suficiente información, vas a poder cargar
-              productos manualmente o pedir ayuda.
+              Vas a poder ver productos, simular una conversación y entender
+              cómo Oramis trabajaría junto a tu equipo comercial.
             </p>
           </div>
         </div>
 
         <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
           <form className="space-y-4">
-            <Field label="Nombre de empresa" placeholder="Ej. Oramis Store" />
             <Field label="Web o tienda online" placeholder="https://tutienda.com" />
-            <Field label="Rubro" placeholder="Ej. indumentaria, retail, pet shop" />
-            <Field label="WhatsApp comercial" placeholder="+54 9 11..." />
 
             <a
               href="/app/demo/preview"
               className="block rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
             >
-              Crear demo
+              Crear demo gratis
             </a>
           </form>
         </div>

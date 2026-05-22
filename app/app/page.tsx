@@ -8,45 +8,45 @@ export default function AppHomePage() {
     <AppShell subtitle="Onboarding">
       <section className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
         <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-          Primer paso
+          Bienvenido a Oramis
         </p>
         <h1 className="mt-4 text-4xl font-black tracking-[-0.04em] text-[#07111f] sm:text-5xl">
-          ¿Qué querés hacer con Oramis?
+          Empezá con una demo o activá el servicio.
         </h1>
         <p className="mt-5 max-w-3xl text-lg font-medium leading-8 text-slate-600">
-          Podés probar una demo con productos de tu web o avanzar directo con la
-          contratación del servicio para tu operación comercial.
+          Podés probar Oramis con productos de tu web o avanzar con la
+          contratación para dejarlo funcionando en tu operación comercial.
         </p>
       </section>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <ChoiceCard
-          eyebrow="Demo"
-          title="Quiero probar con mis productos"
-          description="Ingresá tu sitio web, preparamos una muestra de productos y te mostramos cómo Oramis respondería consultas y armaría oportunidades."
+          eyebrow="Demo gratis"
+          title="Probar con mis productos"
+          description="Ingresá tu sitio web y prepará una demo para ver cómo Oramis respondería consultas, recomendaría productos y armaría oportunidades."
           href="/app/demo/new"
           cta="Crear demo"
           primary
         />
 
         <ChoiceCard
-          eyebrow="Contratación"
-          title="Quiero contratar Oramis"
-          description="Completá los datos de tu operación comercial para que podamos recomendar el modelo adecuado y avanzar con la activación."
+          eyebrow="Activación"
+          title="Contratar Oramis"
+          description="Completá los datos de tu operación comercial para avanzar con la configuración, el canal de atención y el modelo recomendado."
           href="/app/contract"
-          cta="Contratar Oramis"
+          cta="Quiero contratar"
         />
       </section>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <LockedLink
           title="Conversaciones comerciales"
-          description="Vista previa del módulo donde se centralizan consultas, oportunidades, carritos y derivaciones."
+          description="Vista previa de la bandeja donde tu equipo responde conversaciones de venta, atención y seguimiento desde un solo lugar."
           href="/app/conversations"
         />
         <LockedLink
           title="Métricas comerciales"
-          description="Vista previa del módulo donde vas a medir intención, productos pedidos, carritos y oportunidades."
+          description="Vista previa del módulo para medir consultas, intención, productos pedidos, carritos y oportunidades generadas."
           href="/app/metrics"
         />
       </section>

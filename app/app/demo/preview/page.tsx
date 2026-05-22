@@ -23,47 +23,36 @@ export default function DemoPreviewPage() {
   return (
     <AppShell subtitle="Demo">
       <section className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-              Demo lista
-            </p>
-            <h1 className="mt-4 text-4xl font-black tracking-[-0.04em]">
-              Probá una conversación con tus productos.
-            </h1>
-            <p className="mt-4 max-w-3xl text-lg font-medium leading-8 text-slate-600">
-              Encontramos una muestra de productos para que puedas probar cómo
-              Oramis respondería consultas, recomendaría opciones y armaría
-              oportunidades comerciales.
-            </p>
-          </div>
-
-          <a
-            href="/signup?intent=contract"
-            className="rounded-full bg-[#07111f] px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-slate-300 transition hover:bg-emerald-600"
-          >
-            Quiero contratar Oramis
-          </a>
-        </div>
+        <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+          Demo lista
+        </p>
+        <h1 className="mt-4 text-4xl font-black tracking-[-0.04em]">
+          Cargamos 50 productos de tu web para que pruebes Oramis.
+        </h1>
+        <p className="mt-4 max-w-3xl text-lg font-medium leading-8 text-slate-600">
+          Probá cómo respondería frente a consultas reales. Al contratar Oramis,
+          la cuenta queda activa con todos tus productos y la operación comercial
+          completa.
+        </p>
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
+      <section className="mt-6 grid gap-6 lg:grid-cols-[0.78fr_1.22fr]">
         <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-                Productos detectados
+                Productos
               </p>
               <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">
-                50 productos para la demo
+                Muestra cargada
               </h2>
             </div>
             <span className="rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">
-              Muestra
+              50 productos
             </span>
           </div>
 
-          <div className="mt-6 max-h-[620px] space-y-3 overflow-y-auto pr-2">
+          <div className="mt-6 max-h-[650px] space-y-3 overflow-y-auto pr-2">
             {products.map((product) => (
               <div
                 key={product.name}
@@ -89,14 +78,14 @@ export default function DemoPreviewPage() {
 
         <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-            Conversación de prueba
+            Prueba de conversación
           </p>
           <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">
-            Escribí como si fueras un cliente
+            Consultá por un producto como si fueras un cliente.
           </h2>
           <p className="mt-3 text-base font-medium leading-7 text-slate-600">
-            Esta sección será dinámica: tu consulta se enviará al motor de
-            Oramis usando los productos detectados para responder como vendedor.
+            Escribí una consulta de compra y Oramis responderá usando los
+            productos cargados para esta demo.
           </p>
 
           <div className="mt-6 rounded-[2rem] border border-slate-200 bg-[#e9f8ef] p-4">
@@ -123,17 +112,22 @@ export default function DemoPreviewPage() {
                 </Bubble>
               </div>
 
-              <div className="border-t border-slate-200 p-4">
-                <div className="flex gap-3">
-                  <input
-                    placeholder="Escribí una consulta sobre tus productos..."
-                    className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none"
-                  />
-                  <button className="rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white">
-                    Enviar
-                  </button>
-                </div>
-              </div>
+              <form className="border-t border-slate-200 p-4">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-black text-slate-700">
+                    ¿Qué producto querés comprar?
+                  </span>
+                  <div className="flex gap-3">
+                    <input
+                      placeholder="Ej. quiero una mochila para notebook"
+                      className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+                    />
+                    <button className="rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white">
+                      Enviar
+                    </button>
+                  </div>
+                </label>
+              </form>
             </div>
           </div>
 
@@ -149,7 +143,7 @@ export default function DemoPreviewPage() {
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <Teaser
           title="Conversaciones comerciales"
-          description="Al contratar, vas a centralizar conversaciones, carritos, oportunidades y derivaciones."
+          description="Al contratar, todos los canales comerciales se centralizan para responder, derivar y hacer seguimiento desde un solo lugar."
           href="/app/conversations"
         />
         <Teaser

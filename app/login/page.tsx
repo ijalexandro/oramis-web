@@ -10,6 +10,15 @@ export default function LoginPage() {
         <Field label="Email" type="email" placeholder="tu@email.com" />
         <Field label="Contraseña" type="password" placeholder="••••••••" />
 
+        <div className="flex justify-end">
+          <a
+            href="/reset-password"
+            className="text-sm font-black text-emerald-600 transition hover:text-emerald-700"
+          >
+            Recuperar contraseña
+          </a>
+        </div>
+
         <a
           href="/app"
           className="block rounded-full bg-emerald-500 px-6 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
