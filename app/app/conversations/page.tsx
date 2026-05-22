@@ -57,18 +57,6 @@ export default async function ConversationsPage() {
                 {tenant.nombre_empresa}
               </div>
             )}
-
-            {chatwootUrl && (
-              <a
-                href={chatwootUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-[#07111f] shadow-sm transition hover:border-emerald-300"
-              >
-                Abrir Chatwoot
-              </a>
-            )}
-
             <a
               href="/logout"
               className="rounded-full bg-[#07111f] px-4 py-2 text-xs font-black text-white shadow-md shadow-slate-300 transition hover:bg-emerald-600"
