@@ -652,6 +652,44 @@ export default function Home() {
           </a>
         </div>
       </section>
+
+      <footer className="border-t border-slate-200 bg-white px-5 py-10 lg:px-8">
+        <div className="mx-auto flex max-w-[1240px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-200">
+              <div className="absolute inset-1 rounded-xl border border-white/40" />
+              <span className="text-base font-black text-white">O</span>
+            </div>
+            <div>
+              <p className="text-lg font-black tracking-tight text-[#07111f]">
+                Oramis
+              </p>
+              <p className="text-xs font-semibold text-slate-500">
+                Ventas conversacionales
+              </p>
+            </div>
+          </div>
+
+          <nav className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-slate-500">
+            <a href="/terms" className="transition hover:text-emerald-600">
+              Términos
+            </a>
+            <a href="/privacy" className="transition hover:text-emerald-600">
+              Privacidad
+            </a>
+            <a href="/cookies" className="transition hover:text-emerald-600">
+              Cookies
+            </a>
+            <a
+              href="mailto:ivan@autoia.com.ar"
+              className="transition hover:text-emerald-600"
+            >
+              Contacto
+            </a>
+          </nav>
+        </div>
+      </footer>
+
     </main>
   );
 }

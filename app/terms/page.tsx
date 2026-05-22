@@ -49,14 +49,47 @@ export default function TermsPage() {
           su propio negocio.
         </p>
         <p>
+          Las demos generadas a partir de una web tienen fines ilustrativos,
+          comerciales y de evaluación. La información extraída automáticamente
+          puede no reflejar la totalidad del catálogo, no estar actualizada al
+          momento de la consulta o contener diferencias respecto de la operación
+          real del negocio.
+        </p>
+        <p>
           La información detectada en una demo puede ser parcial, incompleta o
-          requerir revisión. Los precios, imágenes, links, descripciones, stock
-          y condiciones comerciales deben ser validados por el usuario antes de
-          usar la información en una operación real.
+          requerir revisión. Los precios, imágenes, links, descripciones, stock,
+          variantes, promociones y condiciones comerciales deben ser validados
+          por el usuario antes de utilizarse como base para una operación real.
         </p>
       </Section>
 
-      <Section title="4. Información comercial y respuestas automáticas">
+      <Section title="4. Información obtenida por scrapeo, carga automática o fuentes externas">
+        <p>
+          Cuando Oramis obtiene, guarda o procesa información desde una web,
+          catálogo online, archivo, feed, API, plataforma de ecommerce, sistema
+          externo o cualquier otra fuente provista o indicada por el usuario,
+          pueden producirse errores, inconsistencias, omisiones, duplicados,
+          datos desactualizados o interpretaciones incorrectas.
+        </p>
+        <p>
+          Oramis no será responsable por errores, diferencias, desactualizaciones
+          u omisiones originadas en el scrapeo de datos, cambios en la estructura
+          de la web del cliente, bloqueos de acceso, información incompleta,
+          precios mal publicados, stock desactualizado, variantes mal cargadas,
+          imágenes incorrectas, promociones vencidas, diferencias entre la web y
+          el sistema interno del cliente, errores de integración, errores de
+          carga, errores de almacenamiento o información provista por terceros.
+        </p>
+        <p>
+          El cliente es responsable de revisar, validar y mantener actualizada la
+          información comercial utilizada por Oramis, incluyendo precios, stock,
+          disponibilidad, variantes, promociones, condiciones de venta, costos de
+          envío, formas de pago, financiación, plazos de entrega y cualquier otro
+          dato relevante para concretar una operación.
+        </p>
+      </Section>
+
+      <Section title="5. Información comercial y respuestas automáticas">
         <p>
           Oramis puede generar respuestas automáticas o asistidas usando datos
           del catálogo, reglas de negocio, historial conversacional y modelos de
@@ -65,13 +98,21 @@ export default function TermsPage() {
           información comercial relevante.
         </p>
         <p>
+          Las respuestas, carritos, presupuestos, recomendaciones o derivaciones
+          generadas por Oramis deben considerarse asistencia comercial u
+          oportunidades potenciales de venta. Pueden requerir confirmación humana
+          antes de concretar una transacción, especialmente cuando involucren
+          precio, stock, disponibilidad, entrega, financiación, promociones,
+          condiciones especiales o cualquier dato sensible para la operación.
+        </p>
+        <p>
           Oramis no garantiza que una respuesta automática cierre una venta ni
           reemplaza completamente la intervención humana cuando la operación,
           consulta o situación lo requiera.
         </p>
       </Section>
 
-      <Section title="5. Cuentas, accesos y seguridad">
+      <Section title="6. Cuentas, accesos y seguridad">
         <p>
           El usuario es responsable por mantener la confidencialidad de sus
           accesos y por todas las acciones realizadas desde su cuenta. Si detecta
@@ -79,7 +120,7 @@ export default function TermsPage() {
         </p>
       </Section>
 
-      <Section title="6. Disponibilidad del servicio">
+      <Section title="7. Disponibilidad del servicio">
         <p>
           Oramis puede realizar cambios, mejoras, tareas de mantenimiento o
           actualizaciones. El servicio puede depender de proveedores externos,
@@ -93,7 +134,7 @@ export default function TermsPage() {
         </p>
       </Section>
 
-      <Section title="7. Propiedad intelectual">
+      <Section title="8. Propiedad intelectual">
         <p>
           La marca, diseño, software, flujos, textos, interfaces y componentes
           de Oramis pertenecen a sus titulares o licenciantes. El uso del
@@ -105,11 +146,11 @@ export default function TermsPage() {
         </p>
       </Section>
 
-      <Section title="8. Contratación y condiciones comerciales">
+      <Section title="9. Contratación y condiciones comerciales">
         <p>
           Las condiciones de contratación, planes, precios, límites de uso,
-          soporte, canales habilitados y funcionalidades incluidas podrán
-          variar según el acuerdo comercial aplicable a cada cliente.
+          soporte, canales habilitados y funcionalidades incluidas podrán variar
+          según el acuerdo comercial aplicable a cada cliente.
         </p>
         <p>
           Las demos, pruebas o accesos preliminares no implican la contratación
@@ -117,7 +158,7 @@ export default function TermsPage() {
         </p>
       </Section>
 
-      <Section title="9. Cambios en estos términos">
+      <Section title="10. Cambios en estos términos">
         <p>
           Podemos actualizar estos términos para reflejar cambios en el servicio,
           requisitos legales o mejoras operativas. La versión vigente estará
@@ -125,7 +166,7 @@ export default function TermsPage() {
         </p>
       </Section>
 
-      <Section title="10. Contacto">
+      <Section title="11. Contacto">
         <p>
           Por consultas sobre estos términos, podés escribir a{" "}
           <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
