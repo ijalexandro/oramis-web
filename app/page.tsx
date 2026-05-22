@@ -488,8 +488,8 @@ export default function Home() {
               Atiende, recomienda y vende.
             </h2>
 
-            <div className="mt-8 overflow-hidden rounded-[1.8rem] border border-slate-200 bg-[#f6fbf8] p-5">
-              <div className="mx-auto w-full max-w-[265px] rounded-[2.3rem] border border-slate-200 bg-white p-3 shadow-xl sm:max-w-[285px]">
+            <div className="mt-8 w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-[#eef4ef] p-4 sm:p-5 lg:p-6">
+              <div className="mx-auto w-full max-w-[420px] rounded-[2.4rem] border border-slate-200 bg-white p-3 shadow-xl shadow-emerald-950/10">
                 <div className="overflow-hidden rounded-[1.8rem] border border-slate-200 bg-[#e9f8ef]">
                   <div className="bg-[#075e54] px-4 py-3 text-white">
                     <p className="text-sm font-black">Oramis</p>
@@ -498,7 +498,7 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <div className="mini-phone-screen flex h-[470px] flex-col justify-end overflow-hidden p-3 sm:h-[500px] sm:p-4">
+                  <div className="mini-phone-screen flex h-[470px] flex-col justify-end overflow-hidden p-4 sm:h-[520px] sm:p-5">
                     <div className="space-y-3">
                       {currentSlide.previous.map((msg, index) => (
                         <MessageBubble
