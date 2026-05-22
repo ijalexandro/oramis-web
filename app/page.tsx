@@ -239,7 +239,7 @@ export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#f6fbf8] text-[#07111f]">
       <header className="sticky top-0 z-50 border-b border-emerald-950/5 bg-[#f6fbf8]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-5 lg:px-8">
           <a href="/" className="flex items-center gap-3">
             <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-200">
               <div className="absolute inset-1 rounded-xl border border-white/40" />
@@ -249,7 +249,7 @@ export default function Home() {
               <p className="text-xl font-black tracking-tight text-[#07111f]">
                 Oramis
               </p>
-              <p className="text-xs font-semibold text-slate-500">
+              <p className="hidden text-xs font-semibold text-slate-500 sm:block">
                 Ventas conversacionales
               </p>
             </div>
@@ -273,13 +273,13 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <a
               href="/login"
-              className="hidden rounded-full px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:text-[#07111f] md:inline-flex"
+              className="inline-flex rounded-full px-3 py-2 text-sm font-bold text-slate-600 transition hover:text-[#07111f] sm:px-4 sm:py-2.5"
             >
               Ingresar
             </a>
             <a
               href="/signup"
-              className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+              className="rounded-full bg-[#07111f] px-4 py-2 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 sm:px-5 sm:py-2.5"
             >
               Crear cuenta
             </a>
@@ -287,7 +287,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-12 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-20">
+      <section className="relative mx-auto grid max-w-[1480px] items-center gap-12 px-5 py-12 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:px-12 lg:py-20 xl:gap-16">
         <div className="absolute left-1/2 top-0 -z-10 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-200/35 blur-3xl" />
 
         <div>
