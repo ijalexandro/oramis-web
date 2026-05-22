@@ -11,12 +11,14 @@ export default function ChatwootFrame({ chatwootUrl }: { chatwootUrl: string }) 
         {!loaded && (
           <div className="absolute inset-0 z-10 flex min-h-[720px] items-center justify-center bg-[#f6fbf8]">
             <div className="rounded-[2rem] border border-emerald-100 bg-white px-8 py-7 text-center shadow-xl shadow-emerald-950/5">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-200">
-                <span className="text-lg font-black text-white">O</span>
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-500" />
               </div>
+
               <p className="mt-5 text-lg font-black text-[#07111f]">
                 Cargando conversaciones
               </p>
+
               <p className="mt-2 text-sm font-semibold text-slate-500">
                 Preparando la bandeja comercial de Oramis...
               </p>
