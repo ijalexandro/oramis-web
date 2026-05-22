@@ -1,32 +1,22 @@
 export const metadata = {
-  title: "Métricas comerciales | Oramis",
-  description: "Preview de métricas comerciales.",
+  title: "Configuración del negocio | Oramis",
+  description: "Vista previa de configuración del negocio en Oramis.",
 };
 
-export default function MetricsPage() {
+export default function BusinessSettingsPage() {
   return (
     <PreviewShell
-      eyebrow="Métricas comerciales"
-      title="Entendé qué conversaciones generan negocio."
-      description="Este módulo se activa al contratar Oramis. Vas a poder medir consultas, productos más pedidos, carritos armados, derivaciones y oportunidades comerciales."
+      eyebrow="Configuración del negocio"
+      title="Definí cómo tiene que atender y vender Oramis."
+      description="Al contratar, desde este módulo vas a configurar información operativa del negocio: horarios, zonas, formas de pago, condiciones de envío, mensajes comerciales y reglas básicas de atención."
     >
       <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-[#f8fafc] p-5">
         <div className="blur-[2px]">
-          <div className="grid gap-4 md:grid-cols-3">
-            <Metric label="Consultas" value="1.248" />
-            <Metric label="Carritos" value="312" />
-            <Metric label="Derivadas" value="186" />
-          </div>
-          <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-sm font-black text-slate-500">
-              Productos con más intención
-            </p>
-            <div className="mt-5 space-y-4">
-              <Bar label="Cafetera Compact Black" width="88%" />
-              <Bar label="Mochila Urban Pro" width="72%" />
-              <Bar label="Perfume Blue Special" width="61%" />
-              <Bar label="Labial Gold Plus" width="46%" />
-            </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <ConfigCard title="Horarios de atención" value="Lunes a viernes · 9 a 18 hs" />
+            <ConfigCard title="Formas de pago" value="Transferencia · Tarjeta · Mercado Pago" />
+            <ConfigCard title="Envíos" value="CABA y GBA · retiro en sucursal" />
+            <ConfigCard title="Tono de venta" value="Cercano, claro y orientado a cierre" />
           </div>
         </div>
         <Overlay />
@@ -35,24 +25,11 @@ export default function MetricsPage() {
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function ConfigCard({ title, value }: { title: string; value: string }) {
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
-        {label}
-      </p>
-      <p className="mt-2 text-3xl font-black text-[#07111f]">{value}</p>
-    </div>
-  );
-}
-
-function Bar({ label, width }: { label: string; width: string }) {
-  return (
-    <div>
-      <div className="mb-2 text-sm font-bold text-slate-500">{label}</div>
-      <div className="h-3 rounded-full bg-slate-100">
-        <div className="h-3 rounded-full bg-emerald-500" style={{ width }} />
-      </div>
+      <p className="text-sm font-black text-[#07111f]">{title}</p>
+      <p className="mt-2 text-sm font-medium leading-6 text-slate-600">{value}</p>
     </div>
   );
 }
@@ -70,7 +47,7 @@ function PreviewShell({
 }) {
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
-      <Header subtitle="Preview" />
+      <Header subtitle="Negocio" />
       <section className="mx-auto max-w-[1240px] px-5 py-8 lg:px-0">
         <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
@@ -79,7 +56,7 @@ function PreviewShell({
           <h1 className="mt-4 text-4xl font-black tracking-[-0.04em]">
             {title}
           </h1>
-          <p className="mt-4 max-w-3xl text-lg font-medium leading-8 text-slate-600">
+          <p className="mt-4 max-w-4xl text-lg font-medium leading-8 text-slate-600">
             {description}
           </p>
           <div className="mt-8">{children}</div>
@@ -115,6 +92,7 @@ function Header({ subtitle }: { subtitle: string }) {
             </p>
           </div>
         </a>
+
         <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
           <a href="/app/conversations" className="transition hover:text-emerald-600">
             Conversaciones

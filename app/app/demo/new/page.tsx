@@ -94,20 +94,42 @@ function Header({ subtitle }: { subtitle: string }) {
             </p>
           </div>
         </a>
-        <nav className="flex items-center gap-2">
-          <a
-            href="/app"
-            className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:text-[#07111f]"
-          >
-            Panel
+        <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
+          <a href="/app/conversations" className="transition hover:text-emerald-600">
+            Conversaciones
           </a>
-          <a
-            href="/"
-            className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
-          >
-            Salir
+          <a href="/app/metrics" className="transition hover:text-emerald-600">
+            Métricas
+          </a>
+          <a href="/app/business" className="transition hover:text-emerald-600">
+            Negocio
+          </a>
+          <a href="/app/admin" className="transition hover:text-emerald-600">
+            Administración
           </a>
         </nav>
+
+        <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
+          <a href="/app/conversations" className="transition hover:text-emerald-600">
+            Conversaciones
+          </a>
+          <a href="/app/metrics" className="transition hover:text-emerald-600">
+            Métricas
+          </a>
+          <a href="/app/business" className="transition hover:text-emerald-600">
+            Negocio
+          </a>
+          <a href="/app/admin" className="transition hover:text-emerald-600">
+            Administración
+          </a>
+        </nav>
+
+        <a
+          href="/"
+          className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+        >
+          Salir
+        </a>
       </div>
     </header>
   );

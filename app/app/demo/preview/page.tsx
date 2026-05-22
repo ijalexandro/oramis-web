@@ -152,6 +152,30 @@ export default function DemoPreviewPage() {
           href="/app/metrics"
         />
       </section>
+
+      <section className="mt-6 rounded-[2rem] border border-slate-200 bg-[#07111f] p-7 text-white shadow-xl shadow-slate-300 sm:p-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+              Listo para activar Oramis
+            </p>
+            <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">
+              Convertí esta demo en una operación comercial real.
+            </h2>
+            <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-slate-300">
+              Al contratar, Oramis queda activo con todos tus productos, tus canales comerciales,
+              conversaciones centralizadas y métricas para seguimiento.
+            </p>
+          </div>
+
+          <a
+            href="/signup?intent=contract"
+            className="rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-950/20 transition hover:bg-emerald-600"
+          >
+            Quiero contratar Oramis
+          </a>
+        </div>
+      </section>
     </AppShell>
   );
 }
@@ -238,20 +262,42 @@ function Header({ subtitle }: { subtitle: string }) {
           </div>
         </a>
 
-        <nav className="flex items-center gap-2">
-          <a
-            href="/app"
-            className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:text-[#07111f]"
-          >
-            Panel
+        <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
+          <a href="/app/conversations" className="transition hover:text-emerald-600">
+            Conversaciones
           </a>
-          <a
-            href="/"
-            className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
-          >
-            Salir
+          <a href="/app/metrics" className="transition hover:text-emerald-600">
+            Métricas
+          </a>
+          <a href="/app/business" className="transition hover:text-emerald-600">
+            Negocio
+          </a>
+          <a href="/app/admin" className="transition hover:text-emerald-600">
+            Administración
           </a>
         </nav>
+
+        <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
+          <a href="/app/conversations" className="transition hover:text-emerald-600">
+            Conversaciones
+          </a>
+          <a href="/app/metrics" className="transition hover:text-emerald-600">
+            Métricas
+          </a>
+          <a href="/app/business" className="transition hover:text-emerald-600">
+            Negocio
+          </a>
+          <a href="/app/admin" className="transition hover:text-emerald-600">
+            Administración
+          </a>
+        </nav>
+
+        <a
+          href="/"
+          className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+        >
+          Salir
+        </a>
       </div>
     </header>
   );
