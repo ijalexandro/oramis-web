@@ -131,12 +131,6 @@ export default function DemoPreviewPage() {
             </div>
           </div>
 
-          <a
-            href="/signup?intent=contract"
-            className="mt-6 block rounded-full bg-[#07111f] px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-slate-300 transition hover:bg-emerald-600"
-          >
-            Quiero contratar Oramis
-          </a>
         </div>
       </section>
 
@@ -263,21 +257,9 @@ function Header({ subtitle }: { subtitle: string }) {
         </a>
 
         <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
-          <a href="/app/conversations" className="transition hover:text-emerald-600">
-            Conversaciones
+          <a href="/app" className="transition hover:text-emerald-600">
+            Inicio
           </a>
-          <a href="/app/metrics" className="transition hover:text-emerald-600">
-            Métricas
-          </a>
-          <a href="/app/business" className="transition hover:text-emerald-600">
-            Negocio
-          </a>
-          <a href="/app/admin" className="transition hover:text-emerald-600">
-            Administración
-          </a>
-        </nav>
-
-        <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
           <a href="/app/conversations" className="transition hover:text-emerald-600">
             Conversaciones
           </a>

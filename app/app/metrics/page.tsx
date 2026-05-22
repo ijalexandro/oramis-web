@@ -115,7 +115,11 @@ function Header({ subtitle }: { subtitle: string }) {
             </p>
           </div>
         </a>
+
         <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
+          <a href="/app" className="transition hover:text-emerald-600">
+            Inicio
+          </a>
           <a href="/app/conversations" className="transition hover:text-emerald-600">
             Conversaciones
           </a>

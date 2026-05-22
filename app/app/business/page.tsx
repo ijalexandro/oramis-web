@@ -8,15 +8,15 @@ export default function BusinessSettingsPage() {
     <PreviewShell
       eyebrow="Configuración del negocio"
       title="Definí cómo tiene que atender y vender Oramis."
-      description="Al contratar, desde este módulo vas a configurar información operativa del negocio: horarios, zonas, formas de pago, condiciones de envío, mensajes comerciales y reglas básicas de atención."
+      description="Al contratar, desde este módulo vas a configurar información operativa del negocio: horarios, datos comerciales, mensajes frecuentes, tono de atención y reglas básicas para responder consultas."
     >
       <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-[#f8fafc] p-5">
         <div className="blur-[2px]">
           <div className="grid gap-4 md:grid-cols-2">
             <ConfigCard title="Horarios de atención" value="Lunes a viernes · 9 a 18 hs" />
-            <ConfigCard title="Formas de pago" value="Transferencia · Tarjeta · Mercado Pago" />
-            <ConfigCard title="Envíos" value="CABA y GBA · retiro en sucursal" />
-            <ConfigCard title="Tono de venta" value="Cercano, claro y orientado a cierre" />
+            <ConfigCard title="Datos del negocio" value="Nombre comercial · sucursales · datos de contacto" />
+            <ConfigCard title="Preguntas frecuentes" value="Horarios · ubicación · atención · consultas habituales" />
+            <ConfigCard title="Tono de atención" value="Cercano, claro y orientado a venta" />
           </div>
         </div>
         <Overlay />
@@ -94,6 +94,9 @@ function Header({ subtitle }: { subtitle: string }) {
         </a>
 
         <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
+          <a href="/app" className="transition hover:text-emerald-600">
+            Inicio
+          </a>
           <a href="/app/conversations" className="transition hover:text-emerald-600">
             Conversaciones
           </a>

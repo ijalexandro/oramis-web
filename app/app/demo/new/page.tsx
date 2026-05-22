@@ -94,22 +94,11 @@ function Header({ subtitle }: { subtitle: string }) {
             </p>
           </div>
         </a>
-        <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
-          <a href="/app/conversations" className="transition hover:text-emerald-600">
-            Conversaciones
-          </a>
-          <a href="/app/metrics" className="transition hover:text-emerald-600">
-            Métricas
-          </a>
-          <a href="/app/business" className="transition hover:text-emerald-600">
-            Negocio
-          </a>
-          <a href="/app/admin" className="transition hover:text-emerald-600">
-            Administración
-          </a>
-        </nav>
 
         <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
+          <a href="/app" className="transition hover:text-emerald-600">
+            Inicio
+          </a>
           <a href="/app/conversations" className="transition hover:text-emerald-600">
             Conversaciones
           </a>
