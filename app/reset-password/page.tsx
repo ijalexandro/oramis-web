@@ -1,9 +1,17 @@
+import { resetPasswordAction } from "@/app/auth/actions";
+
 export const metadata = {
   title: "Recuperar contraseña | Oramis",
   description: "Recuperá tu acceso a Oramis.",
 };
 
-export default function ResetPasswordPage() {
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; message?: string }>;
+}) {
+  const params = await searchParams;
+
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
@@ -35,22 +43,36 @@ export default function ResetPasswordPage() {
               entrar a Oramis.
             </p>
 
-            <form className="mt-8 space-y-4">
+            {params.error && (
+              <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-6 text-red-700">
+                {params.error}
+              </div>
+            )}
+
+            {params.message && (
+              <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold leading-6 text-emerald-800">
+                {params.message}
+              </div>
+            )}
+
+            <form action={resetPasswordAction} className="mt-8 space-y-4">
               <label className="block">
                 <span className="text-sm font-black text-slate-700">Email</span>
                 <input
+                  name="email"
                   type="email"
+                  required
                   placeholder="tu@email.com"
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base font-semibold text-[#07111f] outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
                 />
               </label>
 
-              <a
-                href="/login"
-                className="block rounded-full bg-emerald-500 px-6 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
+              <button
+                type="submit"
+                className="block w-full rounded-full bg-emerald-500 px-6 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
               >
                 Enviar instrucciones
-              </a>
+              </button>
             </form>
 
             <p className="mt-6 text-center text-sm font-semibold text-slate-500">

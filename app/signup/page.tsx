@@ -1,27 +1,37 @@
+import { signUpAction } from "@/app/auth/actions";
+
 export const metadata = {
   title: "Crear cuenta | Oramis",
   description: "Creá tu cuenta en Oramis.",
 };
 
-export default function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+
   return (
     <AuthShell
       eyebrow="Crear cuenta"
       title="Empezá con Oramis"
       description="Creá tu cuenta para probar una demo con tus productos o avanzar con la contratación del servicio."
     >
-      <form className="space-y-4">
-        <Field label="Nombre" type="text" placeholder="Tu nombre" />
-        <Field label="Empresa" type="text" placeholder="Nombre del negocio" />
-        <Field label="Email" type="email" placeholder="tu@email.com" />
-        <Field label="Contraseña" type="password" placeholder="••••••••" />
+      {params.error && <Alert text={params.error} />}
 
-        <a
-          href="/app"
-          className="block rounded-full bg-emerald-500 px-6 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
+      <form action={signUpAction} className="space-y-4">
+        <Field label="Nombre" name="name" type="text" placeholder="Tu nombre" />
+        <Field label="Empresa" name="company" type="text" placeholder="Nombre del negocio" />
+        <Field label="Email" name="email" type="email" placeholder="tu@email.com" />
+        <Field label="Contraseña" name="password" type="password" placeholder="••••••••" />
+
+        <button
+          type="submit"
+          className="block w-full rounded-full bg-emerald-500 px-6 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
         >
           Crear cuenta
-        </a>
+        </button>
       </form>
 
       <p className="mt-6 text-center text-sm font-semibold text-slate-500">
@@ -31,6 +41,14 @@ export default function SignupPage() {
         </a>
       </p>
     </AuthShell>
+  );
+}
+
+function Alert({ text }: { text: string }) {
+  return (
+    <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-6 text-red-700">
+      {text}
+    </div>
   );
 }
 
@@ -74,10 +92,12 @@ function AuthShell({
 
 function Field({
   label,
+  name,
   type,
   placeholder,
 }: {
   label: string;
+  name: string;
   type: string;
   placeholder: string;
 }) {
@@ -85,8 +105,10 @@ function Field({
     <label className="block">
       <span className="text-sm font-black text-slate-700">{label}</span>
       <input
+        name={name}
         type={type}
         placeholder={placeholder}
+        required
         className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base font-semibold text-[#07111f] outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
       />
     </label>

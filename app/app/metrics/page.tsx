@@ -135,7 +135,7 @@ function Header({ subtitle }: { subtitle: string }) {
         </nav>
 
         <a
-          href="/"
+          href="/logout"
           className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
         >
           Salir
