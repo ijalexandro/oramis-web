@@ -1,4 +1,5 @@
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+import ChatwootFrame from "./ChatwootFrame";
 
 export const dynamic = "force-dynamic";
 
@@ -88,17 +89,7 @@ export default async function ConversationsPage() {
         />
       )}
 
-      {chatwootUrl && (
-        <section className="mx-auto max-w-[1600px] px-3 py-3 lg:px-5">
-          <div className="overflow-hidden rounded-[1.4rem] border border-slate-200 bg-white shadow-xl shadow-emerald-950/5">
-            <iframe
-              src={chatwootUrl}
-              className="h-[calc(100vh-88px)] min-h-[720px] w-full border-0 bg-white"
-              title="Conversaciones comerciales Oramis"
-            />
-          </div>
-        </section>
-      )}
+      {chatwootUrl && <ChatwootFrame chatwootUrl={chatwootUrl} />}
     </main>
   );
 }
