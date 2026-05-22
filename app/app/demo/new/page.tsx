@@ -5,28 +5,29 @@ export const metadata = {
 
 export default function NewDemoPage() {
   return (
-    <AppShell>
+    <AppShell subtitle="Crear demo">
       <section className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr]">
         <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-            Nueva demo
+            Demo con tus productos
           </p>
           <h1 className="mt-4 text-4xl font-black tracking-[-0.04em]">
-            Probá Oramis con tu catálogo.
+            Cargá tu web y prepará una demo comercial.
           </h1>
           <p className="mt-5 text-lg font-medium leading-8 text-slate-600">
-            Ingresá los datos básicos de tu negocio. En esta primera versión
-            vamos a simular la demo con productos de ejemplo; luego conectaremos
-            el scraper real para tomar productos desde tu web.
+            Ingresá los datos básicos de tu negocio. Vamos a buscar una muestra
+            de productos de tu sitio para que puedas probar cómo respondería
+            Oramis frente a consultas reales.
           </p>
 
           <div className="mt-7 rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
             <p className="text-sm font-black text-emerald-800">
-              Próximo paso
+              ¿Qué pasa después?
             </p>
             <p className="mt-2 text-sm font-semibold leading-6 text-emerald-900">
-              Cuando conectemos Supabase y el scraper, esta pantalla guardará la
-              solicitud y el VPS cargará hasta 50 productos encontrados.
+              Si encontramos productos, te mostramos una muestra para probar la
+              demo. Si no encontramos suficiente información, vas a poder cargar
+              productos manualmente o pedir ayuda.
             </p>
           </div>
         </div>
@@ -64,44 +65,54 @@ function Field({ label, placeholder }: { label: string; placeholder: string }) {
   );
 }
 
-function AppShell({ children }: { children: React.ReactNode }) {
+function AppShell({
+  subtitle,
+  children,
+}: {
+  subtitle: string;
+  children: React.ReactNode;
+}) {
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
-      <header className="border-b border-emerald-950/5 bg-[#f6fbf8]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1240px] items-center justify-between px-5 py-4 lg:px-0">
-          <a href="/app" className="flex items-center gap-3">
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-200">
-              <div className="absolute inset-1 rounded-xl border border-white/40" />
-              <span className="text-lg font-black text-white">O</span>
-            </div>
-            <div>
-              <p className="text-xl font-black tracking-tight">Oramis</p>
-              <p className="hidden text-xs font-semibold text-slate-500 sm:block">
-                Crear demo
-              </p>
-            </div>
-          </a>
-
-          <nav className="flex items-center gap-2">
-            <a
-              href="/app"
-              className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:text-[#07111f]"
-            >
-              Panel
-            </a>
-            <a
-              href="/"
-              className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
-            >
-              Salir
-            </a>
-          </nav>
-        </div>
-      </header>
-
+      <Header subtitle={subtitle} />
       <section className="mx-auto max-w-[1240px] px-5 py-8 lg:px-0">
         {children}
       </section>
     </main>
+  );
+}
+
+function Header({ subtitle }: { subtitle: string }) {
+  return (
+    <header className="border-b border-emerald-950/5 bg-[#f6fbf8]/90 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1240px] items-center justify-between px-5 py-4 lg:px-0">
+        <a href="/app" className="flex items-center gap-3">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-200">
+            <div className="absolute inset-1 rounded-xl border border-white/40" />
+            <span className="text-lg font-black text-white">O</span>
+          </div>
+          <div>
+            <p className="text-xl font-black tracking-tight">Oramis</p>
+            <p className="hidden text-xs font-semibold text-slate-500 sm:block">
+              {subtitle}
+            </p>
+          </div>
+        </a>
+        <nav className="flex items-center gap-2">
+          <a
+            href="/app"
+            className="rounded-full px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:text-[#07111f]"
+          >
+            Panel
+          </a>
+          <a
+            href="/"
+            className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+          >
+            Salir
+          </a>
+        </nav>
+      </div>
+    </header>
   );
 }
