@@ -239,7 +239,7 @@ export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#f6fbf8] text-[#07111f]">
       <header className="sticky top-0 z-50 border-b border-emerald-950/5 bg-[#f6fbf8]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-5 lg:px-8">
+        <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-3 px-4 py-4 sm:px-5 lg:px-0">
           <a href="/" className="flex items-center gap-3">
             <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-200">
               <div className="absolute inset-1 rounded-xl border border-white/40" />
@@ -287,7 +287,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="relative mx-auto grid max-w-[1480px] items-center gap-12 px-5 py-12 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:px-12 lg:py-20 xl:gap-16">
+      <section className="relative mx-auto grid max-w-[1240px] items-center gap-12 px-5 py-12 sm:px-5 lg:grid-cols-[0.96fr_1.04fr] lg:px-0 lg:py-20 xl:gap-14">
         <div className="absolute left-1/2 top-0 -z-10 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-200/35 blur-3xl" />
 
         <div>
@@ -353,7 +353,7 @@ export default function Home() {
           <div className="absolute -left-6 top-20 h-48 w-48 rounded-full bg-emerald-300/50 blur-3xl" />
           <div className="absolute -right-8 bottom-8 h-56 w-56 rounded-full bg-cyan-200/70 blur-3xl" />
 
-          <div className="relative mx-auto max-w-[455px] rounded-[2.8rem] border border-slate-200 bg-white p-4 shadow-2xl shadow-emerald-950/10">
+          <div className="relative mx-auto max-w-[420px] rounded-[2.8rem] border border-slate-200 bg-white p-4 shadow-2xl shadow-emerald-950/10">
             <div className="overflow-hidden rounded-[2.1rem] border border-slate-200 bg-[#e9f8ef]">
               <div className="flex items-center gap-3 bg-[#075e54] px-4 py-4 text-white">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-sm font-black">
@@ -371,7 +371,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="phone-screen flex h-[590px] flex-col justify-end overflow-hidden px-4 py-5">
+              <div className="phone-screen flex h-[545px] flex-col justify-end overflow-hidden px-4 py-5">
                 <div className="space-y-3">
                   {visibleHeroItems.map((item, index) => {
                     if (item.type === "product") {
@@ -413,7 +413,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mx-auto mt-5 w-full max-w-[410px] rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur">
+          <div className="mx-auto mt-5 w-full max-w-[380px] rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur">
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
                 <p className="text-xs font-bold text-slate-400">Detectó</p>
@@ -440,7 +440,7 @@ export default function Home() {
         id="como-funciona"
         className="border-y border-slate-200 bg-white px-5 py-20 lg:px-8"
       >
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-[1240px]">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
@@ -478,7 +478,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="que-hace" className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+      <section id="que-hace" className="mx-auto max-w-[1240px] px-5 py-16 lg:px-0 lg:py-20">
         <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr]">
           <div className="rounded-[2.2rem] border border-slate-200 bg-white p-8 shadow-sm">
             <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
@@ -582,7 +582,7 @@ export default function Home() {
         id="conversaciones"
         className="border-y border-slate-200 bg-[#eef8f2] px-5 py-20 lg:px-8"
       >
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
+        <div className="mx-auto grid max-w-[1240px] gap-8 lg:grid-cols-2">
           <div className="rounded-[2.2rem] bg-[#07111f] p-8 text-white shadow-xl shadow-slate-300">
             <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
               Conversaciones comerciales
@@ -616,17 +616,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-5 py-20 text-center lg:px-8">
-        <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-          Activá Oramis
-        </p>
-        <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] text-[#07111f] lg:text-5xl">
-          Hacé que Oramis venda junto a tu equipo.
-        </h2>
-        <p className="mx-auto mt-5 max-w-3xl text-lg font-medium leading-8 text-slate-600">
-          Podés contratar Oramis, crear una demo con tus productos o verlo en
-          acción por WhatsApp.
-        </p>
+      <section className="mx-auto max-w-[1240px] px-5 py-20 text-center lg:px-0">
+        <div className="mx-auto max-w-5xl">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+            Activá Oramis
+          </p>
+          <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] text-[#07111f] lg:text-5xl">
+            Hacé que Oramis venda junto a tu equipo.
+          </h2>
+          <p className="mx-auto mt-5 max-w-3xl text-lg font-medium leading-8 text-slate-600">
+            Podés contratar Oramis, crear una demo con tus productos o verlo en
+            acción por WhatsApp.
+          </p>
+        </div>
         <div className="mt-9 flex flex-col justify-center gap-4 sm:flex-row">
           <a
             href="/signup?intent=contract"
