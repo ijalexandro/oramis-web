@@ -1,11 +1,17 @@
+import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Onboarding | Oramis",
   description: "Onboarding inicial de Oramis.",
 };
 
-export default function AppHomePage() {
+export default async function AppHomePage() {
+  const context = await getCurrentTenantContext();
+
   return (
-    <AppShell subtitle="Onboarding">
+    <AppShell subtitle="Inicio">
       <section className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
         <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
           Bienvenido a Oramis
@@ -19,23 +25,27 @@ export default function AppHomePage() {
         </p>
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-2">
-        <ChoiceCard
-          eyebrow="Demo gratis"
-          title="Probar con mis productos"
-          description="Ingresá tu sitio web y prepará una demo para ver cómo Oramis respondería consultas, recomendaría productos y armaría oportunidades."
-          href="/app/demo/new"
-          cta="Crear demo"
-          primary
-        />
+      <section className="mt-6 grid gap-6 lg:grid-cols-[0.78fr_1.22fr]">
+        <TenantContextCard context={context} />
 
-        <ChoiceCard
-          eyebrow="Activación"
-          title="Contratar Oramis"
-          description="Completá los datos de tu operación comercial para avanzar con la configuración, el canal de atención y el modelo recomendado."
-          href="/app/contract"
-          cta="Quiero contratar"
-        />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ChoiceCard
+            eyebrow="Demo gratis"
+            title="Probar con mis productos"
+            description="Ingresá tu sitio web y prepará una demo para ver cómo Oramis respondería consultas, recomendaría productos y armaría oportunidades."
+            href="/app/demo/new"
+            cta="Crear demo"
+            primary
+          />
+
+          <ChoiceCard
+            eyebrow="Activación"
+            title="Contratar Oramis"
+            description="Completá los datos de tu operación comercial para avanzar con la configuración, el canal de atención y el modelo recomendado."
+            href="/app/contract"
+            cta="Quiero contratar"
+          />
+        </div>
       </section>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -51,6 +61,91 @@ export default function AppHomePage() {
         />
       </section>
     </AppShell>
+  );
+}
+
+function TenantContextCard({
+  context,
+}: {
+  context: Awaited<ReturnType<typeof getCurrentTenantContext>>;
+}) {
+  if (!context) {
+    return (
+      <div className="rounded-[2rem] border border-red-200 bg-red-50 p-7 shadow-sm">
+        <p className="text-sm font-black uppercase tracking-[0.25em] text-red-600">
+          Sesión
+        </p>
+        <h2 className="mt-4 text-3xl font-black tracking-[-0.04em] text-red-950">
+          No se pudo leer la sesión.
+        </h2>
+        <p className="mt-3 text-sm font-semibold leading-6 text-red-800">
+          Volvé a ingresar para continuar.
+        </p>
+      </div>
+    );
+  }
+
+  if (!context.tenant || !context.membership) {
+    return (
+      <div className="rounded-[2rem] border border-amber-200 bg-amber-50 p-7 shadow-sm">
+        <p className="text-sm font-black uppercase tracking-[0.25em] text-amber-700">
+          Cuenta sin negocio asociado
+        </p>
+        <h2 className="mt-4 text-3xl font-black tracking-[-0.04em] text-amber-950">
+          Falta vincular tu usuario a un tenant.
+        </h2>
+        <p className="mt-3 text-sm font-semibold leading-6 text-amber-900">
+          Tu login funciona, pero todavía no tenés una empresa activa asociada
+          en Oramis.
+        </p>
+        <p className="mt-4 rounded-2xl bg-white/70 p-4 text-xs font-bold leading-5 text-amber-900">
+          Usuario: {context.user.email}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-[2rem] border border-slate-200 bg-[#07111f] p-7 text-white shadow-xl shadow-slate-300">
+      <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+        Entorno activo
+      </p>
+      <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">
+        {context.tenant.nombre_empresa}
+      </h2>
+
+      <div className="mt-6 grid gap-3 text-sm font-semibold leading-6 text-slate-300">
+        <InfoRow label="Tenant" value={String(context.tenant.tenant_id)} />
+        <InfoRow label="Estado" value={context.tenant.estado} />
+        <InfoRow label="Rol" value={context.membership.rol} />
+        <InfoRow
+          label="Chatwoot"
+          value={
+            context.tenant.url_chatwoot
+              ? `${context.tenant.url_chatwoot} · account ${context.tenant.account_id ?? "-"}`
+              : "Sin configurar"
+          }
+        />
+        <InfoRow
+          label="Inbox"
+          value={context.tenant.inbox_id ? String(context.tenant.inbox_id) : "Sin configurar"}
+        />
+      </div>
+
+      <p className="mt-6 rounded-2xl bg-white/10 p-4 text-xs font-bold leading-5 text-slate-300">
+        Por ahora usamos el primer tenant activo asociado al usuario. Más
+        adelante podemos agregar selector si hace falta operar varios negocios.
+      </p>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/10 px-4 py-3">
+      <span className="text-slate-400">{label}</span>
+      <span className="text-right font-black text-white">{value}</span>
+    </div>
   );
 }
 
