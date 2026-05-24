@@ -26,7 +26,7 @@ function buildMetabaseEmbedUrl(tenantId: number) {
   const payload = {
     resource: { dashboard: Number(dashboardId) },
     params: {
-      tenant_id: tenantId,
+      "número": tenantId,
       fecha_desde: formatDate(fechaDesde),
       fecha_hasta: formatDate(fechaHasta),
     },
