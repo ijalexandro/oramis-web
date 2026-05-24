@@ -43,6 +43,10 @@ type UsuarioTenant = {
   updated_at: string;
 };
 
+function usuarioEsAdminActivo(usuario: UsuarioTenant) {
+  return usuario.activo === true && usuario.permisos?.admin === true;
+}
+
 function canAdminFromMembership(membership: any) {
   if (!membership) return false;
 
@@ -105,6 +109,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     usuarios = (result.data ?? []) as unknown as UsuarioTenant[];
     hasError = Boolean(result.error);
   }
+
+  const adminActivoIds = usuarios
+    .filter(usuarioEsAdminActivo)
+    .map((usuario) => usuario.id);
 
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
@@ -170,7 +178,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
             <div className="space-y-4">
               {usuarios.map((usuario) => (
-                <UserCard key={usuario.id} usuario={usuario} />
+                <UserCard
+                  key={usuario.id}
+                  usuario={usuario}
+                  isLastFullAdmin={
+                    usuarioEsAdminActivo(usuario) &&
+                    adminActivoIds.length === 1 &&
+                    adminActivoIds[0] === usuario.id
+                  }
+                />
               ))}
 
               {usuarios.length === 0 && (
@@ -186,7 +202,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   );
 }
 
-function UserCard({ usuario }: { usuario: UsuarioTenant }) {
+function UserCard({
+  usuario,
+  isLastFullAdmin,
+}: {
+  usuario: UsuarioTenant;
+  isLastFullAdmin: boolean;
+}) {
   const permisos = usuario.permisos ?? {};
 
   const admin = permisos.admin === true;
@@ -200,6 +222,12 @@ function UserCard({ usuario }: { usuario: UsuarioTenant }) {
       className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm"
     >
       <input type="hidden" name="usuario_tenant_id" value={usuario.id} />
+
+      {isLastFullAdmin && (
+        <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold leading-6 text-amber-900">
+          Este es el único usuario administrador activo del negocio. Para proteger el acceso, no se puede desactivar ni quitarle Administración hasta crear o habilitar otro administrador.
+        </div>
+      )}
 
       <div className="grid gap-5 xl:grid-cols-[1.2fr_1.4fr_1.2fr_auto] xl:items-start">
         <div>
@@ -253,6 +281,8 @@ function UserCard({ usuario }: { usuario: UsuarioTenant }) {
               name="perm_admin"
               label="Administración"
               defaultChecked={admin}
+              disabled={isLastFullAdmin}
+              hiddenWhenDisabled={isLastFullAdmin}
             />
           </div>
 
@@ -308,6 +338,8 @@ function UserCard({ usuario }: { usuario: UsuarioTenant }) {
             name="activo"
             label="Usuario activo"
             defaultChecked={usuario.activo}
+            disabled={isLastFullAdmin}
+            hiddenWhenDisabled={isLastFullAdmin}
           />
 
           <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold leading-5 text-slate-500">
@@ -354,14 +386,20 @@ function CheckboxField({
   label,
   defaultChecked,
   disabled = false,
+  hiddenWhenDisabled = false,
 }: {
   name: string;
   label: string;
   defaultChecked: boolean;
   disabled?: boolean;
+  hiddenWhenDisabled?: boolean;
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-[#f8fafc] px-4 py-3 text-sm font-black text-[#07111f] transition hover:border-emerald-200 hover:bg-emerald-50/40 has-disabled:cursor-not-allowed has-disabled:opacity-70">
+      {disabled && hiddenWhenDisabled && defaultChecked && (
+        <input type="hidden" name={name} value="on" />
+      )}
+
       <input
         type="checkbox"
         name={name}
