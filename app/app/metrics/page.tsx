@@ -1,129 +1,146 @@
+import jwt from "jsonwebtoken";
+import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+
+export const dynamic = "force-dynamic";
+
 export const metadata = {
-  title: "Métricas comerciales | Oramis",
-  description: "Preview de métricas comerciales.",
+  title: "Métricas | Oramis",
+  description: "Métricas comerciales de Oramis.",
 };
 
-export default function MetricsPage() {
-  return (
-    <PreviewShell
-      eyebrow="Métricas comerciales"
-      title="Entendé qué conversaciones generan negocio."
-      description="Este módulo se activa al contratar Oramis. Vas a poder medir consultas, productos más pedidos, carritos armados, derivaciones y oportunidades comerciales."
-    >
-      <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-[#f8fafc] p-5">
-        <div className="blur-[2px]">
-          <div className="grid gap-4 md:grid-cols-3">
-            <Metric label="Consultas" value="1.248" />
-            <Metric label="Carritos" value="312" />
-            <Metric label="Derivadas" value="186" />
-          </div>
-          <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-sm font-black text-slate-500">
-              Productos con más intención
-            </p>
-            <div className="mt-5 space-y-4">
-              <Bar label="Cafetera Compact Black" width="88%" />
-              <Bar label="Mochila Urban Pro" width="72%" />
-              <Bar label="Perfume Blue Special" width="61%" />
-              <Bar label="Labial Gold Plus" width="46%" />
-            </div>
-          </div>
-        </div>
-        <Overlay />
-      </div>
-    </PreviewShell>
-  );
+function buildMetabaseEmbedUrl(tenantId: number) {
+  const siteUrl = process.env.METABASE_SITE_URL;
+  const secretKey = process.env.METABASE_SECRET_KEY;
+  const dashboardId = process.env.METABASE_DASHBOARD_ID;
+
+  if (!siteUrl || !secretKey || !dashboardId) {
+    return null;
+  }
+
+  const fechaHasta = new Date();
+  const fechaDesde = new Date();
+  fechaDesde.setDate(fechaHasta.getDate() - 7);
+
+  const formatDate = (date: Date) => date.toISOString().slice(0, 10);
+
+  const payload = {
+    resource: { dashboard: Number(dashboardId) },
+    params: {
+      tenant_id: tenantId,
+      fecha_desde: formatDate(fechaDesde),
+      fecha_hasta: formatDate(fechaHasta),
+    },
+    exp: Math.round(Date.now() / 1000) + 60 * 10,
+  };
+
+  const token = jwt.sign(payload, secretKey);
+
+  return `${siteUrl}/embed/dashboard/${token}#bordered=true&titled=true`;
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
-        {label}
-      </p>
-      <p className="mt-2 text-3xl font-black text-[#07111f]">{value}</p>
-    </div>
-  );
-}
+export default async function MetricsPage() {
+  const context = await getCurrentTenantContext();
+  const tenant = context?.tenant;
+  const membership = context?.membership;
 
-function Bar({ label, width }: { label: string; width: string }) {
-  return (
-    <div>
-      <div className="mb-2 text-sm font-bold text-slate-500">{label}</div>
-      <div className="h-3 rounded-full bg-slate-100">
-        <div className="h-3 rounded-full bg-emerald-500" style={{ width }} />
-      </div>
-    </div>
-  );
-}
+  const embedUrl = tenant ? buildMetabaseEmbedUrl(tenant.tenant_id) : null;
 
-function PreviewShell({
-  eyebrow,
-  title,
-  description,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
-      <Header subtitle="Preview" />
-      <section className="mx-auto max-w-[1240px] px-5 py-8 lg:px-0">
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-            {eyebrow}
-          </p>
-          <h1 className="mt-4 text-4xl font-black tracking-[-0.04em]">
-            {title}
-          </h1>
-          <p className="mt-4 max-w-3xl text-lg font-medium leading-8 text-slate-600">
-            {description}
-          </p>
-          <div className="mt-8">{children}</div>
+      <Header subtitle="Métricas" />
+
+      <section className="mx-auto max-w-[1600px] px-3 py-3 lg:px-5">
+        <div className="mb-3 flex flex-col gap-3 rounded-[1.4rem] border border-slate-200 bg-white px-5 py-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+              Métricas comerciales
+            </p>
+            <h1 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#07111f] lg:text-3xl">
+              Entendé qué conversaciones generan negocio.
+            </h1>
+          </div>
+
+          {tenant && membership && (
+            <div className="rounded-full bg-emerald-50 px-5 py-2 text-sm font-black text-emerald-800">
+              {tenant.nombre_empresa}
+            </div>
+          )}
         </div>
+
+        {!context && (
+          <StateCard
+            title="No pudimos leer tu sesión"
+            text="Volvé a ingresar para ver las métricas."
+          />
+        )}
+
+        {context && !tenant && (
+          <StateCard
+            title="Tu usuario todavía no tiene un entorno activo"
+            text="El login funciona, pero falta asociar tu cuenta a un negocio en Oramis."
+          />
+        )}
+
+        {tenant && !embedUrl && (
+          <StateCard
+            title="Metabase todavía no está configurado"
+            text="Faltan variables de entorno para embeber el dashboard de métricas."
+          />
+        )}
+
+        {embedUrl && (
+          <div className="overflow-hidden rounded-[1.4rem] border border-slate-200 bg-white shadow-xl shadow-emerald-950/5">
+            <iframe
+              src={embedUrl}
+              className="h-[calc(100vh-150px)] min-h-[760px] w-full border-0 bg-white"
+              title="Métricas comerciales Oramis"
+            />
+          </div>
+        )}
       </section>
     </main>
   );
 }
 
-function Overlay() {
+function StateCard({ title, text }: { title: string; text: string }) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-white/45 backdrop-blur-[2px]">
-      <div className="rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-xl">
-        Disponible al contratar
+    <section className="mx-auto max-w-[1240px] px-5 py-8 lg:px-0">
+      <div className="rounded-[2rem] border border-amber-200 bg-amber-50 p-7 shadow-sm">
+        <h2 className="text-2xl font-black tracking-[-0.04em] text-amber-950">
+          {title}
+        </h2>
+        <p className="mt-3 text-base font-semibold leading-7 text-amber-900">
+          {text}
+        </p>
       </div>
-    </div>
+    </section>
   );
 }
 
 function Header({ subtitle }: { subtitle: string }) {
   return (
-    <header className="border-b border-emerald-950/5 bg-[#f6fbf8]/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1240px] items-center justify-between px-5 py-4 lg:px-0">
-        <a href="/app" className="flex items-center gap-3">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500 shadow-lg shadow-emerald-200">
+    <header className="border-b border-emerald-950/5 bg-[#f6fbf8]/95 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 py-3 lg:px-5">
+        <a href="/app/conversations" className="flex items-center gap-2.5">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-500 shadow-md shadow-emerald-200">
             <div className="absolute inset-1 rounded-xl border border-white/40" />
-            <span className="text-lg font-black text-white">O</span>
+            <span className="text-sm font-black text-white">O</span>
           </div>
           <div>
-            <p className="text-xl font-black tracking-tight">Oramis</p>
-            <p className="hidden text-xs font-semibold text-slate-500 sm:block">
+            <p className="text-base font-black leading-4 tracking-tight">
+              Oramis
+            </p>
+            <p className="text-[11px] font-semibold text-slate-500">
               {subtitle}
             </p>
           </div>
         </a>
 
         <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
-          <a href="/app" className="transition hover:text-emerald-600">
-            Inicio
-          </a>
           <a href="/app/conversations" className="transition hover:text-emerald-600">
             Conversaciones
           </a>
-          <a href="/app/metrics" className="transition hover:text-emerald-600">
+          <a href="/app/metrics" className="text-emerald-600">
             Métricas
           </a>
           <a href="/app/business" className="transition hover:text-emerald-600">
@@ -136,7 +153,7 @@ function Header({ subtitle }: { subtitle: string }) {
 
         <a
           href="/logout"
-          className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+          className="rounded-full bg-[#07111f] px-4 py-2 text-xs font-black text-white shadow-md shadow-slate-300 transition hover:bg-emerald-600"
         >
           Salir
         </a>
