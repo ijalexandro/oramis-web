@@ -23,19 +23,25 @@ function buildMetabaseEmbedUrl(tenantId: number) {
 
   const formatDate = (date: Date) => date.toISOString().slice(0, 10);
 
+  const fechaDesdeParam = formatDate(fechaDesde);
+  const fechaHastaParam = formatDate(fechaHasta);
+
   const payload = {
     resource: { dashboard: Number(dashboardId) },
     params: {
-      "número": tenantId,
-      fecha_desde: formatDate(fechaDesde),
-      fecha_hasta: formatDate(fechaHasta),
+      "n%C3%BAmero": String(tenantId),
     },
     exp: Math.round(Date.now() / 1000) + 60 * 10,
   };
 
   const token = jwt.sign(payload, secretKey);
 
-  return `${siteUrl}/embed/dashboard/${token}#bordered=true&titled=true`;
+  const query = new URLSearchParams({
+    fecha_desde: fechaDesdeParam,
+    fecha_hasta: fechaHastaParam,
+  });
+
+  return `${siteUrl}/embed/dashboard/${token}?${query.toString()}#bordered=true&titled=true`;
 }
 
 export default async function MetricsPage() {
