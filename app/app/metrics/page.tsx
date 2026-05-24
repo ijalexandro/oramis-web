@@ -56,13 +56,6 @@ export default async function MetricsPage() {
       <Header subtitle="Métricas" />
 
       <section className="mx-auto max-w-[1600px] px-3 py-3 lg:px-5">
-        {tenant && membership && (
-          <div className="mb-3 flex justify-end">
-            <div className="rounded-full bg-emerald-50 px-5 py-2 text-sm font-black text-emerald-800">
-              {tenant.nombre_empresa}
-            </div>
-          </div>
-        )}
 
         {!context && (
           <StateCard
