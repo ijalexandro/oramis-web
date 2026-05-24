@@ -1,6 +1,7 @@
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
 import { createClient } from "@/utils/supabase/server";
 import { updateBusinessConfig } from "./actions";
+import BusinessSavedScroll from "./BusinessSavedScroll";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,7 @@ export default async function BusinessPage({ searchParams }: BusinessPageProps) 
 
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
+      <BusinessSavedScroll saved={saved} />
       <Header subtitle="Negocio" tenantName={tenant?.nombre_empresa ?? null} />
 
       <section className="mx-auto max-w-[1180px] px-4 py-6 lg:px-5">
@@ -125,8 +127,8 @@ export default async function BusinessPage({ searchParams }: BusinessPageProps) 
               </div>
 
               {saved && (
-                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800">
-                  Configuración guardada correctamente.
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
+                  ✅ Configuración guardada correctamente.
                 </div>
               )}
             </div>
