@@ -53,7 +53,7 @@ export default async function MetricsPage() {
 
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
-      <Header subtitle="Métricas" />
+      <Header subtitle="Métricas" tenantName={tenant?.nombre_empresa ?? null} />
 
       <section className="mx-auto max-w-[1600px] px-3 py-3 lg:px-5">
 
@@ -107,7 +107,7 @@ function StateCard({ title, text }: { title: string; text: string }) {
   );
 }
 
-function Header({ subtitle }: { subtitle: string }) {
+function Header({ subtitle, tenantName }: { subtitle: string; tenantName: string | null }) {
   return (
     <header className="border-b border-emerald-950/5 bg-[#f6fbf8]/95 backdrop-blur-xl">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 py-3 lg:px-5">
@@ -141,12 +141,20 @@ function Header({ subtitle }: { subtitle: string }) {
           </a>
         </nav>
 
-        <a
-          href="/logout"
-          className="rounded-full bg-[#07111f] px-4 py-2 text-xs font-black text-white shadow-md shadow-slate-300 transition hover:bg-emerald-600"
-        >
-          Salir
-        </a>
+        <div className="flex items-center gap-3">
+          {tenantName && (
+            <div className="hidden rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-800 sm:block">
+              {tenantName}
+            </div>
+          )}
+
+          <a
+            href="/logout"
+            className="rounded-full bg-[#07111f] px-4 py-2 text-xs font-black text-white shadow-md shadow-slate-300 transition hover:bg-emerald-600"
+          >
+            Salir
+          </a>
+        </div>
       </div>
     </header>
   );
