@@ -56,22 +56,13 @@ export default async function MetricsPage() {
       <Header subtitle="Métricas" />
 
       <section className="mx-auto max-w-[1600px] px-3 py-3 lg:px-5">
-        <div className="mb-3 flex flex-col gap-3 rounded-[1.4rem] border border-slate-200 bg-white px-5 py-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-              Métricas comerciales
-            </p>
-            <h1 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#07111f] lg:text-3xl">
-              Entendé qué conversaciones generan negocio.
-            </h1>
-          </div>
-
-          {tenant && membership && (
+        {tenant && membership && (
+          <div className="mb-3 flex justify-end">
             <div className="rounded-full bg-emerald-50 px-5 py-2 text-sm font-black text-emerald-800">
               {tenant.nombre_empresa}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {!context && (
           <StateCard
