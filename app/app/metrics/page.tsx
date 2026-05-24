@@ -41,7 +41,7 @@ function buildMetabaseEmbedUrl(tenantId: number) {
     fecha_hasta: fechaHastaParam,
   });
 
-  return `${siteUrl}/embed/dashboard/${token}?${query.toString()}#bordered=true&titled=true`;
+  return `${siteUrl}/embed/dashboard/${token}?${query.toString()}#bordered=true&titled=false`;
 }
 
 export default async function MetricsPage() {
