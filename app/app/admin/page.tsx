@@ -1,6 +1,11 @@
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
 import { createClient } from "@/utils/supabase/server";
-import { createTenantUser, updateTenantUser } from "./actions";
+import {
+  createTenantUser,
+  deleteTenantUser,
+  resendTenantUserInvitation,
+  updateTenantUser,
+} from "./actions";
 import AdminSavedScroll from "./AdminSavedScroll";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +19,8 @@ type AdminPageProps = {
   searchParams?: Promise<{
     saved?: string;
     created?: string;
+    resent?: string;
+    deleted?: string;
   }>;
 };
 
@@ -68,6 +75,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const params = await searchParams;
   const saved = params?.saved === "1";
   const created = params?.created === "1";
+  const resent = params?.resent === "1";
+  const deleted = params?.deleted === "1";
 
   const context = await getCurrentTenantContext();
   const tenant = context?.tenant;
@@ -118,7 +127,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
-      <AdminSavedScroll saved={saved || created} />
+      <AdminSavedScroll saved={saved || created || resent || deleted} />
       <Header subtitle="Administración" tenantName={tenant?.nombre_empresa ?? null} />
 
       <section className="mx-auto max-w-[1320px] px-4 py-6 lg:px-5">
@@ -166,9 +175,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold leading-6 text-amber-900">
-                  La sincronización automática con Chatwoot se agrega en el siguiente tramo.
-                </div>
+                <div />
               </div>
 
               {saved && (
@@ -179,7 +186,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
               {created && (
                 <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
-                  ✅ Usuario invitado correctamente. Le enviamos un email para crear su acceso.
+                  ✅ Usuario creado correctamente. Le enviamos un email para crear su contraseña.
+                </div>
+              )}
+
+              {resent && (
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
+                  ✅ Invitación reenviada correctamente.
+                </div>
+              )}
+
+              {deleted && (
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
+                  ✅ Usuario eliminado del negocio.
                 </div>
               )}
             </div>
@@ -441,10 +460,7 @@ function UserCard({
             />
           </div>
 
-          <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold leading-5 text-slate-500">
-            Chatwoot: {usuario.chatwoot_sync_estado || "pendiente"}
-            {usuario.chatwoot_user_id ? ` · ID ${usuario.chatwoot_user_id}` : ""}
-          </div>
+          <div />
         </div>
 
         <div className="flex h-full flex-col justify-between gap-4">
@@ -460,12 +476,32 @@ function UserCard({
             Invitación: {usuario.auth_invitation_estado || "pendiente"}
           </div>
 
-          <button
-            type="submit"
-            className="rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
-          >
-            Guardar usuario
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              type="submit"
+              className="rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+            >
+              Guardar usuario
+            </button>
+
+            <button
+              type="submit"
+              formAction={resendTenantUserInvitation}
+              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#07111f] shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
+            >
+              Reenviar invitación
+            </button>
+
+            {!isLastFullAdmin && (
+              <button
+                type="submit"
+                formAction={deleteTenantUser}
+                className="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-700 shadow-sm transition hover:bg-red-100"
+              >
+                Eliminar usuario
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </form>

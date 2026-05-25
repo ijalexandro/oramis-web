@@ -191,6 +191,121 @@ export async function createTenantUser(formData: FormData) {
   redirect("/app/admin?created=1");
 }
 
+export async function resendTenantUserInvitation(formData: FormData) {
+  const context = await getCurrentTenantContext();
+
+  if (!context?.tenant?.tenant_id) {
+    throw new Error("No hay tenant activo.");
+  }
+
+  if (!getCurrentUserCanAdmin(context)) {
+    throw new Error("No tenés permisos para administrar usuarios.");
+  }
+
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  const tenantId = context.tenant.tenant_id;
+  const usuarioTenantId = textValue(formData, "usuario_tenant_id");
+
+  if (!usuarioTenantId) {
+    throw new Error("Falta usuario_tenant_id.");
+  }
+
+  const { data: usuario, error: userError } = await supabase
+    .from("usuarios_tenants")
+    .select("id, email")
+    .eq("tenant_id", tenantId)
+    .eq("id", usuarioTenantId)
+    .single();
+
+  if (userError || !usuario?.email) {
+    console.error("Error leyendo usuario para reenviar invitación:", userError);
+    throw new Error("No se pudo leer el usuario para reenviar la invitación.");
+  }
+
+  const redirectTo = `${getAppUrl()}/reset-password`;
+
+  const { error } = await adminClient.auth.resetPasswordForEmail(usuario.email, {
+    redirectTo,
+  });
+
+  if (error) {
+    console.error("Error reenviando invitación/reset:", error);
+    throw new Error(`No se pudo reenviar la invitación: ${error.message}`);
+  }
+
+  const { error: updateError } = await supabase
+    .from("usuarios_tenants")
+    .update({
+      auth_invitation_estado: "reenviado",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("tenant_id", tenantId)
+    .eq("id", usuarioTenantId);
+
+  if (updateError) {
+    console.error("Error actualizando estado de invitación:", updateError);
+  }
+
+  revalidatePath("/app/admin");
+  redirect("/app/admin?resent=1");
+}
+
+export async function deleteTenantUser(formData: FormData) {
+  const context = await getCurrentTenantContext();
+
+  if (!context?.tenant?.tenant_id) {
+    throw new Error("No hay tenant activo.");
+  }
+
+  if (!getCurrentUserCanAdmin(context)) {
+    throw new Error("No tenés permisos para administrar usuarios.");
+  }
+
+  const supabase = await createClient();
+
+  const tenantId = context.tenant.tenant_id;
+  const usuarioTenantId = textValue(formData, "usuario_tenant_id");
+
+  if (!usuarioTenantId) {
+    throw new Error("Falta usuario_tenant_id.");
+  }
+
+  const { data: usuariosActuales, error: usersError } = await supabase
+    .from("usuarios_tenants")
+    .select("id, activo, permisos")
+    .eq("tenant_id", tenantId);
+
+  if (usersError) {
+    console.error("Error leyendo usuarios para validar eliminación:", usersError);
+    throw new Error("No se pudo validar la configuración de usuarios.");
+  }
+
+  const activosConAdminLuegoDeEliminar = (usuariosActuales ?? []).filter((u: any) => {
+    if (u.id === usuarioTenantId) return false;
+    return u.activo === true && permisoAdmin(u.permisos);
+  });
+
+  if (activosConAdminLuegoDeEliminar.length === 0) {
+    throw new Error("No podés eliminar el único usuario administrador activo del negocio.");
+  }
+
+  const { error } = await supabase
+    .from("usuarios_tenants")
+    .delete()
+    .eq("tenant_id", tenantId)
+    .eq("id", usuarioTenantId);
+
+  if (error) {
+    console.error("Error eliminando usuario tenant:", error);
+    throw new Error("No se pudo eliminar el usuario del negocio.");
+  }
+
+  revalidatePath("/app/admin");
+  redirect("/app/admin?deleted=1");
+}
+
 export async function updateTenantUser(formData: FormData) {
   const context = await getCurrentTenantContext();
 
