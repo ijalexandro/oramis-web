@@ -21,6 +21,7 @@ type AdminPageProps = {
     created?: string;
     resent?: string;
     deleted?: string;
+    email_limit?: string;
   }>;
 };
 
@@ -77,6 +78,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const created = params?.created === "1";
   const resent = params?.resent === "1";
   const deleted = params?.deleted === "1";
+  const emailLimited = params?.email_limit === "1";
 
   const context = await getCurrentTenantContext();
   const tenant = context?.tenant;
@@ -127,7 +129,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
-      <AdminSavedScroll saved={saved || created || resent || deleted} />
+      <AdminSavedScroll saved={saved || created || resent || deleted || emailLimited} />
       <Header subtitle="Administración" tenantName={tenant?.nombre_empresa ?? null} />
 
       <section className="mx-auto max-w-[1320px] px-4 py-6 lg:px-5">
@@ -199,6 +201,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               {deleted && (
                 <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
                   ✅ Usuario eliminado del negocio.
+                </div>
+              )}
+
+              {emailLimited && (
+                <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-black text-amber-900 shadow-sm">
+                  El usuario fue asociado al negocio, pero Supabase limitó temporalmente el envío de emails. Probá reenviar la invitación en unos minutos.
                 </div>
               )}
             </div>

@@ -146,6 +146,7 @@ export async function createTenantUser(formData: FormData) {
 
   let userId: string | null = null;
   let invitationStatus = "enviado";
+  let emailLimited = false;
 
   const redirectTo = `${getAppUrl()}/reset-password`;
 
@@ -189,16 +190,39 @@ export async function createTenantUser(formData: FormData) {
       });
 
       if (resetError) {
-        console.error("Error enviando email para usuario existente:", resetError);
-        throw new Error(
-          `El usuario ya existe, pero no se pudo enviar el email de acceso: ${resetError.message}`
-        );
-      }
+        const resetMsg = String(resetError.message || "").toLowerCase();
+        const resetCode = String((resetError as any).code || "").toLowerCase();
 
-      invitationStatus = "reenviado";
+        if (
+          resetCode === "over_email_send_rate_limit" ||
+          resetMsg.includes("rate limit")
+        ) {
+          console.error("Rate limit reenviando email para usuario existente:", resetError);
+          emailLimited = true;
+          invitationStatus = "pendiente_rate_limit";
+        } else {
+          console.error("Error enviando email para usuario existente:", resetError);
+          throw new Error(
+            `El usuario ya existe, pero no se pudo enviar el email de acceso: ${resetError.message}`
+          );
+        }
+      } else {
+        invitationStatus = "reenviado";
+      }
     } else {
-      console.error("Error invitando usuario:", inviteError);
-      throw new Error(`No se pudo invitar el usuario: ${inviteError.message}`);
+      const inviteCode = String((inviteError as any).code || "").toLowerCase();
+
+      if (
+        inviteCode === "over_email_send_rate_limit" ||
+        msg.includes("rate limit")
+      ) {
+        console.error("Rate limit invitando usuario:", inviteError);
+        emailLimited = true;
+        invitationStatus = "pendiente_rate_limit";
+      } else {
+        console.error("Error invitando usuario:", inviteError);
+        throw new Error(`No se pudo invitar el usuario: ${inviteError.message}`);
+      }
     }
   } else {
     userId = inviteData.user?.id ?? null;
@@ -226,10 +250,15 @@ export async function createTenantUser(formData: FormData) {
 
   if (insertError) {
     console.error("Error creando usuario_tenant después de invitación:", insertError);
-    throw new Error("El usuario recibió el email, pero no se pudo asociar al negocio.");
+    throw new Error("No se pudo asociar el usuario al negocio.");
   }
 
   revalidatePath("/app/admin");
+
+  if (emailLimited) {
+    redirect("/app/admin?email_limit=1");
+  }
+
   redirect("/app/admin?created=1");
 }
 
