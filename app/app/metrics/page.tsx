@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+import { canAccessSection } from "@/utils/oramis/permissions";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,7 @@ function buildMetabaseEmbedUrl(tenantId: number) {
 
 export default async function MetricsPage() {
   const context = await getCurrentTenantContext();
+  const canViewMetrics = canAccessSection(context?.membership, "metrics");
   const tenant = context?.tenant;
   const membership = context?.membership;
 
@@ -54,6 +56,21 @@ export default async function MetricsPage() {
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
       <Header subtitle="Métricas" tenantName={tenant?.nombre_empresa ?? null} />
+
+      {!canViewMetrics && (
+        <section className="mx-auto max-w-[1180px] px-4 py-8 lg:px-5">
+          <div className="rounded-[2rem] border border-amber-200 bg-amber-50 p-7 shadow-sm">
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-amber-950">
+              No tenés permisos para ver métricas
+            </h2>
+            <p className="mt-3 text-base font-semibold leading-7 text-amber-900">
+              Tu usuario no tiene habilitada la sección Métricas de este negocio.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {canViewMetrics && (
 
       <section className="mx-auto max-w-[1600px] px-3 py-3 lg:px-5">
 
@@ -88,6 +105,7 @@ export default async function MetricsPage() {
           </div>
         )}
       </section>
+      )}
     </main>
   );
 }

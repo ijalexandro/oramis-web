@@ -1,4 +1,5 @@
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+import { canAccessSection } from "@/utils/oramis/permissions";
 import ChatwootFrame from "./ChatwootFrame";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export const metadata = {
 
 export default async function ConversationsPage() {
   const context = await getCurrentTenantContext();
+  const canViewConversations = canAccessSection(context?.membership, "conversations");
 
   const tenant = context?.tenant;
 

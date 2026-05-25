@@ -255,10 +255,6 @@ export async function createTenantUser(formData: FormData) {
 
   revalidatePath("/app/admin");
 
-  if (emailLimited) {
-    redirect("/app/admin?email_limit=1");
-  }
-
   redirect("/app/admin?created=1");
 }
 

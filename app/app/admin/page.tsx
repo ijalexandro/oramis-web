@@ -78,7 +78,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const created = params?.created === "1";
   const resent = params?.resent === "1";
   const deleted = params?.deleted === "1";
-  const emailLimited = params?.email_limit === "1";
+  const emailLimited = false;
 
   const context = await getCurrentTenantContext();
   const tenant = context?.tenant;
@@ -204,11 +204,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
               )}
 
-              {emailLimited && (
-                <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-black text-amber-900 shadow-sm">
-                  Usuario agregado, pero no pudimos enviar el email de acceso porque el servicio de emails alcanzó el límite temporal de Supabase. Probá reenviar la invitación en unos minutos. Para producción vamos a configurar email propio de Oramis y evitar este límite.
-                </div>
-              )}
+              {false && null}
             </div>
 
             <div className="space-y-4">
