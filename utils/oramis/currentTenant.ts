@@ -12,6 +12,15 @@ export type CurrentTenantContext = {
     email: string | null;
     nombre: string | null;
     apellido: string | null;
+    permisos: {
+      conversations?: boolean;
+      metrics?: boolean;
+      business?: boolean;
+      admin?: boolean;
+    } | null;
+    conversaciones_acceso: string | null;
+    equipo_ventas: boolean;
+    equipo_soporte: boolean;
   } | null;
   tenant: {
     tenant_id: number;
@@ -83,6 +92,10 @@ export async function getCurrentTenantContext(): Promise<CurrentTenantContext | 
       email: membership.email,
       nombre: membership.nombre,
       apellido: membership.apellido,
+      permisos: membership.permisos ?? null,
+      conversaciones_acceso: membership.conversaciones_acceso ?? null,
+      equipo_ventas: Boolean(membership.equipo_ventas),
+      equipo_soporte: Boolean(membership.equipo_soporte),
     },
     tenant: tenant
       ? {
