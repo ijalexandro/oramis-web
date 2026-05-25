@@ -206,7 +206,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
               {emailLimited && (
                 <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-black text-amber-900 shadow-sm">
-                  El usuario fue asociado al negocio, pero Supabase limitó temporalmente el envío de emails. Probá reenviar la invitación en unos minutos.
+                  Usuario agregado, pero no pudimos enviar el email de acceso porque el servicio de emails alcanzó el límite temporal de Supabase. Probá reenviar la invitación en unos minutos. Para producción vamos a configurar email propio de Oramis y evitar este límite.
                 </div>
               )}
             </div>
@@ -481,7 +481,7 @@ function UserCard({
           />
 
           <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold leading-5 text-slate-500">
-            Invitación: {usuario.auth_invitation_estado || "pendiente"}
+            Invitación: {formatInvitationStatus(usuario.auth_invitation_estado)}
           </div>
 
           <div className="flex flex-col gap-3">
@@ -571,6 +571,19 @@ function CheckboxField({
       {label}
     </label>
   );
+}
+
+function formatInvitationStatus(status: string | null) {
+  if (!status) return "pendiente";
+
+  const normalized = status.toLowerCase();
+
+  if (normalized === "activo") return "activo";
+  if (normalized === "enviado") return "enviada";
+  if (normalized === "reenviado") return "reenviada";
+  if (normalized === "pendiente_rate_limit") return "email pendiente";
+
+  return status;
 }
 
 function Badge({ active }: { active: boolean }) {
