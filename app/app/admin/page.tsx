@@ -1,6 +1,6 @@
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
 import { createClient } from "@/utils/supabase/server";
-import { updateTenantUser } from "./actions";
+import { createTenantUser, updateTenantUser } from "./actions";
 import AdminSavedScroll from "./AdminSavedScroll";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,7 @@ export const metadata = {
 type AdminPageProps = {
   searchParams?: Promise<{
     saved?: string;
+    created?: string;
   }>;
 };
 
@@ -66,6 +67,7 @@ function canAdminFromMembership(membership: any) {
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const params = await searchParams;
   const saved = params?.saved === "1";
+  const created = params?.created === "1";
 
   const context = await getCurrentTenantContext();
   const tenant = context?.tenant;
@@ -174,7 +176,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   ✅ Usuario actualizado correctamente.
                 </div>
               )}
+
+              {created && (
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
+                  ✅ Usuario invitado correctamente. Le enviamos un email para crear su acceso.
+                </div>
+              )}
             </div>
+
+            <CreateUserCard />
 
             <div className="space-y-4">
               {usuarios.map((usuario) => (
@@ -199,6 +209,110 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         )}
       </section>
     </main>
+  );
+}
+
+function CreateUserCard() {
+  return (
+    <form
+      action={createTenantUser}
+      className="rounded-[1.5rem] border border-emerald-200 bg-white p-6 shadow-sm"
+    >
+      <div className="mb-5">
+        <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+          Nuevo usuario
+        </p>
+        <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#07111f]">
+          Invitar usuario al negocio
+        </h2>
+        <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
+          Se creará el usuario en Supabase Auth, se asociará a este negocio y recibirá un email de invitación.
+        </p>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[1.2fr_1.4fr_1.2fr_auto] xl:items-start">
+        <div>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <TextField name="email" label="Email" defaultValue="" required />
+            <TextField name="nombre" label="Nombre" defaultValue="" />
+            <TextField name="apellido" label="Apellido" defaultValue="" />
+            <TextField name="telefono" label="Teléfono" defaultValue="" />
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-3 text-sm font-black text-slate-700">
+            Secciones habilitadas
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <CheckboxField
+              name="perm_conversations"
+              label="Conversaciones"
+              defaultChecked={true}
+            />
+            <CheckboxField
+              name="perm_metrics"
+              label="Métricas"
+              defaultChecked={false}
+            />
+            <CheckboxField
+              name="perm_business"
+              label="Negocio"
+              defaultChecked={false}
+            />
+            <CheckboxField
+              name="perm_admin"
+              label="Administración"
+              defaultChecked={false}
+            />
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-3 text-sm font-black text-slate-700">
+            Conversaciones comerciales
+          </p>
+
+          <label className="block">
+            <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+              Acceso
+            </span>
+            <select
+              name="conversaciones_acceso"
+              defaultValue="operador"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-[#07111f] outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+            >
+              <option value="ninguno">Sin acceso</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="operador">Operador</option>
+            </select>
+          </label>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <CheckboxField
+              name="equipo_ventas"
+              label="Equipo ventas"
+              defaultChecked={true}
+            />
+            <CheckboxField
+              name="equipo_soporte"
+              label="Equipo soporte"
+              defaultChecked={false}
+            />
+          </div>
+        </div>
+
+        <div className="flex h-full flex-col justify-end gap-4">
+          <button
+            type="submit"
+            className="rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600"
+          >
+            Invitar usuario
+          </button>
+        </div>
+      </div>
+    </form>
   );
 }
 
@@ -362,10 +476,12 @@ function TextField({
   name,
   label,
   defaultValue,
+  required = false,
 }: {
   name: string;
   label: string;
   defaultValue?: string | null;
+  required?: boolean;
 }) {
   return (
     <label className="block">
@@ -375,6 +491,7 @@ function TextField({
       <input
         name={name}
         defaultValue={defaultValue ?? ""}
+        required={required}
         className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[#07111f] outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
       />
     </label>
