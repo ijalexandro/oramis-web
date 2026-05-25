@@ -118,7 +118,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
-      <AdminSavedScroll saved={saved} />
+      <AdminSavedScroll saved={saved || created} />
       <Header subtitle="Administración" tenantName={tenant?.nombre_empresa ?? null} />
 
       <section className="mx-auto max-w-[1320px] px-4 py-6 lg:px-5">
@@ -167,7 +167,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
 
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold leading-6 text-amber-900">
-                  El alta por invitación y la sincronización con Chatwoot se agregan en el siguiente tramo.
+                  La sincronización automática con Chatwoot se agrega en el siguiente tramo.
                 </div>
               </div>
 
@@ -183,8 +183,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
               )}
             </div>
-
-            <CreateUserCard />
 
             <div className="space-y-4">
               {usuarios.map((usuario) => (
@@ -205,6 +203,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
               )}
             </div>
+
+            <CreateUserCard />
           </div>
         )}
       </section>
@@ -223,10 +223,10 @@ function CreateUserCard() {
           Nuevo usuario
         </p>
         <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#07111f]">
-          Invitar usuario al negocio
+          Agregar usuario
         </h2>
         <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
-          Se creará el usuario en Supabase Auth, se asociará a este negocio y recibirá un email de invitación.
+          El usuario recibirá un email para crear su contraseña y acceder a Oramis.
         </p>
       </div>
 
@@ -308,7 +308,7 @@ function CreateUserCard() {
             type="submit"
             className="rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600"
           >
-            Invitar usuario
+            Crear usuario
           </button>
         </div>
       </div>
