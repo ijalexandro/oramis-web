@@ -329,7 +329,7 @@ function CreateUserCard() {
         <div className="flex h-full flex-col justify-end gap-4">
           <button
             type="submit"
-            className="rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600"
+            className="cursor-pointer rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600"
           >
             Crear usuario
           </button>
@@ -483,7 +483,7 @@ function UserCard({
           <div className="flex flex-col gap-3">
             <button
               type="submit"
-              className="rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+              className="cursor-pointer rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
             >
               Guardar usuario
             </button>
@@ -491,7 +491,7 @@ function UserCard({
             <button
               type="submit"
               formAction={resendTenantUserInvitation}
-              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#07111f] shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
+              className="cursor-pointer rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#07111f] shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
             >
               Reenviar invitación
             </button>
@@ -500,7 +500,7 @@ function UserCard({
               <button
                 type="submit"
                 formAction={deleteTenantUser}
-                className="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-700 shadow-sm transition hover:bg-red-100"
+                className="cursor-pointer rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-700 shadow-sm transition hover:bg-red-100"
               >
                 Eliminar usuario
               </button>
