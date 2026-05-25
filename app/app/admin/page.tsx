@@ -349,9 +349,9 @@ function UserCard({
   const permisos = usuario.permisos ?? {};
 
   const admin = permisos.admin === true;
-  const conversations = admin || permisos.conversations === true;
-  const metrics = admin || permisos.metrics === true;
-  const business = admin || permisos.business === true;
+  const conversations = permisos.conversations === true;
+  const metrics = permisos.metrics === true;
+  const business = permisos.business === true;
 
   return (
     <form
@@ -400,19 +400,16 @@ function UserCard({
               name="perm_conversations"
               label="Conversaciones"
               defaultChecked={conversations}
-              disabled={admin}
             />
             <CheckboxField
               name="perm_metrics"
               label="Métricas"
               defaultChecked={metrics}
-              disabled={admin}
             />
             <CheckboxField
               name="perm_business"
               label="Negocio"
               defaultChecked={business}
-              disabled={admin}
             />
             <CheckboxField
               name="perm_admin"
@@ -424,7 +421,7 @@ function UserCard({
           </div>
 
           <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
-            Si Administración está activo, el usuario queda con acceso completo a todas las secciones.
+            Cada sección se habilita de forma independiente.
           </p>
         </div>
 
@@ -439,8 +436,7 @@ function UserCard({
             </span>
             <select
               name="conversaciones_acceso"
-              defaultValue={admin ? "supervisor" : usuario.conversaciones_acceso || "ninguno"}
-              disabled={admin}
+              defaultValue={usuario.conversaciones_acceso || "ninguno"}
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-[#07111f] outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-400"
             >
               <option value="ninguno">Sin acceso</option>
@@ -453,14 +449,12 @@ function UserCard({
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
-              defaultChecked={admin || usuario.equipo_ventas}
-              disabled={admin}
+              defaultChecked={usuario.equipo_ventas}
             />
             <CheckboxField
               name="equipo_soporte"
               label="Equipo soporte"
-              defaultChecked={admin || usuario.equipo_soporte}
-              disabled={admin}
+              defaultChecked={usuario.equipo_soporte}
             />
           </div>
 

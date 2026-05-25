@@ -61,14 +61,8 @@ function normalizeUserPermissions(formData: FormData) {
   let equipoVentas = boolValue(formData, "equipo_ventas");
   let equipoSoporte = boolValue(formData, "equipo_soporte");
 
-  if (admin) {
-    conversations = true;
-    metrics = true;
-    business = true;
-    conversacionesAcceso = "supervisor";
-    equipoVentas = true;
-    equipoSoporte = true;
-  }
+  // Administración es un permiso independiente.
+  // No fuerza acceso a Conversaciones, Métricas ni Negocio.
 
   if (!conversations) {
     conversacionesAcceso = "ninguno";
