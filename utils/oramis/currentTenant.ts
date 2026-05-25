@@ -36,7 +36,7 @@ export async function getCurrentTenantContext(): Promise<CurrentTenantContext | 
 
   const { data: memberships, error: membershipError } = await supabase
     .from("usuarios_tenants")
-    .select("tenant_id, rol, activo, email, nombre, apellido")
+    .select("tenant_id, rol, activo, email, nombre, apellido, permisos, conversaciones_acceso, equipo_ventas, equipo_soporte")
     .eq("user_id", user.id)
     .eq("activo", true)
     .order("tenant_id", { ascending: true })
