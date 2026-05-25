@@ -144,7 +144,10 @@ export async function createTenantUser(formData: FormData) {
     throw new Error("Ese email ya está asociado a este negocio.");
   }
 
-  const redirectTo = `${getAppUrl()}/auth/callback?next=/reset-password`;
+  let userId: string | null = null;
+  let invitationStatus = "enviado";
+
+  const redirectTo = `${getAppUrl()}/reset-password`;
 
   const { data: inviteData, error: inviteError } =
     await adminClient.auth.admin.inviteUserByEmail(email, {
@@ -156,11 +159,50 @@ export async function createTenantUser(formData: FormData) {
     });
 
   if (inviteError) {
-    console.error("Error invitando usuario:", inviteError);
-    throw new Error(`No se pudo invitar el usuario: ${inviteError.message}`);
-  }
+    const msg = String(inviteError.message || "").toLowerCase();
 
-  const userId = inviteData.user?.id ?? null;
+    if (
+      msg.includes("already") ||
+      msg.includes("registered") ||
+      msg.includes("exists") ||
+      msg.includes("user")
+    ) {
+      const { data: usersList, error: listError } =
+        await adminClient.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000,
+        });
+
+      if (listError) {
+        console.error("Error buscando usuario existente en Auth:", listError);
+        throw new Error("El usuario ya existe, pero no pudimos recuperarlo desde Auth.");
+      }
+
+      const existingAuthUser = usersList.users.find(
+        (user) => String(user.email || "").toLowerCase() === email
+      );
+
+      userId = existingAuthUser?.id ?? null;
+
+      const { error: resetError } = await adminClient.auth.resetPasswordForEmail(email, {
+        redirectTo,
+      });
+
+      if (resetError) {
+        console.error("Error enviando email para usuario existente:", resetError);
+        throw new Error(
+          `El usuario ya existe, pero no se pudo enviar el email de acceso: ${resetError.message}`
+        );
+      }
+
+      invitationStatus = "reenviado";
+    } else {
+      console.error("Error invitando usuario:", inviteError);
+      throw new Error(`No se pudo invitar el usuario: ${inviteError.message}`);
+    }
+  } else {
+    userId = inviteData.user?.id ?? null;
+  }
 
   const { error: insertError } = await adminClient
     .from("usuarios_tenants")
@@ -178,13 +220,13 @@ export async function createTenantUser(formData: FormData) {
       equipo_ventas: normalized.equipoVentas,
       equipo_soporte: normalized.equipoSoporte,
       chatwoot_sync_estado: "pendiente",
-      auth_invitation_estado: "enviado",
+      auth_invitation_estado: invitationStatus,
       updated_at: new Date().toISOString(),
     });
 
   if (insertError) {
     console.error("Error creando usuario_tenant después de invitación:", insertError);
-    throw new Error("El usuario fue invitado, pero no se pudo asociar al negocio.");
+    throw new Error("El usuario recibió el email, pero no se pudo asociar al negocio.");
   }
 
   revalidatePath("/app/admin");
