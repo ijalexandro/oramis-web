@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthHashRedirect from "./AuthHashRedirect";
 
 export const metadata: Metadata = {
   title: "Oramis",
@@ -27,7 +28,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <AuthHashRedirect />{children}</body>
     </html>
   );
 }
