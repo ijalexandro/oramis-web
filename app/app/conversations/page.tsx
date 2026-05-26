@@ -120,7 +120,44 @@ export default async function ConversationsPage() {
         />
       )}
 
-      {chatwootUrl && <ChatwootFrame chatwootUrl={chatwootUrl} />}
+      {chatwootUrl && (
+        <>
+          <section className="mx-auto max-w-[1600px] px-4 pt-4 lg:px-5">
+            <details className="rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-sm">
+              <summary className="cursor-pointer text-sm font-black text-[#07111f]">
+                Ayuda / Primer ingreso al Centro de conversaciones
+              </summary>
+
+              <div className="mt-3 grid gap-3 text-sm font-semibold leading-6 text-slate-600 md:grid-cols-2">
+                <div>
+                  <p className="font-black text-slate-800">Primer ingreso</p>
+                  <p className="mt-1">
+                    Ingresá al Centro de conversaciones con el mismo email que usás en Oramis:
+                    <span className="ml-1 font-black text-emerald-700">
+                      {context?.user?.email ?? "tu email de Oramis"}
+                    </span>
+                  </p>
+                  <p className="mt-1">
+                    Si todavía no tenés contraseña, tocá “¿Olvidaste tu contraseña?” en la pantalla de Chatwoot.
+                    Vas a recibir un email desde <span className="font-black">no-reply@oramis.ai</span>.
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-black text-slate-800">Preguntas frecuentes</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-5">
+                    <li>Oramis y el Centro de conversaciones usan el mismo email, pero tienen contraseñas separadas.</li>
+                    <li>Si el email no llega, revisá spam o promociones.</li>
+                    <li>Si seguís sin poder ingresar, pedile a un administrador que revise que tu usuario esté activo.</li>
+                  </ul>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <ChatwootFrame chatwootUrl={chatwootUrl} />
+        </>
+      )}
     </main>
   );
 }
