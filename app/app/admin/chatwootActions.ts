@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
@@ -106,6 +107,10 @@ export async function syncChatwootUserAction(formData: FormData) {
     revalidatePath("/app/admin");
     redirect("/app/admin?chatwoot_synced=1");
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
     const message = error instanceof Error ? error.message : "Error desconocido";
 
     await supabase
