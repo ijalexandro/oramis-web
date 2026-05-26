@@ -1,4 +1,5 @@
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+import { getSectionPermissions } from "@/utils/oramis/permissions";
 import { createClient } from "@/utils/supabase/server";
 import {
   createTenantUser,
@@ -84,6 +85,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const tenant = context?.tenant;
   const membership = context?.membership;
   const canAdmin = canAdminFromMembership(membership);
+  const sectionPermissions = getSectionPermissions(membership);
 
   const supabase = await createClient();
 
@@ -130,7 +132,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   return (
     <main className="min-h-screen bg-[#f6fbf8] text-[#07111f]">
       <AdminSavedScroll saved={saved || created || resent || deleted || emailLimited} />
-      <Header subtitle="Administración" tenantName={tenant?.nombre_empresa ?? null} />
+      <Header subtitle="Administración" tenantName={tenant?.nombre_empresa ?? null} permissions={sectionPermissions} />
 
       <section className="mx-auto max-w-[1320px] px-4 py-6 lg:px-5">
         {!context && (
@@ -606,9 +608,16 @@ function StateCard({ title, text }: { title: string; text: string }) {
 function Header({
   subtitle,
   tenantName,
+  permissions,
 }: {
   subtitle: string;
   tenantName: string | null;
+  permissions: {
+    conversations: boolean;
+    metrics: boolean;
+    business: boolean;
+    admin: boolean;
+  };
 }) {
   return (
     <header className="border-b border-emerald-950/5 bg-[#f6fbf8]/95 backdrop-blur-xl">
@@ -629,18 +638,26 @@ function Header({
         </a>
 
         <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
-          <a href="/app/conversations" className="transition hover:text-emerald-600">
-            Conversaciones
-          </a>
-          <a href="/app/metrics" className="transition hover:text-emerald-600">
-            Métricas
-          </a>
-          <a href="/app/business" className="transition hover:text-emerald-600">
-            Negocio
-          </a>
-          <a href="/app/admin" className="text-emerald-600">
-            Administración
-          </a>
+          {permissions.conversations && (
+            <a href="/app/conversations" className="transition hover:text-emerald-600">
+              Conversaciones
+            </a>
+          )}
+          {permissions.metrics && (
+            <a href="/app/metrics" className="transition hover:text-emerald-600">
+              Métricas
+            </a>
+          )}
+          {permissions.business && (
+            <a href="/app/business" className="transition hover:text-emerald-600">
+              Negocio
+            </a>
+          )}
+          {permissions.admin && (
+            <a href="/app/admin" className="text-emerald-600">
+              Administración
+            </a>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">

@@ -1,5 +1,5 @@
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
-import { canAccessSection } from "@/utils/oramis/permissions";
+import { canAccessSection, getSectionPermissions } from "@/utils/oramis/permissions";
 import ChatwootFrame from "./ChatwootFrame";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +12,7 @@ export const metadata = {
 export default async function ConversationsPage() {
   const context = await getCurrentTenantContext();
   const canViewConversations = canAccessSection(context?.membership, "conversations");
+  const sectionPermissions = getSectionPermissions(context?.membership);
 
   const tenant = context?.tenant;
 
@@ -60,18 +61,26 @@ export default async function ConversationsPage() {
           </a>
 
           <nav className="hidden items-center gap-5 text-sm font-bold text-slate-600 lg:flex">
-            <a href="/app/conversations" className="text-emerald-600">
-              Conversaciones
-            </a>
-            <a href="/app/metrics" className="transition hover:text-emerald-600">
-              Métricas
-            </a>
-            <a href="/app/business" className="transition hover:text-emerald-600">
-              Negocio
-            </a>
-            <a href="/app/admin" className="transition hover:text-emerald-600">
-              Administración
-            </a>
+            {sectionPermissions.conversations && (
+              <a href="/app/conversations" className="text-emerald-600">
+                Conversaciones
+              </a>
+            )}
+            {sectionPermissions.metrics && (
+              <a href="/app/metrics" className="transition hover:text-emerald-600">
+                Métricas
+              </a>
+            )}
+            {sectionPermissions.business && (
+              <a href="/app/business" className="transition hover:text-emerald-600">
+                Negocio
+              </a>
+            )}
+            {sectionPermissions.admin && (
+              <a href="/app/admin" className="transition hover:text-emerald-600">
+                Administración
+              </a>
+            )}
           </nav>
 
           <div className="flex items-center gap-3">
