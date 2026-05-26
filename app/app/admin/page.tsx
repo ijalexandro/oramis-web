@@ -255,8 +255,8 @@ function CreateUserCard() {
         </p>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1.2fr_1.4fr_1.2fr_auto] xl:items-start">
-        <div>
+      <div className="grid gap-4 xl:grid-cols-[1.35fr_1.15fr_0.85fr] xl:items-start">
+        <div className="xl:col-span-3">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <TextField name="email" label="Email" defaultValue="" required />
             <TextField name="nombre" label="Nombre" defaultValue="" />
@@ -299,7 +299,7 @@ function CreateUserCard() {
             Conversaciones comerciales
           </p>
 
-<div className="mt-1 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="grid gap-2.5">
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
@@ -353,8 +353,8 @@ function UserCard({
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[1.2fr_1.4fr_1.2fr_auto] xl:items-start">
-        <div>
+      <div className="grid gap-4 xl:grid-cols-[1.35fr_1.15fr_0.85fr] xl:items-start">
+        <div className="xl:col-span-3">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-lg font-black tracking-[-0.03em] text-[#07111f]">
@@ -370,7 +370,7 @@ function UserCard({
             <Badge active={usuario.activo} />
           </div>
 
-          <div className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="mt-3 grid gap-2.5 md:grid-cols-3">
             <TextField name="nombre" label="Nombre" defaultValue={usuario.nombre} />
             <TextField name="apellido" label="Apellido" defaultValue={usuario.apellido} />
             <TextField name="telefono" label="Teléfono" defaultValue={usuario.telefono} />
@@ -406,10 +406,6 @@ function UserCard({
               hiddenWhenDisabled={isLastFullAdmin}
             />
           </div>
-
-          <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">
-            Cada sección se habilita de forma independiente.
-          </p>
         </div>
 
         <div>
@@ -417,7 +413,7 @@ function UserCard({
             Conversaciones comerciales
           </p>
 
-<div className="mt-1 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="grid gap-2.5">
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
@@ -442,7 +438,7 @@ function UserCard({
             hiddenWhenDisabled={isLastFullAdmin}
           />
 
-<div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-2.5">
             <button
               type="submit"
               className="cursor-pointer rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
@@ -450,7 +446,7 @@ function UserCard({
               Guardar usuario
             </button>
 
-<button
+            <button
               type="submit"
               formAction={resendTenantUserInvitation}
               className="cursor-pointer rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-black text-[#07111f] shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
