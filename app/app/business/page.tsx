@@ -365,7 +365,7 @@ function Header({
   return (
     <header className="border-b border-emerald-950/5 bg-[#f6fbf8]/95 backdrop-blur-xl">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 py-3 lg:px-5">
-        <a href="/app/conversations" className="flex items-center gap-2.5">
+        <a href="/app" className="flex items-center gap-2.5">
           <div className="relative flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-500 shadow-md shadow-emerald-200">
             <div className="absolute inset-1 rounded-xl border border-white/40" />
             <span className="text-sm font-black text-white">O</span>
