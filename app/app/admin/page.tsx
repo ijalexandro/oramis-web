@@ -165,7 +165,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
         {tenant && canAdmin && !hasError && (
           <div className="space-y-6">
-            <div className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
@@ -270,7 +270,7 @@ function CreateUserCard() {
             Secciones habilitadas
           </p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             <CheckboxField
               name="perm_conversations"
               label="Conversaciones"
@@ -299,7 +299,7 @@ function CreateUserCard() {
             Conversaciones comerciales
           </p>
 
-<div className="mt-1 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+<div className="mt-1 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
@@ -316,7 +316,7 @@ function CreateUserCard() {
         <div className="flex h-full flex-col justify-end gap-4">
           <button
             type="submit"
-            className="cursor-pointer rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600"
+            className="cursor-pointer rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600"
           >
             Crear usuario
           </button>
@@ -343,7 +343,7 @@ function UserCard({
   return (
     <form
       action={updateTenantUser}
-      className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm"
+      className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm"
     >
       <input type="hidden" name="usuario_tenant_id" value={usuario.id} />
 
@@ -370,7 +370,7 @@ function UserCard({
             <Badge active={usuario.activo} />
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="mt-4 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
             <TextField name="nombre" label="Nombre" defaultValue={usuario.nombre} />
             <TextField name="apellido" label="Apellido" defaultValue={usuario.apellido} />
             <TextField name="telefono" label="Teléfono" defaultValue={usuario.telefono} />
@@ -382,7 +382,7 @@ function UserCard({
             Secciones habilitadas
           </p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             <CheckboxField
               name="perm_conversations"
               label="Conversaciones"
@@ -407,7 +407,7 @@ function UserCard({
             />
           </div>
 
-          <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
+          <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">
             Cada sección se habilita de forma independiente.
           </p>
         </div>
@@ -417,7 +417,7 @@ function UserCard({
             Conversaciones comerciales
           </p>
 
-<div className="mt-1 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+<div className="mt-1 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
@@ -442,10 +442,10 @@ function UserCard({
             hiddenWhenDisabled={isLastFullAdmin}
           />
 
-<div className="flex flex-col gap-3">
+<div className="flex flex-col gap-2.5">
             <button
               type="submit"
-              className="cursor-pointer rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
+              className="cursor-pointer rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
             >
               Guardar usuario
             </button>
@@ -453,7 +453,7 @@ function UserCard({
 <button
               type="submit"
               formAction={resendTenantUserInvitation}
-              className="cursor-pointer rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#07111f] shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
+              className="cursor-pointer rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-black text-[#07111f] shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
             >
               Reenviar invitación
             </button>
@@ -462,7 +462,7 @@ function UserCard({
               <button
                 type="submit"
                 formAction={deleteTenantUser}
-                className="cursor-pointer rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-700 shadow-sm transition hover:bg-red-100"
+                className="cursor-pointer rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-black text-red-700 shadow-sm transition hover:bg-red-100"
               >
                 Eliminar usuario
               </button>
@@ -494,7 +494,7 @@ function TextField({
         name={name}
         defaultValue={defaultValue ?? ""}
         required={required}
-        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[#07111f] outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#07111f] outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
       />
     </label>
   );
