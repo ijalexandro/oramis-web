@@ -217,7 +217,7 @@ export async function createTenantUser(formData: FormData) {
     userId = inviteData.user?.id ?? null;
   }
 
-  const { error: insertError } = await adminClient
+  const { data: insertedMembershipRaw, error: insertError } = await adminClient
     .from("usuarios_tenants")
     .insert({
       tenant_id: tenantId,
@@ -235,11 +235,66 @@ export async function createTenantUser(formData: FormData) {
       chatwoot_sync_estado: "pendiente",
       auth_invitation_estado: invitationStatus,
       updated_at: new Date().toISOString(),
-    });
+    })
+    .select("id")
+    .single();
 
   if (insertError) {
     console.error("Error creando usuario_tenant después de invitación:", insertError);
     throw new Error("No se pudo asociar el usuario al negocio.");
+  }
+
+  const insertedMembership = insertedMembershipRaw as unknown as { id: string } | null;
+
+  if (insertedMembership?.id && context.tenant.account_id) {
+    try {
+      const nombreCompleto = [nombre, apellido].filter(Boolean).join(" ").trim();
+
+      const syncResult = await syncChatwootTenantUser({
+        accountId: Number(context.tenant.account_id),
+        ventasTeamId: context.tenant.chatwoot_team_id_ventas
+          ? Number(context.tenant.chatwoot_team_id_ventas)
+          : null,
+        soporteTeamId: context.tenant.chatwoot_team_id_soporte
+          ? Number(context.tenant.chatwoot_team_id_soporte)
+          : null,
+        email,
+        name: nombreCompleto || email || "Usuario Oramis",
+        conversaciones: normalized.permisos.conversations === true,
+        conversacionesAcceso: normalized.conversacionesAcceso,
+        equipoVentas: normalized.equipoVentas === true,
+        equipoSoporte: normalized.equipoSoporte === true,
+        existingChatwootUserId: null,
+      });
+
+      await adminClient
+        .from("usuarios_tenants")
+        .update({
+          chatwoot_user_id: syncResult.chatwootUserId,
+          chatwoot_sync_estado: syncResult.estado,
+          chatwoot_sync_error: null,
+          updated_at: new Date().toISOString(),
+        } as never)
+        .eq("tenant_id", tenantId)
+        .eq("id", insertedMembership.id);
+    } catch (syncError) {
+      const message =
+        syncError instanceof Error
+          ? syncError.message
+          : "Error desconocido sincronizando Chatwoot";
+
+      console.error("Error sincronizando Chatwoot al crear usuario:", syncError);
+
+      await adminClient
+        .from("usuarios_tenants")
+        .update({
+          chatwoot_sync_estado: "error",
+          chatwoot_sync_error: message.slice(0, 500),
+          updated_at: new Date().toISOString(),
+        } as never)
+        .eq("tenant_id", tenantId)
+        .eq("id", insertedMembership.id);
+    }
   }
 
   revalidatePath("/app/admin");
