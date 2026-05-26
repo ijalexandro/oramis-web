@@ -8,7 +8,6 @@ import {
   updateTenantUser,
 } from "./actions";
 import AdminSavedScroll from "./AdminSavedScroll";
-import { syncChatwootUserAction } from "./chatwootActions";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +22,6 @@ type AdminPageProps = {
     created?: string;
     resent?: string;
     deleted?: string;
-    chatwoot_synced?: string;
-    chatwoot_error?: string;
     email_limit?: string;
   }>;
 };
@@ -82,8 +79,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const created = params?.created === "1";
   const resent = params?.resent === "1";
   const deleted = params?.deleted === "1";
-  const chatwootSynced = params?.chatwoot_synced === "1";
-  const chatwootError = params?.chatwoot_error === "1";
   const emailLimited = false;
 
   const context = await getCurrentTenantContext();
@@ -205,31 +200,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
               )}
 
-              {chatwootSynced && (
-                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
-                  ✅ Usuario sincronizado con Chatwoot correctamente.
-                </div>
-              )}
-
-              {chatwootError && (
-                <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-black text-red-800 shadow-sm">
-                  No pudimos sincronizar el usuario con Chatwoot. Guardá el usuario primero y volvé a intentar.
-                </div>
-              )}
-
-              {chatwootSynced && (
-                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
-                  ✅ Usuario guardado y sincronizado con Chatwoot correctamente.
-                </div>
-              )}
-
-              {chatwootError && (
-                <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-black text-amber-900 shadow-sm">
-                  Usuario guardado, pero no pudimos sincronizarlo con Chatwoot. Revisá el estado del usuario e intentá nuevamente.
-                </div>
-              )}
-
-              {deleted && (
+{deleted && (
                 <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
                   ✅ Usuario eliminado del negocio.
                 </div>
@@ -328,11 +299,7 @@ function CreateUserCard() {
             Conversaciones comerciales
           </p>
 
-          <p className="rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold leading-5 text-slate-500">
-            Si Conversaciones está activo sin equipos, el usuario queda como supervisor. Si tiene ventas y/o soporte, queda como operador y se sincroniza con esos equipos.
-          </p>
-
-<div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+<div className="mt-1 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
@@ -450,22 +417,7 @@ function UserCard({
             Conversaciones comerciales
           </p>
 
-          <label className="block">
-            <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              Acceso
-            </span>
-            <select
-              name="conversaciones_acceso"
-              defaultValue={usuario.conversaciones_acceso || "ninguno"}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-[#07111f] outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-400"
-            >
-              <option value="ninguno">Sin acceso</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="operador">Operador</option>
-            </select>
-          </label>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+<div className="mt-1 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
@@ -481,7 +433,7 @@ function UserCard({
           <div />
         </div>
 
-        <div className="flex h-full flex-col justify-between gap-4">
+        <div className="flex h-full flex-col justify-start gap-4">
           <CheckboxField
             name="activo"
             label="Usuario activo"
@@ -490,11 +442,7 @@ function UserCard({
             hiddenWhenDisabled={isLastFullAdmin}
           />
 
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold leading-5 text-slate-500">
-            Invitación: {formatInvitationStatus(usuario.auth_invitation_estado)}
-          </div>
-
-          <div className="flex flex-col gap-3">
+<div className="flex flex-col gap-3">
             <button
               type="submit"
               className="cursor-pointer rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
@@ -502,15 +450,7 @@ function UserCard({
               Guardar usuario
             </button>
 
-            <button
-              type="submit"
-              formAction={syncChatwootUserAction}
-              className="cursor-pointer rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-100"
-            >
-              Sincronizar Chatwoot
-            </button>
-
-            <button
+<button
               type="submit"
               formAction={resendTenantUserInvitation}
               className="cursor-pointer rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#07111f] shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50"
