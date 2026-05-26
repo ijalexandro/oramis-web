@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+import { syncChatwootTenantUser } from "@/utils/oramis/chatwoot";
 
 function textValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -52,31 +53,25 @@ function getAppUrl() {
 function normalizeUserPermissions(formData: FormData) {
   const admin = boolValue(formData, "perm_admin");
 
-  let conversations = boolValue(formData, "perm_conversations");
-  let metrics = boolValue(formData, "perm_metrics");
-  let business = boolValue(formData, "perm_business");
-
-  let conversacionesAcceso = textValue(formData, "conversaciones_acceso") || "ninguno";
+  const conversations = boolValue(formData, "perm_conversations");
+  const metrics = boolValue(formData, "perm_metrics");
+  const business = boolValue(formData, "perm_business");
 
   let equipoVentas = boolValue(formData, "equipo_ventas");
   let equipoSoporte = boolValue(formData, "equipo_soporte");
+  let conversacionesAcceso = "ninguno";
 
   // Administración es un permiso independiente.
   // No fuerza acceso a Conversaciones, Métricas ni Negocio.
 
   if (!conversations) {
-    conversacionesAcceso = "ninguno";
     equipoVentas = false;
     equipoSoporte = false;
-  }
-
-  if (!["ninguno", "supervisor", "operador"].includes(conversacionesAcceso)) {
     conversacionesAcceso = "ninguno";
-  }
-
-  if (conversacionesAcceso === "ninguno") {
-    equipoVentas = false;
-    equipoSoporte = false;
+  } else if (equipoVentas || equipoSoporte) {
+    conversacionesAcceso = "operador";
+  } else {
+    conversacionesAcceso = "supervisor";
   }
 
   return {
@@ -436,6 +431,106 @@ export async function updateTenantUser(formData: FormData) {
     throw new Error("No se pudo actualizar el usuario.");
   }
 
+  let chatwootSyncFailed = false;
+
+  const { data: usuarioActualizado, error: usuarioActualizadoError } = await supabase
+    .from("usuarios_tenants")
+    .select(
+      [
+        "id",
+        "email",
+        "nombre",
+        "apellido",
+        "permisos",
+        "conversaciones_acceso",
+        "equipo_ventas",
+        "equipo_soporte",
+        "chatwoot_user_id",
+      ].join(",")
+    )
+    .eq("tenant_id", tenantId)
+    .eq("id", usuarioTenantId)
+    .single();
+
+  if (usuarioActualizadoError || !usuarioActualizado) {
+    console.error("Error leyendo usuario actualizado para sincronizar Chatwoot:", usuarioActualizadoError);
+    chatwootSyncFailed = true;
+  } else {
+    try {
+      const usuario = usuarioActualizado as unknown as {
+        id: string;
+        email: string | null;
+        nombre: string | null;
+        apellido: string | null;
+        permisos: {
+          conversations?: boolean;
+          metrics?: boolean;
+          business?: boolean;
+          admin?: boolean;
+        } | null;
+        conversaciones_acceso: string | null;
+        equipo_ventas: boolean | null;
+        equipo_soporte: boolean | null;
+        chatwoot_user_id: number | null;
+      };
+
+      const nombreCompleto = [usuario.nombre, usuario.apellido]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
+      const result = await syncChatwootTenantUser({
+        accountId: Number(context.tenant.account_id),
+        ventasTeamId: context.tenant.chatwoot_team_id_ventas
+          ? Number(context.tenant.chatwoot_team_id_ventas)
+          : null,
+        soporteTeamId: context.tenant.chatwoot_team_id_soporte
+          ? Number(context.tenant.chatwoot_team_id_soporte)
+          : null,
+        email: usuario.email || "",
+        name: nombreCompleto || usuario.email || "Usuario Oramis",
+        conversaciones: usuario.permisos?.conversations === true,
+        conversacionesAcceso: usuario.conversaciones_acceso,
+        equipoVentas: usuario.equipo_ventas === true,
+        equipoSoporte: usuario.equipo_soporte === true,
+        existingChatwootUserId: usuario.chatwoot_user_id,
+      });
+
+      await supabase
+        .from("usuarios_tenants")
+        .update({
+          chatwoot_user_id: result.chatwootUserId,
+          chatwoot_sync_estado: result.estado,
+          chatwoot_sync_error: null,
+          updated_at: new Date().toISOString(),
+        } as never)
+        .eq("tenant_id", tenantId)
+        .eq("id", usuarioTenantId);
+    } catch (syncError) {
+      chatwootSyncFailed = true;
+
+      const message =
+        syncError instanceof Error ? syncError.message : "Error desconocido sincronizando Chatwoot";
+
+      console.error("Error sincronizando Chatwoot al guardar usuario:", syncError);
+
+      await supabase
+        .from("usuarios_tenants")
+        .update({
+          chatwoot_sync_estado: "error",
+          chatwoot_sync_error: message.slice(0, 500),
+          updated_at: new Date().toISOString(),
+        } as never)
+        .eq("tenant_id", tenantId)
+        .eq("id", usuarioTenantId);
+    }
+  }
+
   revalidatePath("/app/admin");
-  redirect("/app/admin?saved=1");
+
+  if (chatwootSyncFailed) {
+    redirect("/app/admin?saved=1&chatwoot_error=1");
+  }
+
+  redirect("/app/admin?saved=1&chatwoot_synced=1");
 }

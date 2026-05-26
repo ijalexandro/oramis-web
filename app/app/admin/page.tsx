@@ -217,6 +217,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
               )}
 
+              {chatwootSynced && (
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
+                  ✅ Usuario guardado y sincronizado con Chatwoot correctamente.
+                </div>
+              )}
+
+              {chatwootError && (
+                <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-black text-amber-900 shadow-sm">
+                  Usuario guardado, pero no pudimos sincronizarlo con Chatwoot. Revisá el estado del usuario e intentá nuevamente.
+                </div>
+              )}
+
               {deleted && (
                 <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
                   ✅ Usuario eliminado del negocio.
@@ -316,22 +328,11 @@ function CreateUserCard() {
             Conversaciones comerciales
           </p>
 
-          <label className="block">
-            <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              Acceso
-            </span>
-            <select
-              name="conversaciones_acceso"
-              defaultValue="operador"
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-[#07111f] outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
-            >
-              <option value="ninguno">Sin acceso</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="operador">Operador</option>
-            </select>
-          </label>
+          <p className="rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold leading-5 text-slate-500">
+            Si Conversaciones está activo sin equipos, el usuario queda como supervisor. Si tiene ventas y/o soporte, queda como operador y se sincroniza con esos equipos.
+          </p>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+<div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <CheckboxField
               name="equipo_ventas"
               label="Equipo ventas"
