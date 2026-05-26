@@ -8,6 +8,7 @@ import {
   updateTenantUser,
 } from "./actions";
 import AdminSavedScroll from "./AdminSavedScroll";
+import { syncChatwootUserAction } from "./chatwootActions";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,8 @@ type AdminPageProps = {
     created?: string;
     resent?: string;
     deleted?: string;
+    chatwoot_synced?: string;
+    chatwoot_error?: string;
     email_limit?: string;
   }>;
 };
@@ -79,6 +82,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const created = params?.created === "1";
   const resent = params?.resent === "1";
   const deleted = params?.deleted === "1";
+  const chatwootSynced = params?.chatwoot_synced === "1";
+  const chatwootError = params?.chatwoot_error === "1";
   const emailLimited = false;
 
   const context = await getCurrentTenantContext();
@@ -197,6 +202,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               {resent && (
                 <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
                   ✅ Invitación reenviada correctamente.
+                </div>
+              )}
+
+              {chatwootSynced && (
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
+                  ✅ Usuario sincronizado con Chatwoot correctamente.
+                </div>
+              )}
+
+              {chatwootError && (
+                <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-black text-red-800 shadow-sm">
+                  No pudimos sincronizar el usuario con Chatwoot. Guardá el usuario primero y volvé a intentar.
                 </div>
               )}
 
@@ -482,6 +499,14 @@ function UserCard({
               className="cursor-pointer rounded-full bg-[#07111f] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
             >
               Guardar usuario
+            </button>
+
+            <button
+              type="submit"
+              formAction={syncChatwootUserAction}
+              className="cursor-pointer rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-100"
+            >
+              Sincronizar Chatwoot
             </button>
 
             <button

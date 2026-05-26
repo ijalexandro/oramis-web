@@ -26,7 +26,9 @@ type UsuarioTenantRow = {
 };
 
 export async function syncChatwootUserAction(formData: FormData) {
-  const usuarioId = String(formData.get("usuario_id") || "");
+  const usuarioId = String(
+    formData.get("usuario_id") || formData.get("usuario_tenant_id") || ""
+  );
 
   if (!usuarioId) {
     redirect("/app/admin?chatwoot_error=1");
