@@ -18,7 +18,7 @@ export default async function ConversationsPage() {
 
   const chatwootUrl =
     tenant?.url_chatwoot && tenant?.account_id
-      ? `https://${tenant.url_chatwoot}/app/accounts/${tenant.account_id}/conversations`
+      ? "/api/chatwoot/sso"
       : null;
 
 
