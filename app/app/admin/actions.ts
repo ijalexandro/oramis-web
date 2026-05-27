@@ -251,6 +251,8 @@ export async function createTenantUser(formData: FormData) {
       const nombreCompleto = [nombre, apellido].filter(Boolean).join(" ").trim();
 
       const syncResult = await syncChatwootTenantUser({
+        tenantId: Number(tenantId),
+        usuarioTenantId: insertedMembership.id,
         accountId: Number(context.tenant.account_id),
         ventasTeamId: context.tenant.chatwoot_team_id_ventas
           ? Number(context.tenant.chatwoot_team_id_ventas)
@@ -535,6 +537,8 @@ export async function updateTenantUser(formData: FormData) {
         .trim();
 
       const result = await syncChatwootTenantUser({
+        tenantId: Number(tenantId),
+        usuarioTenantId: usuario.id,
         accountId: Number(context.tenant.account_id),
         ventasTeamId: context.tenant.chatwoot_team_id_ventas
           ? Number(context.tenant.chatwoot_team_id_ventas)

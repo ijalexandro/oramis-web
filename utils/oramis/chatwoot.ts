@@ -1,3 +1,6 @@
+import crypto from "crypto";
+import { createAdminClient } from "@/utils/supabase/admin";
+
 type ChatwootAgent = {
   id: number;
   account_id: number;
@@ -8,6 +11,8 @@ type ChatwootAgent = {
 };
 
 type SyncChatwootInput = {
+  tenantId: number;
+  usuarioTenantId: string;
   accountId: number;
   ventasTeamId: number | null;
   soporteTeamId: number | null;
@@ -38,6 +43,21 @@ function getChatwootConfig() {
   }
 
   return { baseUrl, token };
+}
+
+function getProvisionConfig() {
+  const url = process.env.CHATWOOT_PROVISION_URL || "";
+  const secret = process.env.CHATWOOT_PROVISION_SECRET || "";
+
+  if (!url) {
+    throw new Error("Falta configurar CHATWOOT_PROVISION_URL.");
+  }
+
+  if (!secret) {
+    throw new Error("Falta configurar CHATWOOT_PROVISION_SECRET.");
+  }
+
+  return { url, secret };
 }
 
 async function chatwootFetch(path: string, init: RequestInit = {}) {
@@ -142,11 +162,128 @@ async function setTeamMembership(
   });
 }
 
+function generateTechnicalPassword() {
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const digits = "0123456789";
+  const special = "!@#$%^&*()_+-=[]{}|/.,<>:;?~";
+  const all = upper + lower + digits + special;
+
+  const chars = [
+    upper[crypto.randomInt(upper.length)],
+    lower[crypto.randomInt(lower.length)],
+    digits[crypto.randomInt(digits.length)],
+    special[crypto.randomInt(special.length)],
+  ];
+
+  for (let i = 0; i < 60; i += 1) {
+    chars.push(all[crypto.randomInt(all.length)]);
+  }
+
+  for (let i = chars.length - 1; i > 0; i -= 1) {
+    const j = crypto.randomInt(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+
+  return chars.join("");
+}
+
+async function provisionChatwootUser(input: {
+  accountId: number;
+  chatwootUserId: number;
+  email: string;
+  password: string;
+}) {
+  const { url, secret } = getProvisionConfig();
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-oramis-provision-secret": secret,
+    },
+    body: JSON.stringify({
+      account_id: input.accountId,
+      chatwoot_user_id: input.chatwootUserId,
+      email: input.email,
+      password: input.password,
+    }),
+    cache: "no-store",
+  });
+
+  const text = await response.text();
+  let data: unknown = null;
+
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Provision Chatwoot ${response.status}: ${
+        typeof data === "string" ? data : JSON.stringify(data)
+      }`
+    );
+  }
+
+  return data;
+}
+
+async function saveSsoSecret(input: {
+  tenantId: number;
+  usuarioTenantId: string;
+  accountId: number;
+  chatwootUserId: number;
+  email: string;
+  password: string;
+}) {
+  const adminClient = createAdminClient();
+
+  const { error } = await adminClient.rpc("upsert_chatwoot_sso_secret", {
+    p_tenant_id: input.tenantId,
+    p_usuario_tenant_id: input.usuarioTenantId,
+    p_chatwoot_account_id: input.accountId,
+    p_chatwoot_user_id: input.chatwootUserId,
+    p_chatwoot_email: input.email,
+    p_chatwoot_login_secret: input.password,
+  });
+
+  if (error) {
+    throw new Error(`No se pudo guardar el secreto SSO de Chatwoot: ${error.message}`);
+  }
+}
+
+async function deactivateSsoSecret(input: {
+  tenantId: number;
+  usuarioTenantId: string;
+}) {
+  const adminClient = createAdminClient();
+
+  const { error } = await adminClient.rpc("deactivate_chatwoot_sso_secret", {
+    p_usuario_tenant_id: input.usuarioTenantId,
+    p_tenant_id: input.tenantId,
+  });
+
+  if (error) {
+    throw new Error(`No se pudo desactivar el secreto SSO de Chatwoot: ${error.message}`);
+  }
+}
+
 export async function syncChatwootTenantUser(
   input: SyncChatwootInput
 ): Promise<SyncChatwootResult> {
   const email = input.email.trim().toLowerCase();
   const name = input.name.trim() || email;
+
+  if (!input.usuarioTenantId) {
+    throw new Error("Falta usuarioTenantId para sincronizar Chatwoot.");
+  }
+
+  if (!input.tenantId) {
+    throw new Error("Falta tenantId para sincronizar Chatwoot.");
+  }
 
   if (!email) {
     throw new Error("El usuario no tiene email.");
@@ -164,6 +301,11 @@ export async function syncChatwootTenantUser(
       await setTeamMembership(input.accountId, input.soporteTeamId, input.existingChatwootUserId, false);
     }
 
+    await deactivateSsoSecret({
+      tenantId: input.tenantId,
+      usuarioTenantId: input.usuarioTenantId,
+    });
+
     return {
       estado: "no_requiere",
       chatwootUserId: input.existingChatwootUserId ?? null,
@@ -180,26 +322,37 @@ export async function syncChatwootTenantUser(
   if (acceso === "supervisor") {
     await setTeamMembership(input.accountId, input.ventasTeamId, agentId, false);
     await setTeamMembership(input.accountId, input.soporteTeamId, agentId, false);
-
-    return {
-      estado: "sincronizado",
-      chatwootUserId: agentId,
-    };
-  }
-
-  if (acceso === "operador") {
+  } else if (acceso === "operador") {
     if (!input.equipoVentas && !input.equipoSoporte) {
       throw new Error("Un operador debe pertenecer al equipo de ventas, soporte o ambos.");
     }
 
     await setTeamMembership(input.accountId, input.ventasTeamId, agentId, input.equipoVentas);
     await setTeamMembership(input.accountId, input.soporteTeamId, agentId, input.equipoSoporte);
-
-    return {
-      estado: "sincronizado",
-      chatwootUserId: agentId,
-    };
+  } else {
+    throw new Error(`Acceso de conversaciones inválido: ${input.conversacionesAcceso}`);
   }
 
-  throw new Error(`Acceso de conversaciones inválido: ${input.conversacionesAcceso}`);
+  const password = generateTechnicalPassword();
+
+  await provisionChatwootUser({
+    accountId: input.accountId,
+    chatwootUserId: agentId,
+    email,
+    password,
+  });
+
+  await saveSsoSecret({
+    tenantId: input.tenantId,
+    usuarioTenantId: input.usuarioTenantId,
+    accountId: input.accountId,
+    chatwootUserId: agentId,
+    email,
+    password,
+  });
+
+  return {
+    estado: "sincronizado",
+    chatwootUserId: agentId,
+  };
 }

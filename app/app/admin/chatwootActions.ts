@@ -77,6 +77,8 @@ export async function syncChatwootUserAction(formData: FormData) {
       .trim();
 
     const result = await syncChatwootTenantUser({
+      tenantId: Number(context.tenant.tenant_id),
+      usuarioTenantId: usuario.id,
       accountId: Number(context.tenant.account_id),
       ventasTeamId: context.tenant.chatwoot_team_id_ventas
         ? Number(context.tenant.chatwoot_team_id_ventas)
