@@ -66,7 +66,7 @@ async function chatwootFetch(path: string, init: RequestInit = {}) {
   const response = await fetch(`${baseUrl}${path}`, {
     ...init,
     headers: {
-      "api_access_token": token,
+      api_access_token: token,
       "Content-Type": "application/json",
       ...(init.headers || {}),
     },
@@ -100,32 +100,16 @@ async function listAgents(accountId: number): Promise<ChatwootAgent[]> {
 
 async function findAgentByEmail(accountId: number, email: string) {
   const agents = await listAgents(accountId);
-  return agents.find((agent) => agent.email.toLowerCase() === email.toLowerCase()) ?? null;
+  return (
+    agents.find((agent) => agent.email.toLowerCase() === email.toLowerCase()) ??
+    null
+  );
 }
 
-async function createOrFindAgent(accountId: number, email: string, name: string) {
-  const existing = await findAgentByEmail(accountId, email);
-  if (existing) return existing;
-
-  try {
-    const created = await chatwootFetch(`/api/v1/accounts/${accountId}/agents`, {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        email,
-        role: "agent",
-      }),
-    });
-
-    return created as ChatwootAgent;
-  } catch (error) {
-    const afterError = await findAgentByEmail(accountId, email);
-    if (afterError) return afterError;
-    throw error;
-  }
-}
-
-async function getTeamMembers(accountId: number, teamId: number): Promise<ChatwootAgent[]> {
+async function getTeamMembers(
+  accountId: number,
+  teamId: number
+): Promise<ChatwootAgent[]> {
   const data = await chatwootFetch(
     `/api/v1/accounts/${accountId}/teams/${teamId}/team_members`
   );
@@ -190,10 +174,11 @@ function generateTechnicalPassword() {
 
 async function provisionChatwootUser(input: {
   accountId: number;
-  chatwootUserId: number;
+  chatwootUserId: number | null;
   email: string;
+  name: string;
   password: string;
-}) {
+}): Promise<{ user_id: number }> {
   const { url, secret } = getProvisionConfig();
 
   const response = await fetch(url, {
@@ -204,8 +189,9 @@ async function provisionChatwootUser(input: {
     },
     body: JSON.stringify({
       account_id: input.accountId,
-      chatwoot_user_id: input.chatwootUserId,
+      chatwoot_user_id: input.chatwootUserId ?? 0,
       email: input.email,
+      name: input.name,
       password: input.password,
     }),
     cache: "no-store",
@@ -228,7 +214,13 @@ async function provisionChatwootUser(input: {
     );
   }
 
-  return data;
+  const result = data as { user_id?: number };
+
+  if (!result?.user_id || !Number.isFinite(Number(result.user_id))) {
+    throw new Error("Provision Chatwoot no devolvió user_id válido.");
+  }
+
+  return { user_id: Number(result.user_id) };
 }
 
 async function saveSsoSecret(input: {
@@ -297,8 +289,18 @@ export async function syncChatwootTenantUser(
 
   if (!input.conversaciones || acceso === "ninguno") {
     if (input.existingChatwootUserId) {
-      await setTeamMembership(input.accountId, input.ventasTeamId, input.existingChatwootUserId, false);
-      await setTeamMembership(input.accountId, input.soporteTeamId, input.existingChatwootUserId, false);
+      await setTeamMembership(
+        input.accountId,
+        input.ventasTeamId,
+        input.existingChatwootUserId,
+        false
+      );
+      await setTeamMembership(
+        input.accountId,
+        input.soporteTeamId,
+        input.existingChatwootUserId,
+        false
+      );
     }
 
     await deactivateSsoSecret({
@@ -312,11 +314,23 @@ export async function syncChatwootTenantUser(
     };
   }
 
-  const agent = await createOrFindAgent(input.accountId, email, name);
-  const agentId = Number(agent.id);
+  const existingAgent = await findAgentByEmail(input.accountId, email);
+  const existingAgentId = existingAgent?.id ? Number(existingAgent.id) : null;
+
+  const password = generateTechnicalPassword();
+
+  const provisionResult = await provisionChatwootUser({
+    accountId: input.accountId,
+    chatwootUserId: existingAgentId,
+    email,
+    name,
+    password,
+  });
+
+  const agentId = Number(provisionResult.user_id);
 
   if (!Number.isFinite(agentId)) {
-    throw new Error("Chatwoot no devolvió un ID de agente válido.");
+    throw new Error("Provision Chatwoot no devolvió un ID de agente válido.");
   }
 
   if (acceso === "supervisor") {
@@ -332,15 +346,6 @@ export async function syncChatwootTenantUser(
   } else {
     throw new Error(`Acceso de conversaciones inválido: ${input.conversacionesAcceso}`);
   }
-
-  const password = generateTechnicalPassword();
-
-  await provisionChatwootUser({
-    accountId: input.accountId,
-    chatwootUserId: agentId,
-    email,
-    password,
-  });
 
   await saveSsoSecret({
     tenantId: input.tenantId,
