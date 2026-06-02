@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 async function getOrigin() {
   const headersList = await headers();
@@ -65,8 +66,56 @@ export async function signUpAction(formData: FormData) {
     },
   });
 
-  if (error) {
+  if (error || !data.user) {
     redirect("/signup?error=No pudimos crear la cuenta. Probá nuevamente.");
+  }
+
+  const adminClient = createAdminClient();
+
+  const { data: tenant, error: tenantError } = await adminClient
+    .from("_0_tenants")
+    .insert({
+      nombre_empresa: company,
+      estado: "pendiente_onboarding",
+      email_contacto: email,
+      metadata: {
+        origen: "signup",
+        auth_user_id: data.user.id,
+      },
+    })
+    .select("tenant_id")
+    .single();
+
+  if (tenantError || !tenant?.tenant_id) {
+    console.error("Error creando tenant de onboarding:", tenantError);
+    redirect("/signup?error=La cuenta se creó, pero no pudimos preparar el onboarding. Contactanos para activarla.");
+  }
+
+  const { error: membershipError } = await adminClient
+    .from("usuarios_tenants")
+    .insert({
+      tenant_id: tenant.tenant_id,
+      user_id: data.user.id,
+      email,
+      rol: "owner",
+      nombre: name,
+      activo: true,
+      permisos: {
+        admin: true,
+        metrics: false,
+        business: false,
+        conversations: false,
+      },
+      conversaciones_acceso: "ninguno",
+      equipo_ventas: false,
+      equipo_soporte: false,
+      chatwoot_sync_estado: "no_requiere",
+      auth_invitation_estado: "registrado",
+    });
+
+  if (membershipError) {
+    console.error("Error creando usuario_tenant de onboarding:", membershipError);
+    redirect("/signup?error=La cuenta se creó, pero no pudimos asociarla al negocio. Contactanos para activarla.");
   }
 
   if (data.session) {
