@@ -95,7 +95,7 @@ export async function createDemoAction(formData: FormData) {
     body: JSON.stringify({
       tenant_id: tenantId,
       url_sitio: urlSitio,
-      cantidad_productos: 10,
+      cantidad_productos: 50,
       nombre_negocio: nombreEmpresa,
       lead_email: email,
       lead_whatsapp: null,
