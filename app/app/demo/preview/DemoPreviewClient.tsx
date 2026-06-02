@@ -47,72 +47,71 @@ export function DemoPreviewClient({
 
   return (
     <AppShell subtitle="Demo">
-      <section className="relative overflow-hidden rounded-[2.4rem] border border-emerald-100 bg-white p-7 shadow-sm sm:p-8">
-        <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-emerald-100 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-emerald-50 blur-3xl" />
+      <section className="rounded-[2.4rem] border border-emerald-100 bg-white p-7 shadow-sm sm:p-9">
+        <div className="mx-auto max-w-5xl text-center">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+            Demo lista
+          </p>
 
-        <div className="relative grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-              Demo lista
-            </p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-[-0.055em] lg:text-5xl">
-              Tu vendedor IA ya está listo para probar.
-            </h1>
-            <p className="mt-4 max-w-2xl text-lg font-semibold leading-8 text-slate-600">
-              {hasProducts
-                ? "Probalo con productos detectados de tu web."
-                : "Cargá algunos productos para probar cómo respondería Oramis."}
-            </p>
+          <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] lg:text-6xl">
+            Tu vendedor IA ya está listo para probar.
+          </h1>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              {hasProducts ? (
-                <button
-                  type="button"
-                  onClick={() => setIsDemoOpen(true)}
-                  className="rounded-full bg-emerald-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
-                >
-                  Probar ahora
-                </button>
-              ) : null}
+          <p className="mx-auto mt-5 max-w-2xl text-lg font-semibold leading-8 text-slate-600">
+            {hasProducts
+              ? "Probalo con productos detectados de tu web."
+              : "Cargá algunos productos para probar cómo respondería Oramis."}
+          </p>
 
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            {hasProducts ? (
               <button
                 type="button"
-                onClick={openCatalog}
-                className={`rounded-full px-8 py-4 text-base font-black shadow-sm transition ${
-                  hasProducts
-                    ? "border border-slate-200 bg-white text-slate-800 hover:border-emerald-200 hover:text-emerald-700"
-                    : "bg-emerald-500 text-white shadow-xl shadow-emerald-200 hover:bg-emerald-600"
-                }`}
+                onClick={() => setIsDemoOpen(true)}
+                className="rounded-full bg-emerald-500 px-9 py-4 text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
               >
-                {hasProducts ? "Editar productos" : "Cargar productos"}
+                Probar ahora
               </button>
+            ) : null}
 
-              <a
-                href={CONTRACT_URL}
-                className="rounded-full border border-slate-200 bg-white px-8 py-4 text-center text-base font-black text-slate-800 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
-              >
-                Quiero contratar
-              </a>
-            </div>
+            <button
+              type="button"
+              onClick={openCatalog}
+              className={`rounded-full px-9 py-4 text-base font-black shadow-sm transition ${
+                hasProducts
+                  ? "border border-slate-200 bg-white text-slate-800 hover:border-emerald-200 hover:text-emerald-700"
+                  : "bg-emerald-500 text-white shadow-xl shadow-emerald-200 hover:bg-emerald-600"
+              }`}
+            >
+              {hasProducts ? "Editar productos" : "Cargar productos"}
+            </button>
+
+            <a
+              href={CONTRACT_URL}
+              className="rounded-full border border-slate-200 bg-white px-9 py-4 text-center text-base font-black text-slate-800 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
+            >
+              Quiero contratar
+            </a>
           </div>
 
-          <HeroMockup
-            productCount={products.length}
-            hasProducts={hasProducts}
-            onTry={() => setIsDemoOpen(true)}
-            onEdit={openCatalog}
-          />
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-2 text-sm font-black text-slate-500">
+            <span className="rounded-full bg-emerald-50 px-4 py-2 text-emerald-700">
+              {hasProducts ? `${products.length} productos detectados` : "Catálogo pendiente"}
+            </span>
+            <span className="rounded-full bg-slate-50 px-4 py-2">
+              Sin conectar WhatsApp real
+            </span>
+          </div>
         </div>
 
         {error ? (
-          <div className="relative mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
             {error}
           </div>
         ) : null}
 
         {saved ? (
-          <div className="relative mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
+          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
             Cambios guardados.
           </div>
         ) : null}
@@ -121,23 +120,23 @@ export function DemoPreviewClient({
       {hasProducts ? (
         <section className="mt-6 grid gap-6 lg:grid-cols-3">
           <PreviewCard
-            eyebrow="Bandeja comercial"
+            icon="💬"
             title="Conversaciones"
-            text="Así se centralizan consultas y ventas."
+            text="Bandeja comercial para atender consultas."
             variant="dark"
             onClick={() => setModulePreview("conversations")}
           />
           <PreviewCard
-            eyebrow="Seguimiento"
+            icon="📊"
             title="Métricas"
-            text="Así se miden oportunidades y productos pedidos."
+            text="Seguimiento de oportunidades y productos."
             variant="light"
             onClick={() => setModulePreview("metrics")}
           />
           <PreviewCard
-            eyebrow="Configuración"
+            icon="⚙️"
             title="Administración"
-            text="Así se gestionan usuarios, negocio y permisos."
+            text="Usuarios, permisos y configuración."
             variant="green"
             onClick={() => setModulePreview("admin")}
           />
@@ -211,103 +210,14 @@ export function DemoPreviewClient({
   );
 }
 
-function HeroMockup({
-  productCount,
-  hasProducts,
-  onTry,
-  onEdit,
-}: {
-  productCount: number;
-  hasProducts: boolean;
-  onTry: () => void;
-  onEdit: () => void;
-}) {
-  return (
-    <div className="relative overflow-hidden rounded-[2.2rem] border border-emerald-200 bg-gradient-to-br from-emerald-100 via-white to-sky-50 p-5 shadow-xl shadow-emerald-950/5">
-      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-300/30 blur-2xl" />
-      <div className="absolute -bottom-12 left-8 h-32 w-32 rounded-full bg-sky-300/20 blur-2xl" />
-
-      <div className="relative grid gap-4 sm:grid-cols-[0.82fr_1.18fr] sm:items-center">
-        <div className="mx-auto w-full max-w-[230px] rounded-[2rem] border border-emerald-200 bg-[#dff4e8] p-2 shadow-2xl shadow-emerald-950/10">
-          <div className="overflow-hidden rounded-[1.55rem] bg-white">
-            <div className="bg-[#075e54] px-4 py-3 text-white">
-              <p className="text-xs font-black">Oramis Demo</p>
-              <p className="text-[10px] font-semibold text-white/75">Vendedor IA</p>
-            </div>
-
-            <div className="space-y-3 bg-[#e9f8ef] p-4">
-              <div className="ml-auto h-10 w-28 rounded-2xl rounded-tr-sm bg-[#dcf8c6]" />
-              <div className="h-12 w-36 rounded-2xl rounded-tl-sm bg-white shadow-sm" />
-              <div className="ml-auto h-10 w-24 rounded-2xl rounded-tr-sm bg-[#dcf8c6]" />
-            </div>
-
-            <div className="flex gap-2 border-t border-slate-100 bg-white p-3">
-              <div className="h-8 flex-1 rounded-full bg-slate-100" />
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-xs font-black text-white">
-                ➤
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative">
-          <div className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-black text-emerald-700 shadow-sm">
-            {hasProducts ? `${productCount} productos detectados` : "Catálogo pendiente"}
-          </div>
-
-          <h3 className="mt-4 text-2xl font-black tracking-[-0.04em] text-slate-950">
-            Demo sin conectar WhatsApp real
-          </h3>
-
-          <div className="mt-4 grid gap-2">
-            <MockFlowItem icon="🌐" text="Tomamos productos de tu web" />
-            <MockFlowItem icon="🛒" text="Armamos un catálogo editable" />
-            <MockFlowItem icon="🤖" text="Lo usa el vendedor IA" />
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            {hasProducts ? (
-              <button
-                type="button"
-                onClick={onTry}
-                className="rounded-full bg-[#07111f] px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
-              >
-                Probar
-              </button>
-            ) : null}
-            <button
-              type="button"
-              onClick={onEdit}
-              className="rounded-full bg-white px-5 py-2.5 text-sm font-black text-slate-800 shadow-sm transition hover:text-emerald-700"
-            >
-              {hasProducts ? "Editar catálogo" : "Cargar catálogo"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MockFlowItem({ icon, text }: { icon: string; text: string }) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl bg-white/85 px-4 py-3 shadow-sm">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-base">
-        {icon}
-      </span>
-      <span className="text-sm font-black text-slate-700">{text}</span>
-    </div>
-  );
-}
-
 function PreviewCard({
-  eyebrow,
+  icon,
   title,
   text,
   variant,
   onClick,
 }: {
-  eyebrow: string;
+  icon: string;
   title: string;
   text: string;
   variant: "dark" | "light" | "green";
@@ -317,119 +227,55 @@ function PreviewCard({
   const isGreen = variant === "green";
 
   const wrapperClass = isDark
-    ? "border-[#07111f] bg-[#07111f] text-white shadow-xl shadow-slate-300"
+    ? "border-[#07111f] bg-[#07111f] text-white shadow-lg shadow-slate-300"
     : isGreen
-      ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white text-slate-900 shadow-sm"
+      ? "border-emerald-200 bg-emerald-50 text-slate-900 shadow-sm"
       : "border-slate-200 bg-white text-slate-900 shadow-sm";
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`group overflow-hidden rounded-[2rem] border p-5 text-left transition hover:-translate-y-1 hover:shadow-xl ${wrapperClass}`}
+      className={`group rounded-[2rem] border p-6 text-left transition hover:-translate-y-1 hover:shadow-xl ${wrapperClass}`}
     >
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <p
-            className={`text-xs font-black uppercase tracking-[0.22em] ${
-              isDark ? "text-emerald-300" : "text-emerald-600"
-            }`}
-          >
-            {eyebrow}
-          </p>
-          <h3 className="mt-3 text-2xl font-black tracking-[-0.04em]">
-            {title}
-          </h3>
-          <p
-            className={`mt-2 text-sm font-semibold leading-6 ${
-              isDark ? "text-slate-300" : "text-slate-500"
-            }`}
-          >
-            {text}
-          </p>
-        </div>
+        <span
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl ${
+            isDark ? "bg-white text-[#07111f]" : "bg-white text-slate-900 shadow-sm"
+          }`}
+        >
+          {icon}
+        </span>
 
         <span
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-black transition group-hover:scale-110 ${
-            isDark ? "bg-white text-[#07111f]" : "bg-[#07111f] text-white"
+            isDark ? "bg-white/10 text-white" : "bg-[#07111f] text-white"
           }`}
         >
           ↗
         </span>
       </div>
 
-      <div
-        className={`mt-5 overflow-hidden rounded-3xl ${
-          isDark ? "bg-white/10" : isGreen ? "bg-white/80" : "bg-slate-50"
+      <h3 className="mt-5 text-2xl font-black tracking-[-0.04em]">
+        {title}
+      </h3>
+
+      <p
+        className={`mt-2 text-sm font-semibold leading-6 ${
+          isDark ? "text-slate-300" : "text-slate-500"
         }`}
       >
-        {variant === "dark" ? <ConversationMini /> : null}
-        {variant === "light" ? <MetricMini /> : null}
-        {variant === "green" ? <AdminMini /> : null}
-      </div>
+        {text}
+      </p>
+
+      <p
+        className={`mt-5 text-sm font-black ${
+          isDark ? "text-emerald-300" : "text-emerald-600"
+        }`}
+      >
+        Ver preview →
+      </p>
     </button>
-  );
-}
-
-function ConversationMini() {
-  return (
-    <div className="grid h-28 grid-cols-[0.42fr_0.58fr] gap-2 p-3">
-      <div className="space-y-2">
-        <div className="h-5 rounded-lg bg-white/25" />
-        <div className="h-5 rounded-lg bg-emerald-300/35" />
-        <div className="h-5 rounded-lg bg-white/15" />
-      </div>
-      <div className="rounded-2xl bg-[#e9f8ef] p-2">
-        <div className="ml-auto h-5 w-16 rounded-xl bg-[#dcf8c6]" />
-        <div className="mt-2 h-6 w-20 rounded-xl bg-white" />
-        <div className="mt-2 ml-auto h-5 w-14 rounded-xl bg-[#dcf8c6]" />
-      </div>
-    </div>
-  );
-}
-
-function MetricMini() {
-  return (
-    <div className="h-28 p-3">
-      <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-2xl bg-emerald-100 p-2">
-          <div className="h-3 w-8 rounded-full bg-emerald-300" />
-          <div className="mt-2 h-5 w-10 rounded-full bg-emerald-500" />
-        </div>
-        <div className="rounded-2xl bg-sky-100 p-2">
-          <div className="h-3 w-8 rounded-full bg-sky-300" />
-          <div className="mt-2 h-5 w-12 rounded-full bg-sky-500" />
-        </div>
-        <div className="rounded-2xl bg-amber-100 p-2">
-          <div className="h-3 w-8 rounded-full bg-amber-300" />
-          <div className="mt-2 h-5 w-8 rounded-full bg-amber-500" />
-        </div>
-      </div>
-      <div className="mt-3 flex h-10 items-end gap-2">
-        {[35, 60, 45, 80, 52, 70].map((height, index) => (
-          <div
-            key={index}
-            className="flex-1 rounded-t-lg bg-emerald-400"
-            style={{ height: `${height}%` }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function AdminMini() {
-  return (
-    <div className="grid h-28 grid-cols-2 gap-2 p-3">
-      <div className="rounded-2xl bg-emerald-100 p-3">
-        <div className="h-7 w-7 rounded-full bg-emerald-400" />
-        <div className="mt-3 h-3 w-20 rounded-full bg-emerald-300" />
-      </div>
-      <div className="rounded-2xl bg-slate-100 p-3">
-        <div className="h-7 w-7 rounded-full bg-sky-400" />
-        <div className="mt-3 h-3 w-16 rounded-full bg-slate-300" />
-      </div>
-    </div>
   );
 }
 
@@ -598,6 +444,15 @@ function DemoModal({ onClose }: { onClose: () => void }) {
       />
 
       <div className="relative z-10 w-full max-w-[430px]">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="absolute -right-3 -top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl font-black text-slate-700 shadow-lg transition hover:bg-slate-100"
+        >
+          ×
+        </button>
+
         <div className="mx-auto rounded-[2.6rem] border border-emerald-200 bg-[#dff4e8] p-3 shadow-2xl shadow-emerald-950/20">
           <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm">
             <div className="bg-[#075e54] px-5 py-4 text-white">
@@ -631,14 +486,6 @@ function DemoModal({ onClose }: { onClose: () => void }) {
             </form>
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="mx-auto mt-4 block rounded-full bg-white px-5 py-2.5 text-sm font-black text-slate-700 shadow-lg transition hover:bg-slate-100"
-        >
-          Cerrar
-        </button>
       </div>
     </div>
   );
