@@ -1,9 +1,17 @@
+import { createDemoAction } from "../actions";
+
 export const metadata = {
   title: "Crear demo | Oramis",
   description: "Crear una demo con productos en Oramis.",
 };
 
-export default function NewDemoPage() {
+export default function NewDemoPage({
+  searchParams,
+}: {
+  searchParams?: { error?: string };
+}) {
+  const error = searchParams?.error;
+
   return (
     <AppShell subtitle="Crear demo">
       <section className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr]">
@@ -32,15 +40,25 @@ export default function NewDemoPage() {
         </div>
 
         <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-8">
-          <form className="space-y-4">
-            <Field label="Web o tienda online" placeholder="https://tutienda.com" />
+          <form action={createDemoAction} className="space-y-4">
+            <Field
+              label="Web o tienda online"
+              name="url_sitio"
+              placeholder="https://tutienda.com"
+            />
 
-            <a
-              href="/app/demo/preview"
-              className="block rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
+            {error ? (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                {error}
+              </div>
+            ) : null}
+
+            <button
+              type="submit"
+              className="block w-full rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
             >
               Crear demo gratis
-            </a>
+            </button>
           </form>
         </div>
       </section>
@@ -48,12 +66,22 @@ export default function NewDemoPage() {
   );
 }
 
-function Field({ label, placeholder }: { label: string; placeholder: string }) {
+function Field({
+  label,
+  name,
+  placeholder,
+}: {
+  label: string;
+  name: string;
+  placeholder: string;
+}) {
   return (
     <label className="block">
       <span className="text-sm font-black text-slate-700">{label}</span>
       <input
         type="text"
+        name={name}
+        required
         placeholder={placeholder}
         className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base font-semibold text-[#07111f] outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
       />
