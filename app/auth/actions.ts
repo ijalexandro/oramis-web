@@ -66,6 +66,18 @@ export async function signUpAction(formData: FormData) {
     },
   });
 
+  console.error("SIGNUP_DEBUG signUp result:", {
+    hasError: Boolean(error),
+    errorMessage: error?.message ?? null,
+    errorName: error?.name ?? null,
+    errorStatus: "status" in (error || {}) ? (error as { status?: number }).status : null,
+    hasUser: Boolean(data.user),
+    userId: data.user?.id ?? null,
+    userEmail: data.user?.email ?? null,
+    hasSession: Boolean(data.session),
+    email,
+  });
+
   if (error || !data.user) {
     redirect("/signup?error=No pudimos crear la cuenta. Probá nuevamente.");
   }
