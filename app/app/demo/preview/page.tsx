@@ -95,18 +95,16 @@ export default async function DemoPreviewPage({
   return (
     <AppShell subtitle="Demo">
       <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
               Demo lista
             </p>
             <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] lg:text-4xl">
-              Revisá tus productos y probá el vendedor IA.
+              Probá Oramis con productos reales de tu web.
             </h1>
-            <p className="mt-3 max-w-4xl text-base font-medium leading-7 text-slate-600">
-              Cargamos hasta 50 productos de prueba desde tu web para que veas cómo
-              Oramis puede responder consultas comerciales. Podés ajustar nombres,
-              descripciones y precios antes de probar la conversación.
+            <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-slate-600">
+              Ajustá el catálogo y escribí una consulta como si fueras un cliente.
             </p>
           </div>
 
@@ -131,24 +129,26 @@ export default async function DemoPreviewPage({
         ) : null}
       </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+      <section className="mt-6 grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
+        <DemoChatPreview />
+
         <div className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-                Catálogo editable
+                Catálogo
               </p>
               <h2 className="mt-2 text-xl font-black tracking-[-0.04em]">
-                Productos de la demo
+                Productos detectados
               </h2>
             </div>
             <p className="text-xs font-bold text-slate-500">
-              Editá lo mínimo necesario. Las filas vacías agregan productos.
+              {products.length} productos de prueba
             </p>
           </div>
 
           <form action={saveDemoProductsAction} className="mt-6">
-            <div className="max-h-[540px] overflow-auto rounded-3xl border border-slate-200">
+            <div className="max-h-[500px] overflow-auto rounded-3xl border border-slate-200">
               <table className="min-w-[900px] w-full border-collapse bg-white text-xs">
                 <thead className="bg-slate-50">
                   <tr className="text-left text-xs font-black uppercase tracking-[0.12em] text-slate-500">
@@ -174,9 +174,8 @@ export default async function DemoPreviewPage({
             </div>
 
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-semibold leading-6 text-slate-500">
-                Borrar oculta el producto de la demo. Las filas vacías se guardan
-                solo si completás el nombre.
+              <p className="text-xs font-semibold leading-5 text-slate-500">
+                Las filas vacías agregan productos. Borrar los oculta de la demo.
               </p>
 
               <button
@@ -189,33 +188,18 @@ export default async function DemoPreviewPage({
           </form>
         </div>
 
-        <DemoChatPreview />
       </section>
-      <section className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Teaser
-          title="Conversaciones comerciales"
-          description="Al contratar, todos los canales comerciales se centralizan para responder, derivar y hacer seguimiento desde un solo lugar."
-          href="/app/conversations"
-        />
-        <Teaser
-          title="Métricas comerciales"
-          description="Al contratar, vas a medir intención, productos pedidos, carritos y oportunidades generadas."
-          href="/app/metrics"
-        />
-      </section>
-
       <section className="mt-6 rounded-[2rem] border border-slate-200 bg-[#07111f] p-7 text-white shadow-xl shadow-slate-300 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
-              Listo para activar Oramis
+              Activá Oramis
             </p>
             <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">
-              Convertí esta demo en una operación comercial real.
+              Llevá esta demo a una operación real.
             </h2>
             <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-slate-300">
-              Al contratar, Oramis queda activo con tus productos, canales comerciales,
-              conversaciones centralizadas y métricas para seguimiento.
+              Conectamos tus canales comerciales y dejamos el vendedor IA funcionando con tu catálogo.
             </p>
           </div>
 
@@ -348,62 +332,37 @@ function CellTextarea({
   );
 }
 
-function Teaser({
-  title,
-  description,
-  href,
-}: {
-  title: string;
-  description: string;
-  href: string;
-}) {
-  return (
-    <a
-      href={href}
-      className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-950/5"
-    >
-      <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-        Disponible al contratar
-      </p>
-      <h3 className="mt-4 text-3xl font-black tracking-[-0.04em]">{title}</h3>
-      <p className="mt-3 text-base font-medium leading-7 text-slate-600">
-        {description}
-      </p>
-      <p className="mt-5 text-sm font-black text-emerald-600">Ver preview →</p>
-    </a>
-  );
-}
-
 function DemoChatPreview() {
   return (
     <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-5 shadow-xl shadow-emerald-950/5 sm:p-6">
-      <div className="rounded-[1.6rem] bg-white p-5 shadow-sm">
-        <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-          Probá el vendedor IA
-        </p>
-        <h2 className="mt-3 text-3xl font-black tracking-[-0.04em]">
-          Escribí como si fueras un cliente.
-        </h2>
-        <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-          Oramis va a responder usando los productos que dejaste en la tabla.
-          Probá una consulta real, por ejemplo: “busco neumáticos 205/55R16”.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+            Probá la demo
+          </p>
+          <h2 className="mt-3 text-3xl font-black tracking-[-0.04em]">
+            Escribí una consulta.
+          </h2>
+        </div>
+        <span className="rounded-full bg-white px-4 py-2 text-xs font-black text-emerald-700 shadow-sm">
+          IA de ventas
+        </span>
       </div>
 
-      <div className="mx-auto mt-5 max-w-[390px] rounded-[2.2rem] border border-emerald-200 bg-[#dff4e8] p-3 shadow-2xl shadow-emerald-950/10">
-        <div className="overflow-hidden rounded-[1.8rem] bg-white shadow-sm">
+      <div className="mx-auto mt-6 max-w-[390px] rounded-[2.4rem] border border-emerald-200 bg-[#dff4e8] p-3 shadow-2xl shadow-emerald-950/10">
+        <div className="overflow-hidden rounded-[1.9rem] bg-white shadow-sm">
           <div className="bg-[#075e54] px-5 py-4 text-white">
             <p className="text-sm font-black">Oramis Demo</p>
-            <p className="text-xs text-white/75">Vendedor IA conectado a tu catálogo</p>
+            <p className="text-xs text-white/75">Conectado a tu catálogo</p>
           </div>
 
-          <div className="flex min-h-[280px] items-center justify-center bg-[#e9f8ef] p-5 text-center">
-            <div>
-              <p className="text-sm font-black text-slate-700">
-                Tu conversación de prueba empieza acá
+          <div className="flex min-h-[360px] items-center justify-center bg-[#e9f8ef] p-6 text-center">
+            <div className="rounded-3xl bg-white/75 p-5 shadow-sm">
+              <p className="text-base font-black text-slate-800">
+                Tu prueba empieza acá
               </p>
-              <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">
-                Guardá los cambios del catálogo y escribí una consulta para ver cómo respondería Oramis.
+              <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
+                Escribí como cliente y Oramis responderá usando los productos detectados.
               </p>
             </div>
           </div>
@@ -411,7 +370,7 @@ function DemoChatPreview() {
           <form className="border-t border-slate-200 bg-white p-4">
             <label className="block">
               <span className="mb-2 block text-sm font-black text-slate-700">
-                Mensaje de prueba
+                Mensaje
               </span>
               <div className="flex gap-3">
                 <input
@@ -431,8 +390,8 @@ function DemoChatPreview() {
         </div>
       </div>
 
-      <p className="mt-4 text-center text-xs font-bold leading-5 text-emerald-900">
-        La prueba se habilita con el catálogo editado. No necesitás conectar WhatsApp real para esta demo.
+      <p className="mt-5 text-center text-sm font-bold leading-6 text-emerald-900">
+        No necesitás conectar WhatsApp real para probar.
       </p>
     </div>
   );
