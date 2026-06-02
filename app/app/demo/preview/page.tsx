@@ -128,7 +128,7 @@ export default async function DemoPreviewPage({
         ) : null}
       </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1.55fr_0.65fr]">
+      <section className="mt-6 grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
         <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -145,15 +145,15 @@ export default async function DemoPreviewPage({
           </div>
 
           <form action={saveDemoProductsAction} className="mt-6">
-            <div className="overflow-x-auto rounded-3xl border border-slate-200">
-              <table className="min-w-[1180px] w-full border-collapse bg-white text-sm">
+            <div className="max-h-[620px] overflow-auto rounded-3xl border border-slate-200">
+              <table className="min-w-[980px] w-full border-collapse bg-white text-sm">
                 <thead className="bg-slate-50">
                   <tr className="text-left text-xs font-black uppercase tracking-[0.12em] text-slate-500">
-                    <th className="w-[260px] px-3 py-3">Nombre</th>
-                    <th className="w-[320px] px-3 py-3">Descripción</th>
-                    <th className="w-[130px] px-3 py-3">Precio</th>
-                    <th className="w-[230px] px-3 py-3">URL producto</th>
-                    <th className="w-[230px] px-3 py-3">URL imagen</th>
+                    <th className="w-[220px] px-3 py-3">Nombre</th>
+                    <th className="w-[260px] px-3 py-3">Descripción</th>
+                    <th className="w-[110px] px-3 py-3">Precio</th>
+                    <th className="w-[190px] px-3 py-3">URL producto</th>
+                    <th className="w-[190px] px-3 py-3">URL imagen</th>
                     <th className="w-[90px] px-3 py-3 text-center">Borrar</th>
                   </tr>
                 </thead>
@@ -188,6 +188,43 @@ export default async function DemoPreviewPage({
 
         <DemoChatPreview />
       </section>
+      <section className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Teaser
+          title="Conversaciones comerciales"
+          description="Al contratar, todos los canales comerciales se centralizan para responder, derivar y hacer seguimiento desde un solo lugar."
+          href="/app/conversations"
+        />
+        <Teaser
+          title="Métricas comerciales"
+          description="Al contratar, vas a medir intención, productos pedidos, carritos y oportunidades generadas."
+          href="/app/metrics"
+        />
+      </section>
+
+      <section className="mt-6 rounded-[2rem] border border-slate-200 bg-[#07111f] p-7 text-white shadow-xl shadow-slate-300 sm:p-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+              Listo para activar Oramis
+            </p>
+            <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">
+              Convertí esta demo en una operación comercial real.
+            </h2>
+            <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-slate-300">
+              Al contratar, Oramis queda activo con tus productos, canales comerciales,
+              conversaciones centralizadas y métricas para seguimiento.
+            </p>
+          </div>
+
+          <a
+            href="/signup?intent=contract"
+            className="rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-950/20 transition hover:bg-emerald-600"
+          >
+            Quiero contratar Oramis
+          </a>
+        </div>
+      </section>
+
     </AppShell>
   );
 }
@@ -305,6 +342,32 @@ function CellTextarea({
       rows={2}
       className="w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold leading-5 text-slate-800 outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
     />
+  );
+}
+
+function Teaser({
+  title,
+  description,
+  href,
+}: {
+  title: string;
+  description: string;
+  href: string;
+}) {
+  return (
+    <a
+      href={href}
+      className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-950/5"
+    >
+      <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+        Disponible al contratar
+      </p>
+      <h3 className="mt-4 text-3xl font-black tracking-[-0.04em]">{title}</h3>
+      <p className="mt-3 text-base font-medium leading-7 text-slate-600">
+        {description}
+      </p>
+      <p className="mt-5 text-sm font-black text-emerald-600">Ver preview →</p>
+    </a>
   );
 }
 
