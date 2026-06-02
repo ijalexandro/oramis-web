@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import type { DemoProduct } from "./page";
 import { saveDemoProductsAction } from "../productActions";
 
+type ModulePreview = "conversations" | "metrics" | "admin" | null;
+
 function isPlaceholderImage(url: string | null) {
   if (!url) return true;
   return url.startsWith("data:image/gif;base64");
@@ -22,6 +24,7 @@ export function DemoPreviewClient({
   const hasProducts = products.length > 0;
   const [isCatalogOpen, setIsCatalogOpen] = useState(!hasProducts);
   const [isDemoOpen, setIsDemoOpen] = useState(false);
+  const [modulePreview, setModulePreview] = useState<ModulePreview>(null);
   const catalogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -46,7 +49,7 @@ export function DemoPreviewClient({
         <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-emerald-100 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-emerald-50 blur-3xl" />
 
-        <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="relative grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
               Demo lista
@@ -92,20 +95,20 @@ export function DemoPreviewClient({
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/80 p-5">
+          <div className="rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
             <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
               <HeroStep label="Web" value="Detectada" />
               <HeroStep label="Productos" value={hasProducts ? `${products.length}` : "Pendiente"} />
               <HeroStep label="IA" value={hasProducts ? "Lista" : "A preparar"} />
             </div>
 
-            <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm">
-              <p className="text-sm font-black text-slate-900">
+            <div className="mt-5 rounded-3xl bg-[#07111f] p-5 text-white shadow-xl shadow-slate-200">
+              <p className="text-sm font-black">
                 {hasProducts
-                  ? "Podés probar la IA ahora o editar el catálogo antes."
+                  ? "Probá la IA ahora o editá el catálogo antes."
                   : "Agregá al menos un producto para habilitar la prueba."}
               </p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
+              <p className="mt-2 text-sm font-semibold leading-6 text-slate-300">
                 No necesitás conectar WhatsApp real para esta demo.
               </p>
             </div>
@@ -127,9 +130,27 @@ export function DemoPreviewClient({
 
       {hasProducts ? (
         <section className="mt-6 grid gap-6 lg:grid-cols-3">
-          <SummaryCard title="Probá sin integrar" text="La demo funciona sin conectar WhatsApp real." />
-          <SummaryCard title="Catálogo editable" text="Ajustá nombres, descripciones y precios." />
-          <SummaryCard title="Listo para activar" text="Cuando contrates, lo llevamos a operación real." />
+          <PreviewCard
+            eyebrow="Bandeja comercial"
+            title="Conversaciones"
+            text="Así se centralizan consultas y ventas."
+            variant="dark"
+            onClick={() => setModulePreview("conversations")}
+          />
+          <PreviewCard
+            eyebrow="Seguimiento"
+            title="Métricas"
+            text="Así se miden oportunidades y productos pedidos."
+            variant="light"
+            onClick={() => setModulePreview("metrics")}
+          />
+          <PreviewCard
+            eyebrow="Configuración"
+            title="Administración"
+            text="Así se gestionan usuarios, negocio y permisos."
+            variant="green"
+            onClick={() => setModulePreview("admin")}
+          />
         </section>
       ) : null}
 
@@ -189,6 +210,13 @@ export function DemoPreviewClient({
       </section>
 
       {isDemoOpen ? <DemoModal onClose={() => setIsDemoOpen(false)} /> : null}
+
+      {modulePreview ? (
+        <ModulePreviewModal
+          type={modulePreview}
+          onClose={() => setModulePreview(null)}
+        />
+      ) : null}
     </AppShell>
   );
 }
@@ -204,12 +232,80 @@ function HeroStep({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SummaryCard({ title, text }: { title: string; text: string }) {
+function PreviewCard({
+  eyebrow,
+  title,
+  text,
+  variant,
+  onClick,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+  variant: "dark" | "light" | "green";
+  onClick: () => void;
+}) {
+  const className =
+    variant === "dark"
+      ? "border-[#07111f] bg-[#07111f] text-white shadow-xl shadow-slate-300"
+      : variant === "green"
+        ? "border-emerald-200 bg-emerald-50 text-slate-900 shadow-sm"
+        : "border-slate-200 bg-white text-slate-900 shadow-sm";
+
   return (
-    <div className="rounded-[1.8rem] border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-lg font-black text-slate-900">{title}</h3>
-      <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{text}</p>
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group overflow-hidden rounded-[2rem] border p-5 text-left transition hover:-translate-y-1 hover:shadow-xl ${className}`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p
+            className={`text-xs font-black uppercase tracking-[0.22em] ${
+              variant === "dark" ? "text-emerald-300" : "text-emerald-600"
+            }`}
+          >
+            {eyebrow}
+          </p>
+          <h3 className="mt-3 text-2xl font-black tracking-[-0.04em]">
+            {title}
+          </h3>
+          <p
+            className={`mt-2 text-sm font-semibold leading-6 ${
+              variant === "dark" ? "text-slate-300" : "text-slate-500"
+            }`}
+          >
+            {text}
+          </p>
+        </div>
+
+        <span
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-black transition group-hover:scale-110 ${
+            variant === "dark"
+              ? "bg-white text-[#07111f]"
+              : "bg-[#07111f] text-white"
+          }`}
+        >
+          ↗
+        </span>
+      </div>
+
+      <div
+        className={`mt-5 h-24 rounded-3xl ${
+          variant === "dark"
+            ? "bg-white/10"
+            : variant === "green"
+              ? "bg-white/80"
+              : "bg-slate-50"
+        }`}
+      >
+        <div className="grid h-full grid-cols-3 gap-2 p-3">
+          <div className="rounded-2xl bg-emerald-400/30" />
+          <div className="rounded-2xl bg-slate-400/20" />
+          <div className="rounded-2xl bg-emerald-400/20" />
+        </div>
+      </div>
+    </button>
   );
 }
 
@@ -243,11 +339,7 @@ function ProductTable({ products }: { products: DemoProduct[] }) {
         </table>
       </div>
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs font-semibold leading-5 text-slate-500">
-          Borrar oculta el producto de la demo.
-        </p>
-
+      <div className="mt-5 flex justify-end">
         <button
           type="submit"
           className="rounded-full bg-[#07111f] px-6 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
@@ -424,6 +516,171 @@ function DemoModal({ onClose }: { onClose: () => void }) {
           Cerrar
         </button>
       </div>
+    </div>
+  );
+}
+
+function ModulePreviewModal({
+  type,
+  onClose,
+}: {
+  type: Exclude<ModulePreview, null>;
+  onClose: () => void;
+}) {
+  const copy = {
+    conversations: {
+      eyebrow: "Conversaciones",
+      title: "Bandeja comercial centralizada",
+      text: "Atendé consultas, oportunidades y derivaciones desde un solo lugar.",
+    },
+    metrics: {
+      eyebrow: "Métricas",
+      title: "Seguimiento de oportunidades",
+      text: "Medí productos pedidos, intención comercial y actividad del vendedor IA.",
+    },
+    admin: {
+      eyebrow: "Administración",
+      title: "Configuración del negocio",
+      text: "Gestioná usuarios, permisos, catálogo y datos comerciales.",
+    },
+  }[type];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#07111f]/60 p-5 backdrop-blur-md">
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute inset-0 cursor-default"
+        aria-label="Cerrar preview"
+      />
+
+      <div className="relative z-10 w-full max-w-[980px] overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl font-black text-slate-700 shadow-lg transition hover:bg-slate-100"
+        >
+          ×
+        </button>
+
+        <div className="grid min-h-[560px] lg:grid-cols-[0.7fr_1.3fr]">
+          <div className="bg-[#07111f] p-8 text-white">
+            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+              {copy.eyebrow}
+            </p>
+            <h2 className="mt-4 text-4xl font-black tracking-[-0.05em]">
+              {copy.title}
+            </h2>
+            <p className="mt-4 text-base font-semibold leading-7 text-slate-300">
+              {copy.text}
+            </p>
+            <p className="mt-8 rounded-2xl bg-white/10 px-4 py-3 text-sm font-bold text-slate-200">
+              Disponible al contratar Oramis.
+            </p>
+          </div>
+
+          <div className="bg-slate-50 p-6">
+            {type === "conversations" ? <ConversationsMock /> : null}
+            {type === "metrics" ? <MetricsMock /> : null}
+            {type === "admin" ? <AdminMock /> : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ConversationsMock() {
+  return (
+    <div className="h-full rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex h-full gap-4">
+        <div className="w-64 rounded-2xl bg-slate-50 p-4">
+          <div className="h-10 rounded-xl bg-white" />
+          <div className="mt-4 space-y-3">
+            <MockLine />
+            <MockLine />
+            <MockLine />
+            <MockLine />
+          </div>
+        </div>
+        <div className="flex-1 rounded-2xl bg-[#e9f8ef] p-5">
+          <div className="ml-auto h-14 w-72 rounded-2xl bg-[#dcf8c6]" />
+          <div className="mt-4 h-16 w-80 rounded-2xl bg-white" />
+          <div className="mt-4 ml-auto h-14 w-64 rounded-2xl bg-[#dcf8c6]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MetricsMock() {
+  return (
+    <div className="h-full rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <MockMetric title="Consultas" value="248" />
+        <MockMetric title="Oportunidades" value="76" />
+        <MockMetric title="Productos" value="31" />
+      </div>
+      <div className="mt-6 h-72 rounded-3xl bg-slate-50 p-5">
+        <div className="flex h-full items-end gap-3">
+          {[45, 72, 52, 88, 64, 92, 76].map((height, index) => (
+            <div
+              key={index}
+              className="flex-1 rounded-t-2xl bg-emerald-400"
+              style={{ height: `${height}%` }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminMock() {
+  return (
+    <div className="h-full rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <MockAdminBox title="Usuarios" />
+        <MockAdminBox title="Permisos" />
+        <MockAdminBox title="Negocio" />
+        <MockAdminBox title="Catálogo" />
+      </div>
+      <div className="mt-5 rounded-3xl bg-slate-50 p-5">
+        <MockLine />
+        <MockLine />
+        <MockLine />
+      </div>
+    </div>
+  );
+}
+
+function MockLine() {
+  return (
+    <div className="rounded-2xl bg-white p-3 shadow-sm">
+      <div className="h-3 w-3/4 rounded-full bg-slate-200" />
+      <div className="mt-2 h-3 w-1/2 rounded-full bg-slate-100" />
+    </div>
+  );
+}
+
+function MockMetric({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-3xl bg-slate-50 p-5">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+        {title}
+      </p>
+      <p className="mt-2 text-3xl font-black text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+function MockAdminBox({ title }: { title: string }) {
+  return (
+    <div className="rounded-3xl bg-slate-50 p-5">
+      <p className="text-sm font-black text-slate-900">{title}</p>
+      <div className="mt-4 h-3 w-3/4 rounded-full bg-slate-200" />
+      <div className="mt-2 h-3 w-1/2 rounded-full bg-slate-200" />
     </div>
   );
 }
