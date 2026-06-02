@@ -18,6 +18,37 @@ function cleanString(value: FormDataEntryValue | null) {
   return String(value || "").trim();
 }
 
+async function findAuthUserByEmail(adminClient: ReturnType<typeof createAdminClient>, email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  let page = 1;
+
+  while (page <= 10) {
+    const { data, error } = await adminClient.auth.admin.listUsers({
+      page,
+      perPage: 100,
+    });
+
+    if (error) {
+      throw new Error(`No se pudo buscar el usuario Auth: ${error.message}`);
+    }
+
+    const users = data.users || [];
+    const found = users.find((user) => user.email?.toLowerCase() === normalizedEmail);
+
+    if (found) {
+      return found;
+    }
+
+    if (users.length < 100) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return null;
+}
+
 export async function signInAction(formData: FormData) {
   const email = cleanString(formData.get("email"));
   const password = cleanString(formData.get("password"));
@@ -78,14 +109,23 @@ export async function signUpAction(formData: FormData) {
     email,
   });
 
-  if (error || !data.user) {
+  if (error) {
     redirect("/signup?error=No pudimos crear la cuenta. Probá nuevamente.");
   }
 
   const adminClient = createAdminClient();
+  const signedUpUser = data.user ?? (await findAuthUserByEmail(adminClient, email));
 
-  console.error("SIGNUP_DEBUG auth creado:", {
-    user_id: data.user.id,
+  if (!signedUpUser?.id) {
+    console.error("SIGNUP_DEBUG usuario auth no encontrado después de signUp:", {
+      email,
+      hasUser: Boolean(data.user),
+    });
+    redirect("/signup?error=No pudimos preparar tu cuenta. Probá nuevamente.");
+  }
+
+  console.error("SIGNUP_DEBUG auth resuelto:", {
+    user_id: signedUpUser.id,
     email,
     company,
   });
@@ -98,7 +138,7 @@ export async function signUpAction(formData: FormData) {
       email_contacto: email,
       metadata: {
         origen: "signup",
-        auth_user_id: data.user.id,
+        auth_user_id: signedUpUser.id,
       },
     })
     .select("tenant_id")
@@ -120,7 +160,7 @@ export async function signUpAction(formData: FormData) {
     .from("usuarios_tenants")
     .insert({
       tenant_id: tenant.tenant_id,
-      user_id: data.user.id,
+      user_id: signedUpUser.id,
       email,
       rol: "owner",
       nombre: name,
@@ -142,7 +182,7 @@ export async function signUpAction(formData: FormData) {
     console.error("SIGNUP_DEBUG error creando usuario_tenant de onboarding:", {
       membershipError,
       tenant,
-      user_id: data.user.id,
+      user_id: signedUpUser.id,
       email,
     });
     redirect("/signup?error=La cuenta se creó, pero no pudimos asociarla al negocio. Contactanos para activarla.");
@@ -150,7 +190,7 @@ export async function signUpAction(formData: FormData) {
 
   console.error("SIGNUP_DEBUG usuario_tenant creado:", {
     tenant_id: tenant.tenant_id,
-    user_id: data.user.id,
+    user_id: signedUpUser.id,
     email,
   });
 
