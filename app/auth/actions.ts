@@ -72,6 +72,12 @@ export async function signUpAction(formData: FormData) {
 
   const adminClient = createAdminClient();
 
+  console.error("SIGNUP_DEBUG auth creado:", {
+    user_id: data.user.id,
+    email,
+    company,
+  });
+
   const { data: tenant, error: tenantError } = await adminClient
     .from("_0_tenants")
     .insert({
@@ -87,9 +93,16 @@ export async function signUpAction(formData: FormData) {
     .single();
 
   if (tenantError || !tenant?.tenant_id) {
-    console.error("Error creando tenant de onboarding:", tenantError);
+    console.error("SIGNUP_DEBUG error creando tenant de onboarding:", {
+      tenantError,
+      tenant,
+      email,
+      company,
+    });
     redirect("/signup?error=La cuenta se creó, pero no pudimos preparar el onboarding. Contactanos para activarla.");
   }
+
+  console.error("SIGNUP_DEBUG tenant creado:", tenant);
 
   const { error: membershipError } = await adminClient
     .from("usuarios_tenants")
@@ -114,9 +127,20 @@ export async function signUpAction(formData: FormData) {
     });
 
   if (membershipError) {
-    console.error("Error creando usuario_tenant de onboarding:", membershipError);
+    console.error("SIGNUP_DEBUG error creando usuario_tenant de onboarding:", {
+      membershipError,
+      tenant,
+      user_id: data.user.id,
+      email,
+    });
     redirect("/signup?error=La cuenta se creó, pero no pudimos asociarla al negocio. Contactanos para activarla.");
   }
+
+  console.error("SIGNUP_DEBUG usuario_tenant creado:", {
+    tenant_id: tenant.tenant_id,
+    user_id: data.user.id,
+    email,
+  });
 
   if (data.session) {
     redirect("/app");
