@@ -162,7 +162,14 @@ export async function createDemoAction(formData: FormData) {
     .update({
       estado: "demo",
       sitio_web: urlSitio,
+      url_webhook: "https://n8n.oramis.ai/webhook/motor-ventas-chatwoot-fb-3-1-9c8f4b7a2d6e",
+      url_chatwoot: "chat.oramis.ai",
+      account_id: 4,
+      inbox_id: 3,
       tabla_productos: tablaDemoNombre,
+      tabla_productos_reducida: tablaDemoNombre,
+      chatwoot_team_id_ventas: 5,
+      chatwoot_team_id_soporte: 6,
       metadata: {
         ...currentMetadata,
         onboarding_demo: {

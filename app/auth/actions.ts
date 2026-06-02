@@ -136,9 +136,22 @@ export async function signUpAction(formData: FormData) {
       nombre_empresa: company,
       estado: "pendiente_onboarding",
       email_contacto: email,
+      url_webhook: "https://n8n.oramis.ai/webhook/motor-ventas-chatwoot-fb-3-1-9c8f4b7a2d6e",
+      url_chatwoot: "chat.oramis.ai",
+      account_id: 4,
+      inbox_id: 3,
+      chatwoot_team_id_ventas: 5,
+      chatwoot_team_id_soporte: 6,
       metadata: {
         origen: "signup",
         auth_user_id: signedUpUser.id,
+        demo_chatwoot: {
+          account_id: 4,
+          inbox_id: 3,
+          team_id_ventas: 5,
+          team_id_soporte: 6,
+          tipo: "onboarding_demo",
+        },
       },
     })
     .select("tenant_id")
