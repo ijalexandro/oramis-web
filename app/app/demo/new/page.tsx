@@ -57,7 +57,7 @@ export default function NewDemoPage({
             <DemoSubmitButton />
 
             <p className="text-center text-xs font-bold leading-5 text-slate-500">
-              Esto puede tardar unos segundos mientras buscamos productos en tu sitio.
+              Esto puede tardar unos minutos, por favor no cierres la pantalla.
             </p>
           </form>
         </div>
