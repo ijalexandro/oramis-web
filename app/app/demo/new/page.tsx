@@ -1,4 +1,5 @@
 import { createDemoAction } from "../actions";
+import { DemoSubmitButton } from "../DemoSubmitButton";
 
 export const metadata = {
   title: "Crear demo | Oramis",
@@ -53,12 +54,11 @@ export default function NewDemoPage({
               </div>
             ) : null}
 
-            <button
-              type="submit"
-              className="block w-full rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
-            >
-              Crear demo gratis
-            </button>
+            <DemoSubmitButton />
+
+            <p className="text-center text-xs font-bold leading-5 text-slate-500">
+              Esto puede tardar unos segundos mientras buscamos productos en tu sitio.
+            </p>
           </form>
         </div>
       </section>
