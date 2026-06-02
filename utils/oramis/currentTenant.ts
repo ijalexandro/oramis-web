@@ -31,6 +31,9 @@ export type CurrentTenantContext = {
     inbox_id: number | null;
     chatwoot_team_id_ventas: number | null;
     chatwoot_team_id_soporte: number | null;
+    tabla_productos: string | null;
+    tabla_productos_reducida: string | null;
+    motivo_estado: string | null;
   } | null;
 };
 
@@ -71,7 +74,7 @@ export async function getCurrentTenantContext(): Promise<CurrentTenantContext | 
   const { data: tenant, error: tenantError } = await supabase
     .from("_0_tenants")
     .select(
-      "tenant_id, nombre_empresa, estado, url_chatwoot, account_id, inbox_id, chatwoot_team_id_ventas, chatwoot_team_id_soporte"
+      "tenant_id, nombre_empresa, estado, motivo_estado, url_chatwoot, account_id, inbox_id, chatwoot_team_id_ventas, chatwoot_team_id_soporte, tabla_productos, tabla_productos_reducida"
     )
     .eq("tenant_id", membership.tenant_id)
     .single();
@@ -107,6 +110,9 @@ export async function getCurrentTenantContext(): Promise<CurrentTenantContext | 
           inbox_id: tenant.inbox_id,
           chatwoot_team_id_ventas: tenant.chatwoot_team_id_ventas,
           chatwoot_team_id_soporte: tenant.chatwoot_team_id_soporte,
+          tabla_productos: tenant.tabla_productos,
+          tabla_productos_reducida: tenant.tabla_productos_reducida,
+          motivo_estado: tenant.motivo_estado,
         }
       : null,
   };
