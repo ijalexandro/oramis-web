@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { DemoProduct } from "./page";
 import { saveDemoProductsAction } from "../productActions";
@@ -19,112 +19,133 @@ export function DemoPreviewClient({
   error: string | null;
   saved: boolean;
 }) {
-  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  const hasProducts = products.length > 0;
+  const [isCatalogOpen, setIsCatalogOpen] = useState(!hasProducts);
   const [isDemoOpen, setIsDemoOpen] = useState(false);
+  const catalogRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!hasProducts) {
+      setIsCatalogOpen(true);
+      setTimeout(() => {
+        catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [hasProducts]);
+
+  function openCatalog() {
+    setIsCatalogOpen(true);
+    setTimeout(() => {
+      catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+  }
 
   return (
     <AppShell subtitle="Demo">
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <section className="relative overflow-hidden rounded-[2.4rem] border border-emerald-100 bg-white p-7 shadow-sm sm:p-8">
+        <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-emerald-100 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-emerald-50 blur-3xl" />
+
+        <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
               Demo lista
             </p>
-            <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] lg:text-4xl">
-              Probá Oramis con productos reales de tu web.
+            <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-[-0.055em] lg:text-5xl">
+              Tu vendedor IA ya está listo para probar.
             </h1>
-            <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-slate-600">
-              Detectamos productos de prueba para que puedas ver cómo respondería
-              un vendedor IA en una conversación comercial.
+            <p className="mt-4 max-w-2xl text-lg font-semibold leading-8 text-slate-600">
+              {hasProducts
+                ? "Probalo con productos detectados de tu web."
+                : "Cargá algunos productos para probar cómo respondería Oramis."}
             </p>
+
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              {hasProducts ? (
+                <button
+                  type="button"
+                  onClick={() => setIsDemoOpen(true)}
+                  className="rounded-full bg-emerald-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
+                >
+                  Probar ahora
+                </button>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={openCatalog}
+                className={`rounded-full px-8 py-4 text-base font-black shadow-sm transition ${
+                  hasProducts
+                    ? "border border-slate-200 bg-white text-slate-800 hover:border-emerald-200 hover:text-emerald-700"
+                    : "bg-emerald-500 text-white shadow-xl shadow-emerald-200 hover:bg-emerald-600"
+                }`}
+              >
+                {hasProducts ? "Editar productos" : "Cargar productos"}
+              </button>
+
+              <a
+                href="/signup?intent=contract"
+                className="rounded-full border border-slate-200 bg-white px-8 py-4 text-center text-base font-black text-slate-800 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
+              >
+                Quiero contratar
+              </a>
+            </div>
           </div>
 
-          <a
-            href="/signup?intent=contract"
-            className="shrink-0 rounded-full bg-emerald-500 px-6 py-3 text-center text-sm font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
-          >
-            Quiero contratar Oramis
-          </a>
+          <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/80 p-5">
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+              <HeroStep label="Web" value="Detectada" />
+              <HeroStep label="Productos" value={hasProducts ? `${products.length}` : "Pendiente"} />
+              <HeroStep label="IA" value={hasProducts ? "Lista" : "A preparar"} />
+            </div>
+
+            <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm">
+              <p className="text-sm font-black text-slate-900">
+                {hasProducts
+                  ? "Podés probar la IA ahora o editar el catálogo antes."
+                  : "Agregá al menos un producto para habilitar la prueba."}
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
+                No necesitás conectar WhatsApp real para esta demo.
+              </p>
+            </div>
+          </div>
         </div>
 
         {error ? (
-          <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          <div className="relative mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
             {error}
           </div>
         ) : null}
 
         {saved ? (
-          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
+          <div className="relative mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
             Cambios guardados.
           </div>
         ) : null}
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.95fr]">
-        <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-6 shadow-xl shadow-emerald-950/5">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-            Probá la demo
-          </p>
-          <h2 className="mt-3 text-4xl font-black tracking-[-0.05em]">
-            Escribí como si fueras un cliente.
-          </h2>
-          <p className="mt-4 max-w-xl text-base font-semibold leading-7 text-slate-700">
-            Abrí el simulador y probá una consulta real. Los ejemplos son solo
-            ideas: podés preguntar por cualquier producto, necesidad o recomendación.
-          </p>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <Suggestion>Busco una opción para regalar</Suggestion>
-            <Suggestion>¿Qué me recomendás?</Suggestion>
-            <Suggestion>Quiero algo económico</Suggestion>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsDemoOpen(true)}
-            className="mt-7 rounded-full bg-emerald-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
-          >
-            Probar vendedor IA
-          </button>
-        </div>
-
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-            Catálogo
-          </p>
-          <h2 className="mt-3 text-3xl font-black tracking-[-0.04em]">
-            {products.length} productos detectados
-          </h2>
-          <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-            Podés probar la demo directamente o ajustar nombres, descripciones y
-            precios antes de consultar.
-          </p>
-
-          <div className="mt-5 space-y-3">
-            {products.slice(0, 4).map((product) => (
-              <MiniProduct key={product.id} product={product} />
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsCatalogOpen((value) => !value)}
-            className="mt-6 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-black text-slate-800 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
-          >
-            {isCatalogOpen ? "Ocultar productos" : "Editar productos"}
-          </button>
-        </div>
-      </section>
+      {hasProducts ? (
+        <section className="mt-6 grid gap-6 lg:grid-cols-3">
+          <SummaryCard title="Probá sin integrar" text="La demo funciona sin conectar WhatsApp real." />
+          <SummaryCard title="Catálogo editable" text="Ajustá nombres, descripciones y precios." />
+          <SummaryCard title="Listo para activar" text="Cuando contrates, lo llevamos a operación real." />
+        </section>
+      ) : null}
 
       {isCatalogOpen ? (
-        <section className="mt-6 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section
+          ref={catalogRef}
+          id="catalogo-demo"
+          className="mt-6 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+        >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-                Productos editables
+                Catálogo
               </p>
               <h2 className="mt-2 text-2xl font-black tracking-[-0.04em]">
-                Ajustá el catálogo de prueba
+                {hasProducts ? "Editá productos de prueba" : "Cargá productos para probar"}
               </h2>
             </div>
             <p className="text-xs font-bold text-slate-500">
@@ -132,11 +153,22 @@ export function DemoPreviewClient({
             </p>
           </div>
 
+          {!hasProducts ? (
+            <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+              <p className="text-sm font-black text-emerald-900">
+                No detectamos productos automáticamente.
+              </p>
+              <p className="mt-1 text-sm font-semibold leading-6 text-emerald-800">
+                Podés cargar algunos manualmente y probar igual la demo.
+              </p>
+            </div>
+          ) : null}
+
           <ProductTable products={products} />
         </section>
       ) : null}
 
-      <section className="mt-6 rounded-[2rem] border border-slate-200 bg-[#07111f] p-7 text-white shadow-xl shadow-slate-300 sm:p-8">
+      <section className="mt-6 rounded-[2.2rem] border border-slate-200 bg-[#07111f] p-7 text-white shadow-xl shadow-slate-300 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
@@ -145,10 +177,6 @@ export function DemoPreviewClient({
             <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">
               Llevá esta demo a una operación real.
             </h2>
-            <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-slate-300">
-              Conectamos tus canales comerciales y dejamos el vendedor IA funcionando
-              con tu catálogo.
-            </p>
           </div>
 
           <a
@@ -165,20 +193,22 @@ export function DemoPreviewClient({
   );
 }
 
-function MiniProduct({ product }: { product: DemoProduct }) {
+function HeroStep({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-      <div className="flex items-start justify-between gap-3">
-        <p className="line-clamp-1 text-sm font-black text-slate-900">
-          {product.nombre_producto || "Producto sin nombre"}
-        </p>
-        <p className="shrink-0 text-sm font-black text-slate-900">
-          {product.precio || ""}
-        </p>
-      </div>
-      <p className="mt-1 line-clamp-1 text-xs font-semibold text-slate-500">
-        {product.descripcion || "Descripción editable"}
+    <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600">
+        {label}
       </p>
+      <p className="mt-1 text-lg font-black text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+function SummaryCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-[1.8rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="text-lg font-black text-slate-900">{title}</h3>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{text}</p>
     </div>
   );
 }
@@ -343,7 +373,7 @@ function CellTextarea({
 
 function DemoModal({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#07111f]/55 p-5 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#07111f]/60 p-5 backdrop-blur-md">
       <button
         type="button"
         onClick={onClose}
@@ -351,63 +381,37 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         aria-label="Cerrar demo"
       />
 
-      <div className="relative z-10 grid w-full max-w-[980px] gap-6 rounded-[2rem] bg-white p-5 shadow-2xl lg:grid-cols-[0.88fr_1.12fr]">
-        <div className="rounded-[1.7rem] bg-emerald-50 p-5">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-            Demo interactiva
-          </p>
-          <h2 className="mt-3 text-3xl font-black tracking-[-0.04em]">
-            Probá una consulta real.
-          </h2>
-          <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-            Usá una pregunta genérica o específica. Oramis responderá con el catálogo
-            cargado para esta demo cuando conectemos el motor.
-          </p>
-
-          <div className="mt-5 space-y-2">
-            <Suggestion>Busco una opción para regalar</Suggestion>
-            <Suggestion>¿Qué me recomendás?</Suggestion>
-            <Suggestion>Quiero comparar opciones</Suggestion>
-          </div>
-        </div>
-
-        <div className="mx-auto w-full max-w-[410px] rounded-[2.4rem] border border-emerald-200 bg-[#dff4e8] p-3 shadow-2xl shadow-emerald-950/10">
-          <div className="overflow-hidden rounded-[1.9rem] bg-white shadow-sm">
+      <div className="relative z-10 w-full max-w-[430px]">
+        <div className="mx-auto rounded-[2.6rem] border border-emerald-200 bg-[#dff4e8] p-3 shadow-2xl shadow-emerald-950/20">
+          <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm">
             <div className="bg-[#075e54] px-5 py-4 text-white">
               <p className="text-sm font-black">Oramis Demo</p>
               <p className="text-xs text-white/75">Conectado a tu catálogo</p>
             </div>
 
-            <div className="flex min-h-[380px] items-center justify-center bg-[#e9f8ef] p-6 text-center">
+            <div className="flex min-h-[500px] items-center justify-center bg-[#e9f8ef] p-6 text-center">
               <div className="rounded-3xl bg-white/80 p-5 shadow-sm">
                 <p className="text-base font-black text-slate-800">
                   Tu conversación empieza acá
-                </p>
-                <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
-                  En el próximo paso activamos la respuesta real del motor.
                 </p>
               </div>
             </div>
 
             <form className="border-t border-slate-200 bg-white p-4">
-              <label className="block">
-                <span className="mb-2 block text-sm font-black text-slate-700">
-                  Mensaje
-                </span>
-                <div className="flex gap-3">
-                  <input
-                    disabled
-                    placeholder="Ej. busco una recomendación"
-                    className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-500 outline-none"
-                  />
-                  <button
-                    disabled
-                    className="rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200"
-                  >
-                    Probar
-                  </button>
-                </div>
-              </label>
+              <div className="flex gap-3">
+                <input
+                  disabled
+                  placeholder="Escribí una consulta"
+                  className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-500 outline-none"
+                />
+                <button
+                  disabled
+                  aria-label="Enviar"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xl font-black text-white shadow-lg shadow-emerald-200"
+                >
+                  ➤
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -415,19 +419,11 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-200"
+          className="mx-auto mt-4 block rounded-full bg-white px-5 py-2.5 text-sm font-black text-slate-700 shadow-lg transition hover:bg-slate-100"
         >
           Cerrar
         </button>
       </div>
-    </div>
-  );
-}
-
-function Suggestion({ children }: { children: ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm font-black text-emerald-800 shadow-sm">
-      {children}
     </div>
   );
 }
