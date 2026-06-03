@@ -15,16 +15,6 @@ function isSafeTableName(tableName: string) {
   return /^zz_demo_[a-zA-Z0-9_]+$/.test(tableName);
 }
 
-function parseNullableNumber(value: string) {
-  const clean = value.replace(/\./g, "").replace(",", ".").trim();
-
-  if (!clean) return null;
-
-  const num = Number(clean);
-
-  return Number.isFinite(num) ? num : null;
-}
-
 function getIndexedValues(formData: FormData, key: string) {
   return formData.getAll(key).map((value) => cleanString(value));
 }
@@ -118,30 +108,28 @@ export async function saveDemoProductsAction(formData: FormData) {
       continue;
     }
 
-    const nombre = nombres[index] || "";
+    const titulo = nombres[index] || "";
     const descripcion = descripciones[index] || "";
-    const precio = precios[index] || "";
-    const productoUrl = productoUrls[index] || "";
-    const imagenUrl = imagenUrls[index] || "";
+    const precioOferta = precios[index] || "";
+    const urlProducto = productoUrls[index] || "";
+    const urlImagen = imagenUrls[index] || "";
 
-    if (!nombre && !productId) {
+    if (!titulo && !productId) {
       continue;
     }
 
-    if (!nombre && productId) {
+    if (!titulo && productId) {
       continue;
     }
 
     const payload = {
-      nombre_producto: nombre,
+      titulo,
       descripcion: descripcion || null,
-      precio: precio || null,
-      precio_num: parseNullableNumber(precio),
-      moneda: "ARS",
-      producto_url: productoUrl || null,
-      imagen_url: imagenUrl || null,
-      editable_manual: true,
+      precio_oferta: precioOferta || null,
+      url_producto: urlProducto || null,
+      url_imagen: urlImagen || null,
       estado: "activo",
+      editable_manual: true,
       updated_at: new Date().toISOString(),
     };
 
@@ -169,8 +157,8 @@ export async function saveDemoProductsAction(formData: FormData) {
 
       const { error } = await adminClient.from(tableName).insert({
         tenant_id: tenantId,
-        origen_producto: "manual",
         ...payload,
+        atributos_json: {},
         created_at: new Date().toISOString(),
       });
 

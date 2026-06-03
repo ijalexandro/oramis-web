@@ -184,16 +184,7 @@ export function DemoPreviewClient({
             </p>
           </div>
 
-          {!hasProducts ? (
-            <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4">
-              <p className="text-sm font-black text-emerald-900">
-                No detectamos productos automáticamente.
-              </p>
-              <p className="mt-1 text-sm font-semibold leading-6 text-emerald-800">
-                Podés cargar algunos manualmente y probar igual la demo.
-              </p>
-            </div>
-          ) : null}
+
 
           <ProductTable products={products} />
         </section>

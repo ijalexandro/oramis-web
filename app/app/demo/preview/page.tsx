@@ -47,7 +47,7 @@ async function getDemoProducts() {
 
   const { data, error } = await adminClient
     .from(tableName)
-    .select("id,nombre_producto,descripcion,precio,imagen_url,producto_url")
+    .select("id,titulo,descripcion,precio_oferta,url_imagen,url_producto")
     .eq("tenant_id", context.tenant.tenant_id)
     .neq("estado", "inactivo")
     .order("id", { ascending: true })
@@ -68,10 +68,19 @@ async function getDemoProducts() {
     };
   }
 
+  const products: DemoProduct[] = (data || []).map((item: any) => ({
+    id: item.id,
+    nombre_producto: item.titulo || null,
+    descripcion: item.descripcion || null,
+    precio: item.precio_oferta || null,
+    imagen_url: item.url_imagen || null,
+    producto_url: item.url_producto || null,
+  }));
+
   return {
     context,
     tableName,
-    products: (data || []) as DemoProduct[],
+    products,
     error: null as string | null,
   };
 }
