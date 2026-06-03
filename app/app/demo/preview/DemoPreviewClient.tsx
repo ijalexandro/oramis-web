@@ -33,8 +33,9 @@ export function DemoPreviewClient({
   openDemo: boolean;
 }) {
   const hasProducts = products.length > 0;
+  const shouldOpenDemo = Boolean(openDemo && hasProducts);
   const [isCatalogOpen, setIsCatalogOpen] = useState(!hasProducts);
-  const [isDemoOpen, setIsDemoOpen] = useState(false);
+  const [isDemoOpen, setIsDemoOpen] = useState(shouldOpenDemo);
   const [modulePreview, setModulePreview] = useState<ModulePreview>(null);
   const catalogRef = useRef<HTMLDivElement | null>(null);
 
