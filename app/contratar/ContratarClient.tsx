@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { Plan, PrefillData } from "./page";
 import { saveContractAttemptAction, validateDiscountCodeAction } from "./actions";
 
@@ -164,6 +164,7 @@ export function ContratarClient({
 }) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLElement | null>(null);
 
   const [nombre, setNombre] = useState(prefill.nombre);
   const [apellido, setApellido] = useState(prefill.apellido);
@@ -188,8 +189,16 @@ export function ContratarClient({
   const [lastAttemptId, setLastAttemptId] = useState<string | null>(null);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (step === 1) return;
+
+    window.setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
   }, [step]);
+
+  function scrollToForm() {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   const selectedConversaciones = getOption(conversationOptions, conversacionesRango);
   const selectedProductos = getOption(productOptions, productosRango);
@@ -348,7 +357,10 @@ export function ContratarClient({
       </header>
 
       <section className="mx-auto grid max-w-[1180px] gap-6 px-5 py-8 lg:grid-cols-[0.92fr_1.08fr]">
-        <aside className="rounded-[2.4rem] bg-[#07111f] p-8 text-white shadow-xl shadow-slate-300">
+        <aside
+          onClick={scrollToForm}
+          className="cursor-pointer rounded-[2.4rem] bg-[#07111f] p-8 text-white shadow-xl shadow-slate-300 lg:cursor-default"
+        >
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
             Contratá Oramis
           </p>
@@ -360,14 +372,21 @@ export function ContratarClient({
             y ordenar oportunidades comerciales desde el primer día.
           </p>
 
-          <div className="mt-8 grid gap-3">
+          <p className="mt-6 text-sm font-black text-emerald-300 lg:hidden">
+            Tocá para completar los datos ↓
+          </p>
+
+          <div className="mt-8 hidden gap-3 lg:grid">
             <StepPill active={step === 1} number="1" text="Datos" />
             <StepPill active={step === 2} number="2" text="Operación" />
             <StepPill active={step === 3} number="3" text="Plan recomendado" />
           </div>
         </aside>
 
-        <section className="rounded-[2.4rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <section
+          ref={formRef}
+          className="rounded-[2.4rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+        >
           {step === 1 ? (
             <div>
               <SectionHeader
@@ -389,7 +408,10 @@ export function ContratarClient({
                 <button
                   type="button"
                   disabled={!canGoStep2()}
-                  onClick={() => setStep(2)}
+                  onClick={() => {
+                    setStep(2);
+                    window.setTimeout(scrollToForm, 80);
+                  }}
                   className="rounded-full bg-emerald-500 px-7 py-3.5 text-sm font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Continuar
@@ -554,6 +576,7 @@ export function ContratarClient({
                   onClick={() => {
                     saveAttempt("calculado", "Cotización guardada.");
                     setStep(3);
+                    window.setTimeout(scrollToForm, 80);
                   }}
                   className="rounded-full bg-emerald-500 px-7 py-3.5 text-sm font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
                 >
@@ -601,13 +624,10 @@ export function ContratarClient({
 
                   <div className="rounded-3xl bg-white p-5 shadow-sm">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                      Productos efectivos
+                      Productos del catálogo
                     </p>
                     <p className="mt-2 text-2xl font-black text-slate-950">
-                      {productosEfectivos ? productosEfectivos.toLocaleString("es-AR") : "A medida"}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-slate-500">
-                      Productos × listas de precio
+                      {selectedProductos.label}
                     </p>
                   </div>
                 </div>
@@ -654,7 +674,10 @@ export function ContratarClient({
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-between">
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
+                  onClick={() => {
+                    setStep(2);
+                    window.setTimeout(scrollToForm, 80);
+                  }}
                   className="rounded-full border border-slate-200 bg-white px-7 py-3.5 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700"
                 >
                   Volver
