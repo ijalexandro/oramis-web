@@ -5,6 +5,11 @@ import { useFormStatus } from "react-dom";
 import type { ReactNode } from "react";
 import type { DemoProduct } from "./page";
 import { saveDemoProductsAction } from "../productActions";
+import {
+  listDemoMessagesAction,
+  sendDemoMessageAction,
+  startDemoConversationAction,
+} from "./chatwootDemoActions";
 
 type ModulePreview = "conversations" | "metrics" | "admin" | null;
 
@@ -475,7 +480,133 @@ function CellTextarea({
   );
 }
 
+type ChatBubble = {
+  id: string;
+  content: string;
+  direction: "incoming" | "outgoing";
+};
+
+type DemoConversationState = {
+  contactSourceId: string;
+  conversationId: number;
+};
+
 function DemoModal({ onClose }: { onClose: () => void }) {
+  const [conversation, setConversation] = useState<DemoConversationState | null>(null);
+  const [messages, setMessages] = useState<ChatBubble[]>([]);
+  const [input, setInput] = useState("");
+  const [isStarting, setIsStarting] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (startedRef.current) return;
+
+    startedRef.current = true;
+
+    async function start() {
+      try {
+        setIsStarting(true);
+        setError(null);
+
+        const result = await startDemoConversationAction();
+
+        setConversation({
+          contactSourceId: result.contactSourceId,
+          conversationId: result.conversationId,
+        });
+      } catch (err) {
+        console.error("DEMO_CHAT_START_ERROR:", err);
+        setError("No pudimos iniciar la demo. Probá nuevamente.");
+      } finally {
+        setIsStarting(false);
+      }
+    }
+
+    start();
+  }, []);
+
+  async function pollForReply(currentConversation: DemoConversationState, previousOutgoingIds: Set<string>) {
+    const startedAt = Date.now();
+    const timeoutMs = 120000;
+    const intervalMs = 2500;
+
+    while (Date.now() - startedAt < timeoutMs) {
+      await new Promise((resolve) => window.setTimeout(resolve, intervalMs));
+
+      const result = await listDemoMessagesAction(currentConversation);
+      const normalized = result.messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        direction: message.direction,
+      }));
+
+      const outgoing = normalized.filter((message) => message.direction === "outgoing");
+      const newOutgoing = outgoing.find((message) => !previousOutgoingIds.has(message.id));
+
+      setMessages(normalized);
+
+      if (newOutgoing) {
+        return;
+      }
+    }
+
+    throw new Error("timeout_waiting_reply");
+  }
+
+  async function handleSend(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!conversation || isSending || isStarting) return;
+
+    const message = input.trim();
+
+    if (!message) return;
+
+    const localId = `local-${Date.now()}`;
+
+    const previousOutgoingIds = new Set(
+      messages
+        .filter((item) => item.direction === "outgoing")
+        .map((item) => item.id)
+    );
+
+    setInput("");
+    setError(null);
+    setIsSending(true);
+    setIsTyping(true);
+
+    setMessages((current) => [
+      ...current,
+      {
+        id: localId,
+        content: message,
+        direction: "incoming",
+      },
+    ]);
+
+    try {
+      await sendDemoMessageAction({
+        contactSourceId: conversation.contactSourceId,
+        conversationId: conversation.conversationId,
+        message,
+      });
+
+      await pollForReply(conversation, previousOutgoingIds);
+    } catch (err) {
+      console.error("DEMO_CHAT_SEND_ERROR:", err);
+
+      setError(
+        "La respuesta está tardando más de lo esperado. La conversación quedó guardada en Chatwoot."
+      );
+    } finally {
+      setIsTyping(false);
+      setIsSending(false);
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#07111f]/60 p-5 backdrop-blur-md">
       <button
@@ -499,35 +630,99 @@ function DemoModal({ onClose }: { onClose: () => void }) {
           <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm">
             <div className="bg-[#075e54] px-5 py-4 text-white">
               <p className="text-sm font-black">Oramis Demo</p>
-              <p className="text-xs text-white/75">Conectado a tu catálogo</p>
+              <p className="text-xs text-white/75">
+                {isStarting ? "Creando conversación..." : "Conectado a tu catálogo"}
+              </p>
             </div>
 
-            <div className="flex min-h-[500px] items-center justify-center bg-[#e9f8ef] p-6 text-center">
-              <div className="rounded-3xl bg-white/80 p-5 shadow-sm">
-                <p className="text-base font-black text-slate-800">
-                  Tu conversación empieza acá
-                </p>
+            <div className="min-h-[500px] bg-[#e9f8ef] p-4">
+              {messages.length === 0 && !isTyping ? (
+                <div className="flex min-h-[460px] items-center justify-center text-center">
+                  <div className="rounded-3xl bg-white/80 p-5 shadow-sm">
+                    <p className="text-base font-black text-slate-800">
+                      Tu conversación empieza acá
+                    </p>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
+                      Escribí como si fueras un cliente.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {messages.map((message) => (
+                    <ChatMessageBubble key={message.id} message={message} />
+                  ))}
+
+                  {isTyping ? <TypingBubble /> : null}
+                </div>
+              )}
+            </div>
+
+            {error ? (
+              <div className="border-t border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold leading-5 text-amber-800">
+                {error}
               </div>
-            </div>
+            ) : null}
 
-            <form className="border-t border-slate-200 bg-white p-4">
+            <form onSubmit={handleSend} className="border-t border-slate-200 bg-white p-4">
               <div className="flex gap-3">
                 <input
-                  disabled
-                  placeholder="Escribí una consulta"
-                  className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-500 outline-none"
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  disabled={isStarting || isSending || !conversation}
+                  placeholder={
+                    isStarting
+                      ? "Preparando demo..."
+                      : isSending
+                        ? "Esperando respuesta..."
+                        : "Escribí una consulta"
+                  }
+                  className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-400 disabled:cursor-wait disabled:text-slate-400"
                 />
                 <button
-                  disabled
+                  type="submit"
+                  disabled={isStarting || isSending || !conversation || !input.trim()}
                   aria-label="Enviar"
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xl font-black text-white shadow-lg shadow-emerald-200"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xl font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  ➤
+                  {isSending ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/80 border-t-transparent" />
+                  ) : (
+                    "➤"
+                  )}
                 </button>
               </div>
             </form>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ChatMessageBubble({ message }: { message: ChatBubble }) {
+  const isIncoming = message.direction === "incoming";
+
+  return (
+    <div className={`flex ${isIncoming ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[84%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm font-semibold leading-5 shadow-sm ${
+          isIncoming
+            ? "rounded-tr-sm bg-[#dcf8c6] text-slate-800"
+            : "rounded-tl-sm bg-white text-slate-800"
+        }`}
+      >
+        {message.content}
+      </div>
+    </div>
+  );
+}
+
+function TypingBubble() {
+  return (
+    <div className="flex justify-start">
+      <div className="rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm font-black text-slate-500 shadow-sm">
+        Oramis está escribiendo...
       </div>
     </div>
   );
