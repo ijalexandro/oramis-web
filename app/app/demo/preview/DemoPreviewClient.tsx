@@ -98,9 +98,7 @@ export function DemoPreviewClient({
             <span className="rounded-full bg-emerald-50 px-4 py-2 text-emerald-700">
               {hasProducts ? `${products.length} productos detectados` : "Catálogo pendiente"}
             </span>
-            <span className="rounded-full bg-slate-50 px-4 py-2">
-              Sin conectar WhatsApp real
-            </span>
+
           </div>
         </div>
 
