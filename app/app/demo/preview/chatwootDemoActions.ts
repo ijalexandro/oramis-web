@@ -1,5 +1,6 @@
 "use server";
 
+import { createAdminClient } from "@/utils/supabase/admin";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
 
 export type DemoChatAttachment = {
@@ -305,6 +306,76 @@ export async function sendDemoMessageAction(input: {
   return { ok: true };
 }
 
+function normalizeSupabaseAttachments(row: any): DemoChatAttachment[] {
+  const rawPayload = row?.raw_payload || {};
+  const rawPayloadNested = rawPayload?.raw_payload || {};
+
+  const rawAttachments =
+    rawPayload?.attachments ||
+    rawPayloadNested?.attachments ||
+    row?.attachments ||
+    [];
+
+  const mediaUrl =
+    rawPayload?.media_url ||
+    row?.media_url ||
+    rawPayloadNested?.media_url ||
+    null;
+
+  const attachments = Array.isArray(rawAttachments) ? [...rawAttachments] : [];
+
+  if (mediaUrl && attachments.length === 0) {
+    attachments.push({
+      id: `media-${row?.id || row?.external_message_id || Date.now()}`,
+      file_type: rawPayload?.media_kind || "image",
+      data_url: mediaUrl,
+      thumb_url: mediaUrl,
+      content_type: rawPayload?.content_type || null,
+    });
+  }
+
+  return attachments
+    .map((attachment: any) => {
+      const fileType =
+        attachment?.file_type ??
+        attachment?.fileType ??
+        attachment?.content_type ??
+        attachment?.contentType ??
+        rawPayload?.media_kind ??
+        null;
+
+      const dataUrl =
+        attachment?.data_url ??
+        attachment?.dataUrl ??
+        attachment?.download_url ??
+        attachment?.downloadUrl ??
+        attachment?.url ??
+        mediaUrl ??
+        null;
+
+      const thumbUrl =
+        attachment?.thumb_url ??
+        attachment?.thumbUrl ??
+        attachment?.thumbnail_url ??
+        attachment?.thumbnailUrl ??
+        dataUrl ??
+        null;
+
+      const fallbackUrl = thumbUrl || dataUrl;
+
+      if (!fallbackUrl) return null;
+
+      return {
+        id: String(attachment?.id ?? fallbackUrl),
+        fileType: fileType ? String(fileType) : null,
+        dataUrl: dataUrl ? String(dataUrl) : null,
+        thumbUrl: thumbUrl ? String(thumbUrl) : null,
+        fallbackUrl: fallbackUrl ? String(fallbackUrl) : null,
+      };
+    })
+    .filter(Boolean) as DemoChatAttachment[];
+}
+
 export async function listDemoMessagesAction(input: {
   contactSourceId: string;
   conversationId: number;
@@ -315,28 +386,59 @@ export async function listDemoMessagesAction(input: {
     throw new Error("No encontramos una sesión válida para leer mensajes.");
   }
 
-  const { inboxIdentifier } = getChatwootConfig();
-
-  const contactSourceId = safeText(input.contactSourceId);
   const conversationId = Number(input.conversationId);
-
-  if (!contactSourceId) {
-    throw new Error("Falta contactSourceId.");
-  }
 
   if (!Number.isFinite(conversationId) || conversationId <= 0) {
     throw new Error("conversationId inválido.");
   }
 
-  const data = await chatwootFetch(
-    `/public/api/v1/inboxes/${inboxIdentifier}/contacts/${contactSourceId}/conversations/${conversationId}/messages`,
-    {
-      method: "GET",
-    }
-  );
+  const adminClient = createAdminClient();
+
+  const { data, error } = await adminClient
+    .from("mensajes")
+    .select("id,direccion,message,created_at,external_conversation_id,conversacion_id,external_message_id,raw_payload,account_id,inbox_id,tenant_id")
+    .eq("tenant_id", context.tenant.tenant_id)
+    .eq("account_id", 4)
+    .eq("inbox_id", 4)
+    .or(`external_conversation_id.eq.${conversationId},conversacion_id.eq.${conversationId}`)
+    .order("created_at", { ascending: true })
+    .limit(100);
+
+  if (error) {
+    console.error("DEMO_MESSAGES_READ_ERROR:", {
+      error,
+      tenantId: context.tenant.tenant_id,
+      conversationId,
+    });
+
+    throw new Error("No pudimos leer los mensajes de la demo.");
+  }
+
+  const messages: DemoChatMessage[] = (data || [])
+    .map((row: any) => {
+      const direction =
+        row.direccion === "incoming"
+          ? "incoming"
+          : row.direccion === "outgoing"
+            ? "outgoing"
+            : null;
+
+      if (!direction) return null;
+
+      const content = safeText(row.message || row.raw_payload?.message || row.raw_payload?.content);
+
+      return {
+        id: String(row.external_message_id || row.id),
+        content,
+        direction,
+        createdAt: row.created_at ? String(row.created_at) : null,
+        attachments: normalizeSupabaseAttachments(row),
+      };
+    })
+    .filter(Boolean) as DemoChatMessage[];
 
   return {
     ok: true,
-    messages: normalizeMessages(data),
+    messages,
   };
 }
