@@ -1,3 +1,4 @@
+import { CookieConsent } from "@/components/CookieConsent";
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthHashRedirect from "./AuthHashRedirect";
@@ -29,7 +30,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <AuthHashRedirect />{children}</body>
+        <AuthHashRedirect />
+        {children}
+        <CookieConsent />
+      </body>
     </html>
   );
 }
