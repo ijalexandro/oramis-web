@@ -396,11 +396,11 @@ export async function listDemoMessagesAction(input: {
 
   const { data, error } = await adminClient
     .from("mensajes")
-    .select("id,direccion,message,created_at,external_conversation_id,conversacion_id,external_message_id,raw_payload,account_id,inbox_id,tenant_id")
+    .select("id,direccion,message,created_at,external_conversation_id,external_message_id,raw_payload,account_id,inbox_id,tenant_id")
     .eq("tenant_id", context.tenant.tenant_id)
     .eq("account_id", 4)
     .eq("inbox_id", 4)
-    .or(`external_conversation_id.eq.${conversationId},conversacion_id.eq.${conversationId}`)
+    .eq("external_conversation_id", String(conversationId))
     .order("created_at", { ascending: true })
     .limit(100);
 
