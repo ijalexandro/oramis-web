@@ -224,8 +224,18 @@ export function DemoPreviewClient({
       ) : null}
 
       {showSavedToast ? (
-        <div className="fixed right-5 top-5 z-[60] rounded-2xl border border-emerald-200 bg-white px-5 py-4 text-sm font-black text-emerald-800 shadow-2xl shadow-emerald-950/10">
-          Productos guardados correctamente.
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#07111f]/30 p-5 backdrop-blur-sm">
+          <div className="rounded-[2rem] border border-emerald-200 bg-white px-8 py-7 text-center shadow-2xl shadow-emerald-950/20">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-2xl font-black text-white">
+              ✓
+            </div>
+            <p className="mt-4 text-lg font-black text-slate-900">
+              Productos guardados
+            </p>
+            <p className="mt-2 text-sm font-bold text-emerald-700">
+              Los cambios ya quedaron cargados en la demo.
+            </p>
+          </div>
         </div>
       ) : null}
     </AppShell>
@@ -595,7 +605,7 @@ function ModulePreviewModal({
                 className="h-full w-full object-cover blur-[1px]"
               />
               <div className="pointer-events-none absolute inset-0 bg-white/10" />
-              <div className="absolute inset-x-0 top-5 flex justify-center px-5">
+              <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-5">
                 <span className="rounded-full bg-[#07111f]/90 px-5 py-2.5 text-sm font-black text-white shadow-xl backdrop-blur">
                   Disponible al contratar Oramis
                 </span>
