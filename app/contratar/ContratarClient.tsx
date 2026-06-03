@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import type { Plan, PrefillData } from "./page";
 import { saveContractAttemptAction, validateDiscountCodeAction } from "./actions";
 
@@ -178,6 +178,7 @@ export function ContratarClient({
   const [listasRango, setListasRango] = useState("1");
   const [usuariosRango, setUsuariosRango] = useState("hasta_10");
 
+  const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [discountApplied, setDiscountApplied] = useState<DiscountApplied | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
@@ -185,6 +186,10 @@ export function ContratarClient({
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [lastAttemptId, setLastAttemptId] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
 
   const selectedConversaciones = getOption(conversationOptions, conversacionesRango);
   const selectedProductos = getOption(productOptions, productosRango);
@@ -348,11 +353,11 @@ export function ContratarClient({
             Contratá Oramis
           </p>
           <h1 className="mt-5 text-4xl font-black tracking-[-0.055em] lg:text-5xl">
-            Encontrá el plan correcto para tu operación.
+            Activá un vendedor IA para tu negocio.
           </h1>
           <p className="mt-5 text-base font-semibold leading-7 text-slate-300">
-            Respondé unas preguntas simples y te recomendamos un plan según volumen,
-            productos, listas de precio y usuarios.
+            Te ayudamos a elegir una configuración preparada para vender, atender consultas
+            y ordenar oportunidades comerciales desde el primer día.
           </p>
 
           <div className="mt-8 grid gap-3">
@@ -398,7 +403,7 @@ export function ContratarClient({
               <SectionHeader
                 eyebrow="Paso 2"
                 title="Tu operación comercial"
-                text="Elegí rangos aproximados. Siempre tomamos el máximo del rango para recomendar el plan."
+                text="Contanos cómo funciona tu negocio para recomendarte la configuración adecuada."
               />
 
               <div className="mt-6 grid gap-6">
@@ -426,10 +431,6 @@ export function ContratarClient({
                   <p className="text-sm font-black text-slate-900">
                     ¿Tu catálogo maneja un único precio para todos?
                   </p>
-                  <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
-                    No cuentes descuentos puntuales o acuerdos especiales con clientes individuales.
-                  </p>
-
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <button
                       type="button"
@@ -489,42 +490,54 @@ export function ContratarClient({
                 />
 
                 <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-sm font-black text-slate-900">
-                    ¿Tenés un código de descuento?
-                  </p>
-                  <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                    <input
-                      value={discountCode}
-                      onChange={(event) => {
-                        setDiscountCode(event.target.value.toUpperCase());
-                        setDiscountApplied(null);
-                        setDiscountError(null);
-                      }}
-                      placeholder="Ej: DEMO5"
-                      className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
-                    />
+                  {!showDiscountInput ? (
                     <button
                       type="button"
-                      disabled={isPending || !discountCode.trim() || isCustom}
-                      onClick={handleApplyDiscount}
-                      className="rounded-2xl bg-[#07111f] px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => setShowDiscountInput(true)}
+                      className="text-sm font-black text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-emerald-700"
                     >
-                      Aplicar
+                      Tengo un código de descuento
                     </button>
-                  </div>
+                  ) : (
+                    <>
+                      <p className="text-sm font-black text-slate-900">
+                        Código de descuento
+                      </p>
+                      <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                        <input
+                          value={discountCode}
+                          onChange={(event) => {
+                            setDiscountCode(event.target.value.toUpperCase());
+                            setDiscountApplied(null);
+                            setDiscountError(null);
+                          }}
+                          placeholder="Ej: 123sie$OA"
+                          className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+                        />
+                        <button
+                          type="button"
+                          disabled={isPending || !discountCode.trim() || isCustom}
+                          onClick={handleApplyDiscount}
+                          className="rounded-2xl bg-[#07111f] px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Aplicar
+                        </button>
+                      </div>
 
-                  {discountApplied ? (
-                    <p className="mt-3 text-sm font-bold text-emerald-700">
-                      Código {discountApplied.codigo} aplicado: {discountApplied.valor_descuento}% de descuento
-                      {discountApplied.duracion_meses
-                        ? ` durante ${discountApplied.duracion_meses} meses`
-                        : ""}.
-                    </p>
-                  ) : null}
+                      {discountApplied ? (
+                        <p className="mt-3 text-sm font-bold text-emerald-700">
+                          Código {discountApplied.codigo} aplicado: {discountApplied.valor_descuento}% de descuento
+                          {discountApplied.duracion_meses
+                            ? ` durante ${discountApplied.duracion_meses} meses`
+                            : ""}.
+                        </p>
+                      ) : null}
 
-                  {discountError ? (
-                    <p className="mt-3 text-sm font-bold text-red-600">{discountError}</p>
-                  ) : null}
+                      {discountError ? (
+                        <p className="mt-3 text-sm font-bold text-red-600">{discountError}</p>
+                      ) : null}
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -554,11 +567,11 @@ export function ContratarClient({
             <div>
               <SectionHeader
                 eyebrow="Paso 3"
-                title={isCustom ? "Necesitás una propuesta a medida" : `Plan recomendado: ${plan?.nombre}`}
+                title={isCustom ? "Armamos una propuesta para tu operación" : `Plan recomendado: ${plan?.nombre}`}
                 text={
                   isCustom
-                    ? "Tu operación requiere una configuración personalizada para asegurar performance y costos correctos."
-                    : "Este es el plan que mejor se ajusta a las variables que seleccionaste."
+                    ? "Por el tamaño o la complejidad de tu operación, te vamos a contactar para preparar una propuesta personalizada."
+                    : "Este es el plan recomendado para empezar a operar con Oramis."
                 }
               />
 
@@ -583,11 +596,7 @@ export function ContratarClient({
                       </p>
                     ) : null}
 
-                    {recommended.motivoCustom ? (
-                      <p className="mt-3 text-sm font-bold leading-6 text-slate-700">
-                        {recommended.motivoCustom}
-                      </p>
-                    ) : null}
+
                   </div>
 
                   <div className="rounded-3xl bg-white p-5 shadow-sm">
@@ -607,7 +616,16 @@ export function ContratarClient({
                   <LimitItem label="Conversaciones" value={plan?.conversaciones_max ? `Hasta ${plan.conversaciones_max.toLocaleString("es-AR")}` : "A medida"} />
                   <LimitItem label="Mensajes incluidos" value={plan?.mensajes_max ? `Hasta ${plan.mensajes_max.toLocaleString("es-AR")}` : "A medida"} />
                   <LimitItem label="Usuarios" value={plan?.usuarios_max ? `Hasta ${plan.usuarios_max}` : "A medida"} />
-                  <LimitItem label="Listas de precio" value={plan?.listas_precio_max ? `Hasta ${plan.listas_precio_max}` : "A medida"} />
+                  <LimitItem
+                    label="Listas de precio"
+                    value={
+                      plan?.listas_precio_max
+                        ? plan.listas_precio_max === 1
+                          ? "1"
+                          : `Hasta ${plan.listas_precio_max}`
+                        : "A medida"
+                    }
+                  />
                 </div>
               </div>
 
@@ -627,13 +645,6 @@ export function ContratarClient({
                 </div>
               ) : null}
 
-              {saveMessage ? (
-                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800">
-                  {saveMessage}
-                  {lastAttemptId ? <span className="hidden"> {lastAttemptId}</span> : null}
-                </div>
-              ) : null}
-
               {saveError ? (
                 <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-black text-red-700">
                   {saveError}
@@ -650,30 +661,34 @@ export function ContratarClient({
                 </button>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      saveAttempt(
-                        isCustom ? "custom_solicitado" : "pendiente_contacto",
-                        "Listo. Registramos tu solicitud y vamos a contactarte."
-                      )
-                    }
-                    className="rounded-full border border-slate-200 bg-white px-7 py-3.5 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700"
-                  >
-                    Necesito ayuda
-                  </button>
+                  {!isCustom ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveAttempt(
+                          "pendiente_contacto",
+                          "Listo. Registramos tu solicitud y vamos a contactarte."
+                        )
+                      }
+                      className="rounded-full border border-slate-200 bg-white px-7 py-3.5 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700"
+                    >
+                      Necesito ayuda
+                    </button>
+                  ) : null}
 
                   <button
                     type="button"
                     onClick={() =>
                       saveAttempt(
-                        "pendiente_pago",
-                        "Cotización guardada. El pago se conectará en el próximo paso."
+                        isCustom ? "custom_solicitado" : "pendiente_pago",
+                        isCustom
+                          ? "Listo. Registramos tu solicitud para preparar una propuesta."
+                          : "Cotización guardada. El pago se conectará en el próximo paso."
                       )
                     }
                     className="rounded-full bg-emerald-500 px-7 py-3.5 text-sm font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
                   >
-                    Pagar ahora
+                    {isCustom ? "Quiero que me contacten" : "Pagar ahora"}
                   </button>
                 </div>
               </div>
