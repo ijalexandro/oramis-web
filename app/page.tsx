@@ -268,6 +268,9 @@ export default function Home() {
             <a href="#metricas" className="hover:text-emerald-600">
               Métricas
             </a>
+              <a href="/contratar" className="transition hover:text-emerald-600">
+                Contratar
+              </a>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -278,7 +281,7 @@ export default function Home() {
               Ingresar
             </a>
             <a
-              href="/contratar"
+              href="/signup"
               className="rounded-full bg-[#07111f] px-4 py-2 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 sm:px-5 sm:py-2.5"
             >
               Crear cuenta
@@ -312,7 +315,7 @@ export default function Home() {
 
           <div className="mt-9 flex flex-col gap-4 sm:flex-row">
             <a
-              href="/contratar"
+              href="/signup"
               className="rounded-full bg-emerald-500 px-8 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:-translate-y-0.5 hover:bg-emerald-600"
             >
               Crear demo con mis productos
@@ -631,7 +634,7 @@ export default function Home() {
         </div>
         <div className="mt-9 flex flex-col justify-center gap-4 sm:flex-row">
           <a
-            href="/signup?intent=contract"
+            href="/contratar"
             className="rounded-full bg-[#07111f] px-8 py-4 text-center text-base font-black text-white shadow-xl shadow-slate-300 transition hover:bg-emerald-600"
           >
             Quiero contratar Oramis
