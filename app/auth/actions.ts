@@ -142,6 +142,13 @@ export async function signUpAction(formData: FormData) {
       inbox_id: 3,
       chatwoot_team_id_ventas: 5,
       chatwoot_team_id_soporte: 6,
+      mensaje_identificador: "DEMO_ORAMIS_ONBOARDING",
+      info_empresa:
+        "Esta es una demo interactiva de Oramis generada automáticamente a partir de una muestra de productos del sitio web del comercio. No representa una operación comercial real todavía.",
+      info_general:
+        "Estás funcionando en modo demo. El objetivo es mostrar cómo Oramis podría responder consultas comerciales usando productos reales detectados desde la web del comercio. En esta demo no hay WhatsApp real conectado, no hay vendedor humano atendiendo y no se toman pedidos reales. Si el cliente quiere avanzar comercialmente, invitalo a contratar Oramis.",
+      info_contestar_producto:
+        "Para esta demo usá únicamente los productos cargados en la tabla del tenant. La demo puede contener solo una muestra parcial del catálogo, por ejemplo hasta 50 productos. Si el cliente pregunta por un producto que no está en la muestra, no inventes disponibilidad, precio ni variantes. Explicá brevemente que esta demo trabaja con una muestra parcial de productos y sugerí probar con otro producto de los cargados o revisar/editar el catálogo de la demo en https://www.oramis.ai/app/demo/preview.",
       metadata: {
         origen: "signup",
         auth_user_id: signedUpUser.id,
