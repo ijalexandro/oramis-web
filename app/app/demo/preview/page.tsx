@@ -79,7 +79,7 @@ async function getDemoProducts() {
 export default async function DemoPreviewPage({
   searchParams,
 }: {
-  searchParams?: { error?: string; saved?: string };
+  searchParams?: { error?: string; saved?: string; try?: string };
 }) {
   const { products, error } = await getDemoProducts();
 
@@ -88,6 +88,7 @@ export default async function DemoPreviewPage({
       products={products}
       error={searchParams?.error || error}
       savedToken={searchParams?.saved || null}
+      openDemo={searchParams?.try === "1"}
     />
   );
 }

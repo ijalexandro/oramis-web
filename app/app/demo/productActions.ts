@@ -189,5 +189,5 @@ export async function saveDemoProductsAction(formData: FormData) {
   }
 
   revalidatePath("/app/demo/preview");
-  redirect(`/app/demo/preview?saved=${Date.now()}`);
+  redirect(`/app/demo/preview?saved=${Date.now()}&try=1`);
 }

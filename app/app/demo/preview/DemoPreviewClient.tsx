@@ -25,16 +25,17 @@ export function DemoPreviewClient({
   products,
   error,
   savedToken,
+  openDemo,
 }: {
   products: DemoProduct[];
   error: string | null;
   savedToken: string | null;
+  openDemo: boolean;
 }) {
   const hasProducts = products.length > 0;
   const [isCatalogOpen, setIsCatalogOpen] = useState(!hasProducts);
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   const [modulePreview, setModulePreview] = useState<ModulePreview>(null);
-  const [showSavedToast, setShowSavedToast] = useState(Boolean(savedToken));
   const catalogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -49,14 +50,10 @@ export function DemoPreviewClient({
   useEffect(() => {
     if (!savedToken) return;
 
-    setShowSavedToast(true);
-
-    const timer = window.setTimeout(() => {
-      setShowSavedToast(false);
-    }, 2000);
-
-    return () => window.clearTimeout(timer);
-  }, [savedToken]);
+    if (openDemo && hasProducts) {
+      setIsDemoOpen(true);
+    }
+  }, [savedToken, openDemo, hasProducts]);
 
   function openCatalog() {
     setIsCatalogOpen(true);
@@ -225,21 +222,7 @@ export function DemoPreviewClient({
         />
       ) : null}
 
-      {showSavedToast ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#07111f]/30 p-5 backdrop-blur-sm">
-          <div className="rounded-[2rem] border border-emerald-200 bg-white px-8 py-7 text-center shadow-2xl shadow-emerald-950/20">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-2xl font-black text-white">
-              ✓
-            </div>
-            <p className="mt-4 text-lg font-black text-slate-900">
-              Productos guardados
-            </p>
-            <p className="mt-2 text-sm font-bold text-emerald-700">
-              Los cambios ya quedaron cargados en la demo.
-            </p>
-          </div>
-        </div>
-      ) : null}
+
     </AppShell>
   );
 }
