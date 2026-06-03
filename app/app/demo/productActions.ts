@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
 
+const MAX_DEMO_PRODUCTS = 50;
+
 function cleanString(value: FormDataEntryValue | null) {
   return String(value || "").trim();
 }
@@ -55,6 +57,50 @@ export async function saveDemoProductsAction(formData: FormData) {
   const imagenUrls = getIndexedValues(formData, "imagen_url");
   const deleteIds = new Set(getIndexedValues(formData, "delete_id"));
 
+  for (const deleteId of deleteIds) {
+    const productId = Number(deleteId);
+
+    if (!Number.isFinite(productId)) continue;
+
+    const { error } = await adminClient
+      .from(tableName)
+      .update({
+        estado: "inactivo",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", productId)
+      .eq("tenant_id", tenantId);
+
+    if (error) {
+      console.error("DEMO_PRODUCT_DELETE_ERROR:", {
+        error,
+        tableName,
+        productId,
+        tenantId,
+      });
+
+      redirect("/app/demo/preview?error=No pudimos borrar un producto.");
+    }
+  }
+
+  const { count: activeCount, error: countError } = await adminClient
+    .from(tableName)
+    .select("id", { count: "exact", head: true })
+    .eq("tenant_id", tenantId)
+    .neq("estado", "inactivo");
+
+  if (countError) {
+    console.error("DEMO_PRODUCT_COUNT_ERROR:", {
+      countError,
+      tableName,
+      tenantId,
+    });
+
+    redirect("/app/demo/preview?error=No pudimos validar el límite de productos.");
+  }
+
+  let remainingNewProducts = Math.max(0, MAX_DEMO_PRODUCTS - Number(activeCount || 0));
+
   const maxRows = Math.max(
     rowIds.length,
     nombres.length,
@@ -68,35 +114,15 @@ export async function saveDemoProductsAction(formData: FormData) {
     const rawId = rowIds[index] || "";
     const productId = rawId ? Number(rawId) : null;
 
+    if (productId && deleteIds.has(String(productId))) {
+      continue;
+    }
+
     const nombre = nombres[index] || "";
     const descripcion = descripciones[index] || "";
     const precio = precios[index] || "";
     const productoUrl = productoUrls[index] || "";
     const imagenUrl = imagenUrls[index] || "";
-
-    if (productId && deleteIds.has(String(productId))) {
-      const { error } = await adminClient
-        .from(tableName)
-        .update({
-          estado: "inactivo",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", productId)
-        .eq("tenant_id", tenantId);
-
-      if (error) {
-        console.error("DEMO_PRODUCT_DELETE_ERROR:", {
-          error,
-          tableName,
-          productId,
-          tenantId,
-        });
-
-        redirect("/app/demo/preview?error=No pudimos borrar un producto.");
-      }
-
-      continue;
-    }
 
     if (!nombre && !productId) {
       continue;
@@ -137,6 +163,10 @@ export async function saveDemoProductsAction(formData: FormData) {
         redirect("/app/demo/preview?error=No pudimos guardar los cambios.");
       }
     } else {
+      if (remainingNewProducts <= 0) {
+        redirect("/app/demo/preview?error=La demo permite cargar hasta 50 productos de muestra.");
+      }
+
       const { error } = await adminClient.from(tableName).insert({
         tenant_id: tenantId,
         origen_producto: "manual",
@@ -153,9 +183,11 @@ export async function saveDemoProductsAction(formData: FormData) {
 
         redirect("/app/demo/preview?error=No pudimos agregar un producto.");
       }
+
+      remainingNewProducts -= 1;
     }
   }
 
   revalidatePath("/app/demo/preview");
-  redirect("/app/demo/preview?saved=1");
+  redirect(`/app/demo/preview?saved=${Date.now()}`);
 }

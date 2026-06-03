@@ -87,7 +87,7 @@ export default async function DemoPreviewPage({
     <DemoPreviewClient
       products={products}
       error={searchParams?.error || error}
-      saved={searchParams?.saved === "1"}
+      savedToken={searchParams?.saved || null}
     />
   );
 }

@@ -24,17 +24,17 @@ function isPlaceholderImage(url: string | null) {
 export function DemoPreviewClient({
   products,
   error,
-  saved,
+  savedToken,
 }: {
   products: DemoProduct[];
   error: string | null;
-  saved: boolean;
+  savedToken: string | null;
 }) {
   const hasProducts = products.length > 0;
   const [isCatalogOpen, setIsCatalogOpen] = useState(!hasProducts);
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   const [modulePreview, setModulePreview] = useState<ModulePreview>(null);
-  const [showSavedToast, setShowSavedToast] = useState(saved);
+  const [showSavedToast, setShowSavedToast] = useState(Boolean(savedToken));
   const catalogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function DemoPreviewClient({
   }, [hasProducts]);
 
   useEffect(() => {
-    if (!saved) return;
+    if (!savedToken) return;
 
     setShowSavedToast(true);
 
@@ -56,7 +56,7 @@ export function DemoPreviewClient({
     }, 2000);
 
     return () => window.clearTimeout(timer);
-  }, [saved]);
+  }, [savedToken]);
 
   function openCatalog() {
     setIsCatalogOpen(true);
@@ -175,7 +175,9 @@ export function DemoPreviewClient({
               </h2>
             </div>
             <p className="text-xs font-bold text-slate-500">
-              Las filas vacías agregan productos.
+              {products.length >= 50
+                ? "La demo permite hasta 50 productos de muestra."
+                : "Las filas vacías agregan productos."}
             </p>
           </div>
 
@@ -312,7 +314,10 @@ function PreviewCard({
 }
 
 function ProductTable({ products }: { products: DemoProduct[] }) {
-  const emptyRows = Array.from({ length: 5 });
+  const maxProducts = 50;
+  const availableRows = Math.max(0, maxProducts - products.length);
+  const emptyRows = Array.from({ length: Math.min(5, availableRows) });
+  const reachedLimit = products.length >= maxProducts;
 
   return (
     <form action={saveDemoProductsAction} className="mt-6">
@@ -341,7 +346,12 @@ function ProductTable({ products }: { products: DemoProduct[] }) {
         </table>
       </div>
 
-      <div className="mt-5 flex justify-end">
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs font-semibold leading-5 text-slate-500">
+          {reachedLimit
+            ? "Llegaste al máximo de 50 productos para esta demo."
+            : "Podés cargar hasta 50 productos de muestra."}
+        </p>
         <SaveProductsButton />
       </div>
     </form>
