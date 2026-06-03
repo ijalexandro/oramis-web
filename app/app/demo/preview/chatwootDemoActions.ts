@@ -2,11 +2,20 @@
 
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
 
+export type DemoChatAttachment = {
+  id: string;
+  fileType: string | null;
+  dataUrl: string | null;
+  thumbUrl: string | null;
+  fallbackUrl: string | null;
+};
+
 type DemoChatMessage = {
   id: string;
   content: string;
   direction: "incoming" | "outgoing";
   createdAt: string | null;
+  attachments: DemoChatAttachment[];
 };
 
 type StartDemoConversationResult = {
@@ -109,6 +118,54 @@ async function chatwootFetch(path: string, init?: RequestInit) {
   return data;
 }
 
+function normalizeAttachments(message: any): DemoChatAttachment[] {
+  const rawAttachments =
+    message?.attachments ??
+    message?.content_attributes?.attachments ??
+    message?.content_attributes?.items ??
+    [];
+
+  if (!Array.isArray(rawAttachments)) return [];
+
+  return rawAttachments
+    .map((attachment: any) => {
+      const fileType =
+        attachment?.file_type ??
+        attachment?.fileType ??
+        attachment?.content_type ??
+        attachment?.contentType ??
+        null;
+
+      const dataUrl =
+        attachment?.data_url ??
+        attachment?.dataUrl ??
+        attachment?.download_url ??
+        attachment?.downloadUrl ??
+        attachment?.url ??
+        null;
+
+      const thumbUrl =
+        attachment?.thumb_url ??
+        attachment?.thumbUrl ??
+        attachment?.thumbnail_url ??
+        attachment?.thumbnailUrl ??
+        null;
+
+      const fallbackUrl = thumbUrl || dataUrl;
+
+      if (!fallbackUrl) return null;
+
+      return {
+        id: String(attachment?.id ?? fallbackUrl),
+        fileType: fileType ? String(fileType) : null,
+        dataUrl: dataUrl ? String(dataUrl) : null,
+        thumbUrl: thumbUrl ? String(thumbUrl) : null,
+        fallbackUrl: fallbackUrl ? String(fallbackUrl) : null,
+      };
+    })
+    .filter(Boolean) as DemoChatAttachment[];
+}
+
 function normalizeMessages(data: any): DemoChatMessage[] {
   const rawMessages =
     data?.payload ??
@@ -134,11 +191,14 @@ function normalizeMessages(data: any): DemoChatMessage[] {
 
       if (!content) return null;
 
+      const attachments = normalizeAttachments(message);
+
       return {
         id: String(message?.id ?? `${rawDirection}-${message?.created_at ?? Date.now()}`),
         content,
         direction: rawDirection,
         createdAt: message?.created_at ? String(message.created_at) : null,
+        attachments,
       };
     })
     .filter(Boolean) as DemoChatMessage[];

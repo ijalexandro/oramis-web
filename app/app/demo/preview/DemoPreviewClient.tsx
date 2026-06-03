@@ -471,10 +471,19 @@ function CellTextarea({
   );
 }
 
+type ChatAttachment = {
+  id: string;
+  fileType: string | null;
+  dataUrl: string | null;
+  thumbUrl: string | null;
+  fallbackUrl: string | null;
+};
+
 type ChatBubble = {
   id: string;
   content: string;
   direction: "incoming" | "outgoing";
+  attachments?: ChatAttachment[];
 };
 
 type DemoConversationState = {
@@ -532,6 +541,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         id: message.id,
         content: message.content,
         direction: message.direction,
+        attachments: message.attachments || [],
       }));
 
       const outgoing = normalized.filter((message) => message.direction === "outgoing");
@@ -575,6 +585,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         id: localId,
         content: message,
         direction: "incoming",
+        attachments: [],
       },
     ]);
 
@@ -626,9 +637,9 @@ function DemoModal({ onClose }: { onClose: () => void }) {
               </p>
             </div>
 
-            <div className="min-h-[500px] bg-[#e9f8ef] p-4">
+            <div className="h-[500px] overflow-y-auto bg-[#e9f8ef] p-4">
               {messages.length === 0 && !isTyping ? (
-                <div className="flex min-h-[460px] items-center justify-center text-center">
+                <div className="flex h-full items-center justify-center text-center">
                   <div className="rounded-3xl bg-white/80 p-5 shadow-sm">
                     <p className="text-base font-black text-slate-800">
                       Tu conversación empieza acá
@@ -691,19 +702,130 @@ function DemoModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function splitTextWithLinks(text: string) {
+  const parts: Array<{ type: "text" | "link"; value: string }> = [];
+  const regex = /(https?:\/\/[^\s]+)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text",
+        value: text.slice(lastIndex, match.index),
+      });
+    }
+
+    parts.push({
+      type: "link",
+      value: match[0],
+    });
+
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({
+      type: "text",
+      value: text.slice(lastIndex),
+    });
+  }
+
+  return parts;
+}
+
+function MessageText({ text }: { text: string }) {
+  return (
+    <>
+      {splitTextWithLinks(text).map((part, index) => {
+        if (part.type === "link") {
+          return (
+            <a
+              key={`${part.value}-${index}`}
+              href={part.value}
+              target="_blank"
+              rel="noreferrer"
+              className="font-black text-emerald-700 underline decoration-emerald-300 underline-offset-2 break-all"
+            >
+              {part.value}
+            </a>
+          );
+        }
+
+        return <span key={`${part.value}-${index}`}>{part.value}</span>;
+      })}
+    </>
+  );
+}
+
+function isImageAttachment(attachment: ChatAttachment) {
+  const fileType = String(attachment.fileType || "").toLowerCase();
+  const url = String(attachment.fallbackUrl || "").toLowerCase();
+
+  return (
+    fileType.includes("image") ||
+    url.endsWith(".png") ||
+    url.endsWith(".jpg") ||
+    url.endsWith(".jpeg") ||
+    url.endsWith(".webp") ||
+    url.endsWith(".gif")
+  );
+}
+
 function ChatMessageBubble({ message }: { message: ChatBubble }) {
   const isIncoming = message.direction === "incoming";
+  const attachments = message.attachments || [];
 
   return (
     <div className={`flex ${isIncoming ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[84%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm font-semibold leading-5 shadow-sm ${
+        className={`max-w-[82%] overflow-hidden whitespace-pre-line break-words rounded-2xl px-4 py-3 text-sm font-semibold leading-5 shadow-sm ${
           isIncoming
             ? "rounded-tr-sm bg-[#dcf8c6] text-slate-800"
             : "rounded-tl-sm bg-white text-slate-800"
         }`}
       >
-        {message.content}
+        {message.content ? <MessageText text={message.content} /> : null}
+
+        {attachments.length > 0 ? (
+          <div className={message.content ? "mt-3 space-y-2" : "space-y-2"}>
+            {attachments.map((attachment) => {
+              const url = attachment.fallbackUrl || attachment.dataUrl || attachment.thumbUrl || "";
+
+              if (!url) return null;
+
+              if (isImageAttachment(attachment)) {
+                return (
+                  <a
+                    key={attachment.id}
+                    href={attachment.dataUrl || url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block overflow-hidden rounded-xl border border-slate-200 bg-white"
+                  >
+                    <img
+                      src={url}
+                      alt="Imagen enviada"
+                      className="max-h-56 w-full object-cover"
+                    />
+                  </a>
+                );
+              }
+
+              return (
+                <a
+                  key={attachment.id}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black text-emerald-700 underline"
+                >
+                  Ver archivo adjunto
+                </a>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
     </div>
   );
