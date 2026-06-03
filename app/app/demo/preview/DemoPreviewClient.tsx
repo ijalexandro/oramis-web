@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import type { ReactNode } from "react";
 import type { DemoProduct } from "./page";
 import { saveDemoProductsAction } from "../productActions";
@@ -8,6 +9,12 @@ import { saveDemoProductsAction } from "../productActions";
 type ModulePreview = "conversations" | "metrics" | "admin" | null;
 
 const CONTRACT_URL = "/contratar";
+
+const MODULE_PREVIEW_IMAGES = {
+  conversations: "/demo-previews/conversaciones.png",
+  metrics: "/demo-previews/metricas.png",
+  admin: "/demo-previews/administracion.png",
+} as const;
 
 function isPlaceholderImage(url: string | null) {
   if (!url) return true;
@@ -96,7 +103,9 @@ export function DemoPreviewClient({
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-2 text-sm font-black text-slate-500">
             <span className="rounded-full bg-emerald-50 px-4 py-2 text-emerald-700">
-              {hasProducts ? `${products.length} productos detectados` : "Catálogo pendiente"}
+              {hasProducts
+                ? `Demo cargada con ${products.length} productos de muestra`
+                : "Catálogo pendiente"}
             </span>
 
           </div>
@@ -110,7 +119,7 @@ export function DemoPreviewClient({
 
         {saved ? (
           <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
-            Cambios guardados.
+            Productos guardados correctamente.
           </div>
         ) : null}
       </section>
@@ -308,14 +317,30 @@ function ProductTable({ products }: { products: DemoProduct[] }) {
       </div>
 
       <div className="mt-5 flex justify-end">
-        <button
-          type="submit"
-          className="rounded-full bg-[#07111f] px-6 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600"
-        >
-          Guardar cambios
-        </button>
+        <SaveProductsButton />
       </div>
     </form>
+  );
+}
+
+function SaveProductsButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="rounded-full bg-[#07111f] px-6 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 disabled:cursor-wait disabled:opacity-80"
+    >
+      {pending ? (
+        <span className="inline-flex items-center justify-center gap-2">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/80 border-t-transparent" />
+          <span>Guardando productos...</span>
+        </span>
+      ) : (
+        "Guardar productos"
+      )}
+    </button>
   );
 }
 
@@ -550,9 +575,14 @@ function ModulePreviewModal({
           </div>
 
           <div className="bg-slate-50 p-6">
-            {type === "conversations" ? <ConversationsMock /> : null}
-            {type === "metrics" ? <MetricsMock /> : null}
-            {type === "admin" ? <AdminMock /> : null}
+            <div className="relative h-full overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
+              <img
+                src={MODULE_PREVIEW_IMAGES[type]}
+                alt={`Preview ${copy.eyebrow}`}
+                className="h-full w-full object-cover blur-[1px]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-white/10" />
+            </div>
           </div>
         </div>
       </div>
