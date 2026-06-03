@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 const whatsappDemoUrl =
   "https://api.whatsapp.com/send/?phone=5491130416164&text=Hola%21&type=phone_number&app_absent=0";
@@ -273,20 +274,7 @@ export default function Home() {
               </a>
           </nav>
 
-          <div className="flex items-center gap-2">
-            <a
-              href="/login"
-              className="inline-flex rounded-full px-3 py-2 text-sm font-bold text-slate-600 transition hover:text-[#07111f] sm:px-4 sm:py-2.5"
-            >
-              Ingresar
-            </a>
-            <a
-              href="/signup"
-              className="rounded-full bg-[#07111f] px-4 py-2 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 sm:px-5 sm:py-2.5"
-            >
-              Crear cuenta
-            </a>
-          </div>
+          <HeaderAuthButtons />
         </div>
       </header>
 
@@ -809,6 +797,74 @@ function MiniProductCard() {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+
+function HeaderAuthButtons() {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function checkSession() {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+
+        if (!active) return;
+
+        setIsLoggedIn(Boolean(data?.user));
+      } catch (error) {
+        console.error("HOME_AUTH_CHECK_ERROR:", error);
+
+        if (!active) return;
+
+        setIsLoggedIn(false);
+      }
+    }
+
+    checkSession();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (isLoggedIn === null) {
+    return (
+      <div className="h-10 w-28 rounded-full bg-slate-100" aria-hidden="true" />
+    );
+  }
+
+  if (isLoggedIn) {
+    return (
+      <div className="flex items-center gap-2">
+        <a
+          href="/app"
+          className="rounded-full bg-[#07111f] px-4 py-2 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 sm:px-5 sm:py-2.5"
+        >
+          Mi cuenta
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <a
+        href="/login"
+        className="inline-flex rounded-full px-3 py-2 text-sm font-bold text-slate-600 transition hover:text-[#07111f] sm:px-4 sm:py-2.5"
+      >
+        Ingresar
+      </a>
+      <a
+        href="/signup"
+        className="rounded-full bg-[#07111f] px-4 py-2 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 sm:px-5 sm:py-2.5"
+      >
+        Crear cuenta
+      </a>
     </div>
   );
 }
