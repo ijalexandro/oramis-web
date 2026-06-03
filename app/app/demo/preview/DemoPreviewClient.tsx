@@ -532,6 +532,10 @@ function DemoModal({ onClose }: { onClose: () => void }) {
     const startedAt = Date.now();
     const timeoutMs = 120000;
     const intervalMs = 2500;
+    const extraWaitAfterFirstReplyMs = 9000;
+
+    let firstReplyAt: number | null = null;
+    let lastMessageSignature = "";
 
     while (Date.now() - startedAt < timeoutMs) {
       await new Promise((resolve) => window.setTimeout(resolve, intervalMs));
@@ -548,10 +552,27 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         const outgoing = normalized.filter((message) => message.direction === "outgoing");
         const newOutgoing = outgoing.find((message) => !previousOutgoingIds.has(message.id));
 
+        const messageSignature = normalized
+          .map((message) => `${message.id}:${message.attachments?.length || 0}`)
+          .join("|");
+
         setMessages(normalized);
 
-        if (newOutgoing) {
-          return true;
+        if (newOutgoing && !firstReplyAt) {
+          firstReplyAt = Date.now();
+          lastMessageSignature = messageSignature;
+          continue;
+        }
+
+        if (firstReplyAt) {
+          const enoughExtraWait = Date.now() - firstReplyAt >= extraWaitAfterFirstReplyMs;
+          const noNewChanges = messageSignature === lastMessageSignature;
+
+          if (enoughExtraWait && noNewChanges) {
+            return true;
+          }
+
+          lastMessageSignature = messageSignature;
         }
       } catch (err) {
         console.error("DEMO_CHAT_POLL_ERROR:", err);
@@ -731,6 +752,47 @@ function splitTextWithLinks(text: string) {
   return parts;
 }
 
+function renderInlineMarkdown(text: string) {
+  const parts: Array<{ type: "text" | "bold" | "italic"; value: string }> = [];
+  const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text",
+        value: text.slice(lastIndex, match.index),
+      });
+    }
+
+    const raw = match[0];
+
+    if (raw.startsWith("**") && raw.endsWith("**")) {
+      parts.push({
+        type: "bold",
+        value: raw.slice(2, -2),
+      });
+    } else if (raw.startsWith("*") && raw.endsWith("*")) {
+      parts.push({
+        type: "italic",
+        value: raw.slice(1, -1),
+      });
+    }
+
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({
+      type: "text",
+      value: text.slice(lastIndex),
+    });
+  }
+
+  return parts;
+}
+
 function MessageText({ text }: { text: string }) {
   return (
     <>
@@ -742,14 +804,38 @@ function MessageText({ text }: { text: string }) {
               href={part.value}
               target="_blank"
               rel="noreferrer"
-              className="font-black text-emerald-700 underline decoration-emerald-300 underline-offset-2 break-all"
+              className="break-all font-black text-emerald-700 underline decoration-emerald-300 underline-offset-2"
             >
               {part.value}
             </a>
           );
         }
 
-        return <span key={`${part.value}-${index}`}>{part.value}</span>;
+        return (
+          <span key={`${part.value}-${index}`}>
+            {renderInlineMarkdown(part.value).map((inlinePart, inlineIndex) => {
+              const key = `${inlinePart.value}-${index}-${inlineIndex}`;
+
+              if (inlinePart.type === "bold") {
+                return (
+                  <strong key={key} className="font-black">
+                    {inlinePart.value}
+                  </strong>
+                );
+              }
+
+              if (inlinePart.type === "italic") {
+                return (
+                  <em key={key} className="italic">
+                    {inlinePart.value}
+                  </em>
+                );
+              }
+
+              return <span key={key}>{inlinePart.value}</span>;
+            })}
+          </span>
+        );
       })}
     </>
   );
