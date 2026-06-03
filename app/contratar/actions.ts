@@ -302,6 +302,23 @@ export async function saveContractAttemptAction(input: SaveContractAttemptInput)
     };
   }
 
+  try {
+    await fetch("https://n8n.oramis.ai/webhook/e4aa0a8e-ad89-4545-8234-67554c981b4e", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        event: "contratacion_intento_creado",
+        contratacion_intento_id: data.id,
+        payload,
+      }),
+      cache: "no-store",
+    });
+  } catch (webhookError) {
+    console.error("CONTRACT_ATTEMPT_WEBHOOK_ERROR:", webhookError);
+  }
+
   return {
     ok: true,
     id: data.id as string,

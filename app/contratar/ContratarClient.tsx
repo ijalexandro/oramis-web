@@ -187,6 +187,7 @@ export function ContratarClient({
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [lastAttemptId, setLastAttemptId] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (step === 1) return;
@@ -313,7 +314,7 @@ export function ContratarClient({
     };
   }
 
-  function saveAttempt(estado: string, successMessage: string) {
+  function saveAttempt(estado: string, successMessage: string, finish = false) {
     setSaveError(null);
     setSaveMessage(null);
 
@@ -327,6 +328,11 @@ export function ContratarClient({
 
       setLastAttemptId(result.id || null);
       setSaveMessage(successMessage);
+
+      if (finish) {
+        setSubmitted(true);
+        window.setTimeout(scrollToForm, 80);
+      }
     });
   }
 
@@ -387,7 +393,39 @@ export function ContratarClient({
           ref={formRef}
           className="rounded-[2.4rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
         >
-          {step === 1 ? (
+          {submitted ? (
+            <div className="flex min-h-[520px] flex-col items-center justify-center text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-100 text-3xl text-emerald-700">
+                ✓
+              </div>
+              <p className="mt-6 text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+                Solicitud recibida
+              </p>
+              <h2 className="mt-4 max-w-2xl text-4xl font-black tracking-[-0.055em] text-slate-950">
+                Gracias. Vamos a contactarte para continuar.
+              </h2>
+              <p className="mt-4 max-w-xl text-base font-semibold leading-7 text-slate-500">
+                Ya recibimos tus datos y el plan recomendado. El próximo paso es revisar tu caso,
+                confirmar la configuración y avanzar con la activación de Oramis.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="/"
+                  className="rounded-full border border-slate-200 bg-white px-7 py-3.5 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700"
+                >
+                  Volver al inicio
+                </a>
+                <a
+                  href="/app"
+                  className="rounded-full bg-[#07111f] px-7 py-3.5 text-sm font-black text-white shadow-xl shadow-slate-200 transition hover:bg-emerald-600"
+                >
+                  Ir a mi cuenta
+                </a>
+              </div>
+            </div>
+          ) : null}
+
+          {!submitted && step === 1 ? (
             <div>
               <SectionHeader
                 eyebrow="Paso 1"
@@ -420,7 +458,7 @@ export function ContratarClient({
             </div>
           ) : null}
 
-          {step === 2 ? (
+          {!submitted && step === 2 ? (
             <div>
               <SectionHeader
                 eyebrow="Paso 2"
@@ -574,7 +612,6 @@ export function ContratarClient({
                 <button
                   type="button"
                   onClick={() => {
-                    saveAttempt("calculado", "Cotización guardada.");
                     setStep(3);
                     window.setTimeout(scrollToForm, 80);
                   }}
@@ -586,7 +623,7 @@ export function ContratarClient({
             </div>
           ) : null}
 
-          {step === 3 ? (
+          {!submitted && step === 3 ? (
             <div>
               <SectionHeader
                 eyebrow="Paso 3"
@@ -684,34 +721,19 @@ export function ContratarClient({
                 </button>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  {!isCustom ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        saveAttempt(
-                          "pendiente_contacto",
-                          "Listo. Registramos tu solicitud y vamos a contactarte."
-                        )
-                      }
-                      className="rounded-full border border-slate-200 bg-white px-7 py-3.5 text-sm font-black text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700"
-                    >
-                      Necesito ayuda
-                    </button>
-                  ) : null}
-
                   <button
                     type="button"
+                    disabled={isPending}
                     onClick={() =>
                       saveAttempt(
-                        isCustom ? "custom_solicitado" : "pendiente_pago",
-                        isCustom
-                          ? "Listo. Registramos tu solicitud para preparar una propuesta."
-                          : "Cotización guardada. El pago se conectará en el próximo paso."
+                        isCustom ? "custom_solicitado" : "pendiente_contacto",
+                        "Listo. Registramos tu solicitud y vamos a contactarte.",
+                        true
                       )
                     }
-                    className="rounded-full bg-emerald-500 px-7 py-3.5 text-sm font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
+                    className="rounded-full bg-emerald-500 px-7 py-3.5 text-sm font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600 disabled:cursor-wait disabled:opacity-70"
                   >
-                    {isCustom ? "Quiero que me contacten" : "Pagar ahora"}
+                    {isPending ? "Enviando..." : "Continuar"}
                   </button>
                 </div>
               </div>
