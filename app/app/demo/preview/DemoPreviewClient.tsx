@@ -536,25 +536,29 @@ function DemoModal({ onClose }: { onClose: () => void }) {
     while (Date.now() - startedAt < timeoutMs) {
       await new Promise((resolve) => window.setTimeout(resolve, intervalMs));
 
-      const result = await listDemoMessagesAction(currentConversation);
-      const normalized = result.messages.map((message) => ({
-        id: message.id,
-        content: message.content,
-        direction: message.direction,
-        attachments: message.attachments || [],
-      }));
+      try {
+        const result = await listDemoMessagesAction(currentConversation);
+        const normalized = result.messages.map((message) => ({
+          id: message.id,
+          content: message.content,
+          direction: message.direction,
+          attachments: message.attachments || [],
+        }));
 
-      const outgoing = normalized.filter((message) => message.direction === "outgoing");
-      const newOutgoing = outgoing.find((message) => !previousOutgoingIds.has(message.id));
+        const outgoing = normalized.filter((message) => message.direction === "outgoing");
+        const newOutgoing = outgoing.find((message) => !previousOutgoingIds.has(message.id));
 
-      setMessages(normalized);
+        setMessages(normalized);
 
-      if (newOutgoing) {
-        return;
+        if (newOutgoing) {
+          return true;
+        }
+      } catch (err) {
+        console.error("DEMO_CHAT_POLL_ERROR:", err);
       }
     }
 
-    throw new Error("timeout_waiting_reply");
+    return false;
   }
 
   async function handleSend(event: React.FormEvent<HTMLFormElement>) {
@@ -599,10 +603,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
       await pollForReply(conversation, previousOutgoingIds);
     } catch (err) {
       console.error("DEMO_CHAT_SEND_ERROR:", err);
-
-      setError(
-        "La respuesta está tardando más de lo esperado. La conversación quedó guardada en Chatwoot."
-      );
+      setError(null);
     } finally {
       setIsTyping(false);
       setIsSending(false);
@@ -660,11 +661,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
               )}
             </div>
 
-            {error ? (
-              <div className="border-t border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold leading-5 text-amber-800">
-                {error}
-              </div>
-            ) : null}
+
 
             <form onSubmit={handleSend} className="border-t border-slate-200 bg-white p-4">
               <div className="flex gap-3">
