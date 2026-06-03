@@ -34,6 +34,7 @@ export function DemoPreviewClient({
   const [isCatalogOpen, setIsCatalogOpen] = useState(!hasProducts);
   const [isDemoOpen, setIsDemoOpen] = useState(false);
   const [modulePreview, setModulePreview] = useState<ModulePreview>(null);
+  const [showSavedToast, setShowSavedToast] = useState(saved);
   const catalogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -44,6 +45,18 @@ export function DemoPreviewClient({
       }, 100);
     }
   }, [hasProducts]);
+
+  useEffect(() => {
+    if (!saved) return;
+
+    setShowSavedToast(true);
+
+    const timer = window.setTimeout(() => {
+      setShowSavedToast(false);
+    }, 2000);
+
+    return () => window.clearTimeout(timer);
+  }, [saved]);
 
   function openCatalog() {
     setIsCatalogOpen(true);
@@ -117,11 +130,7 @@ export function DemoPreviewClient({
           </div>
         ) : null}
 
-        {saved ? (
-          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
-            Productos guardados correctamente.
-          </div>
-        ) : null}
+
       </section>
 
       {hasProducts ? (
@@ -212,6 +221,12 @@ export function DemoPreviewClient({
           type={modulePreview}
           onClose={() => setModulePreview(null)}
         />
+      ) : null}
+
+      {showSavedToast ? (
+        <div className="fixed right-5 top-5 z-[60] rounded-2xl border border-emerald-200 bg-white px-5 py-4 text-sm font-black text-emerald-800 shadow-2xl shadow-emerald-950/10">
+          Productos guardados correctamente.
+        </div>
       ) : null}
     </AppShell>
   );
@@ -569,9 +584,7 @@ function ModulePreviewModal({
             <p className="mt-4 text-base font-semibold leading-7 text-slate-300">
               {copy.text}
             </p>
-            <p className="mt-8 rounded-2xl bg-white/10 px-4 py-3 text-sm font-bold text-slate-200">
-              Disponible al contratar Oramis.
-            </p>
+
           </div>
 
           <div className="bg-slate-50 p-6">
@@ -582,6 +595,11 @@ function ModulePreviewModal({
                 className="h-full w-full object-cover blur-[1px]"
               />
               <div className="pointer-events-none absolute inset-0 bg-white/10" />
+              <div className="absolute inset-x-0 top-5 flex justify-center px-5">
+                <span className="rounded-full bg-[#07111f]/90 px-5 py-2.5 text-sm font-black text-white shadow-xl backdrop-blur">
+                  Disponible al contratar Oramis
+                </span>
+              </div>
             </div>
           </div>
         </div>
