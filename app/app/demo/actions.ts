@@ -88,6 +88,9 @@ export async function createDemoAction(formData: FormData) {
   const email = context.user.email || context.membership.email || "";
   const nombreEmpresa = context.tenant.nombre_empresa || "Demo Oramis";
 
+  const demoConfig = await getDemoConfig();
+  const demoTenantDefaults = buildDemoTenantDefaults(demoConfig);
+
   const scraperResponse = await fetch(webhookUrl!, {
     method: "POST",
     headers: {
@@ -96,7 +99,10 @@ export async function createDemoAction(formData: FormData) {
     body: JSON.stringify({
       tenant_id: tenantId,
       url_sitio: urlSitio,
-      cantidad_productos: 50,
+      cantidad_productos: demoConfig.productos_max_demo,
+      productos_max_demo: demoConfig.productos_max_demo,
+      scraper_flujo: demoConfig.scraper_flujo,
+      scraper_metodo: demoConfig.scraper_metodo,
       nombre_negocio: nombreEmpresa,
       lead_email: email,
       lead_whatsapp: null,
@@ -157,9 +163,6 @@ export async function createDemoAction(formData: FormData) {
     tenantActual?.metadata && typeof tenantActual.metadata === "object"
       ? tenantActual.metadata
       : {};
-
-  const demoConfig = await getDemoConfig();
-  const demoTenantDefaults = buildDemoTenantDefaults(demoConfig);
 
   const { error: updateError } = await adminClient
     .from("_0_tenants")
