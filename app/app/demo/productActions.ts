@@ -179,3 +179,88 @@ export async function saveDemoProductsAction(formData: FormData) {
   revalidatePath("/app/demo/preview");
   redirect(`/app/demo/preview?saved=${Date.now()}&try=1`);
 }
+
+
+export async function resetDemoSiteAction() {
+  const context = await getCurrentTenantContext();
+
+  if (!context?.user) {
+    redirect("/login");
+  }
+
+  if (!context.tenant || !context.membership) {
+    redirect("/app/demo/new");
+  }
+
+  const adminClient = createAdminClient();
+  const tenantId = context.tenant.tenant_id;
+  const tableName = String(context.tenant.tabla_productos || "").trim();
+
+  if (tableName && isSafeTableName(tableName)) {
+    const { error: deleteError } = await adminClient
+      .from(tableName)
+      .delete()
+      .eq("tenant_id", tenantId);
+
+    if (deleteError) {
+      console.error("DEMO_RESET_DELETE_PRODUCTS_ERROR:", {
+        deleteError,
+        tableName,
+        tenantId,
+      });
+    }
+  }
+
+  const { data: tenantData, error: tenantReadError } = await adminClient
+    .from("_0_tenants")
+    .select("metadata")
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+
+  if (tenantReadError) {
+    console.error("DEMO_RESET_TENANT_READ_ERROR:", {
+      tenantReadError,
+      tenantId,
+    });
+  }
+
+  const metadata =
+    tenantData?.metadata && typeof tenantData.metadata === "object"
+      ? { ...(tenantData.metadata as Record<string, unknown>) }
+      : {};
+
+  delete metadata.onboarding_demo;
+
+  metadata.demo_reset = {
+    reset_at: new Date().toISOString(),
+    reset_by: context.user.id,
+    previous_table: tableName || null,
+  };
+
+  const { error: updateError } = await adminClient
+    .from("_0_tenants")
+    .update({
+      estado: "pendiente_onboarding",
+      sitio_web: null,
+      tabla_productos: null,
+      tabla_productos_reducida: null,
+      motivo_estado: null,
+      metadata,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("tenant_id", tenantId);
+
+  if (updateError) {
+    console.error("DEMO_RESET_TENANT_UPDATE_ERROR:", {
+      updateError,
+      tenantId,
+    });
+
+    redirect("/app/demo/preview?error=No pudimos reiniciar la demo.");
+  }
+
+  revalidatePath("/app/demo/new");
+  revalidatePath("/app/demo/preview");
+
+  redirect("/app/demo/new");
+}

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import type { ReactNode } from "react";
 import type { DemoProduct } from "./page";
-import { saveDemoProductsAction } from "../productActions";
+import { resetDemoSiteAction, saveDemoProductsAction } from "../productActions";
 import {
   listDemoMessagesAction,
   sendDemoMessageAction,
@@ -300,7 +300,10 @@ function ProductTable({ products }: { products: DemoProduct[] }) {
   const reachedLimit = products.length >= maxProducts;
 
   return (
-    <form action={saveDemoProductsAction} className="mt-6">
+    <>
+      <form id="reset-demo-site-form" action={resetDemoSiteAction} />
+
+      <form action={saveDemoProductsAction} className="mt-6">
       <div className="max-h-[520px] overflow-auto rounded-3xl border border-slate-200">
         <table className="min-w-[900px] w-full border-collapse bg-white text-xs">
           <thead className="bg-slate-50">
@@ -335,6 +338,7 @@ function ProductTable({ products }: { products: DemoProduct[] }) {
         <SaveProductsButton />
       </div>
     </form>
+    </>
   );
 }
 
@@ -342,20 +346,30 @@ function SaveProductsButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded-full bg-[#07111f] px-6 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 disabled:cursor-wait disabled:opacity-80"
-    >
-      {pending ? (
-        <span className="inline-flex items-center justify-center gap-2">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/80 border-t-transparent" />
-          <span>Guardando productos...</span>
-        </span>
-      ) : (
-        "Guardar productos"
-      )}
-    </button>
+    <div className="flex flex-col items-end gap-2">
+      <button
+        type="submit"
+        disabled={pending}
+        className="rounded-full bg-[#07111f] px-6 py-3 text-sm font-black text-white shadow-lg shadow-slate-300 transition hover:bg-emerald-600 disabled:cursor-wait disabled:opacity-80"
+      >
+        {pending ? (
+          <span className="inline-flex items-center justify-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/80 border-t-transparent" />
+            <span>Guardando productos...</span>
+          </span>
+        ) : (
+          "Guardar productos"
+        )}
+      </button>
+
+      <button
+        type="submit"
+        form="reset-demo-site-form"
+        className="text-xs font-black text-slate-400 underline decoration-slate-200 underline-offset-4 transition hover:text-red-600 hover:decoration-red-300"
+      >
+        Reiniciar sitio
+      </button>
+    </div>
   );
 }
 
