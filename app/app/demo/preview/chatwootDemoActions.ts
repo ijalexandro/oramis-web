@@ -394,12 +394,23 @@ export async function listDemoMessagesAction(input: {
 
   const adminClient = createAdminClient();
 
+  const accountId = Number(context.tenant.account_id);
+  const inboxId = Number(context.tenant.inbox_id);
+
+  if (!Number.isFinite(accountId) || accountId <= 0) {
+    throw new Error("El tenant no tiene account_id válido para la demo.");
+  }
+
+  if (!Number.isFinite(inboxId) || inboxId <= 0) {
+    throw new Error("El tenant no tiene inbox_id válido para la demo.");
+  }
+
   const { data, error } = await adminClient
     .from("mensajes")
     .select("id,direccion,message,created_at,external_conversation_id,external_message_id,raw_payload,account_id,inbox_id,tenant_id")
     .eq("tenant_id", context.tenant.tenant_id)
-    .eq("account_id", 4)
-    .eq("inbox_id", 4)
+    .eq("account_id", accountId)
+    .eq("inbox_id", inboxId)
     .eq("external_conversation_id", String(conversationId))
     .order("created_at", { ascending: true })
     .limit(100);

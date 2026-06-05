@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+import { getDemoConfig } from "@/utils/oramis/demoConfig";
 
-const MAX_DEMO_PRODUCTS = 50;
 
 function cleanString(value: FormDataEntryValue | null) {
   return String(value || "").trim();
@@ -38,6 +38,8 @@ export async function saveDemoProductsAction(formData: FormData) {
 
   const adminClient = createAdminClient();
   const tenantId = context.tenant.tenant_id;
+  const demoConfig = await getDemoConfig();
+  const maxDemoProducts = demoConfig.productos_max_demo;
 
   const rowIds = getIndexedValues(formData, "row_id");
   const nombres = getIndexedValues(formData, "nombre_producto");
@@ -89,7 +91,7 @@ export async function saveDemoProductsAction(formData: FormData) {
     redirect("/app/demo/preview?error=No pudimos validar el límite de productos.");
   }
 
-  let remainingNewProducts = Math.max(0, MAX_DEMO_PRODUCTS - Number(activeCount || 0));
+  let remainingNewProducts = Math.max(0, maxDemoProducts - Number(activeCount || 0));
 
   const maxRows = Math.max(
     rowIds.length,
@@ -152,7 +154,7 @@ export async function saveDemoProductsAction(formData: FormData) {
       }
     } else {
       if (remainingNewProducts <= 0) {
-        redirect("/app/demo/preview?error=La demo permite cargar hasta 50 productos de muestra.");
+        redirect(`/app/demo/preview?error=La demo permite cargar hasta ${maxDemoProducts} productos de muestra.`);
       }
 
       const { error } = await adminClient.from(tableName).insert({

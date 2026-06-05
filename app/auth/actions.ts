@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { buildDemoTenantDefaults, getDemoConfig } from "@/utils/oramis/demoConfig";
 
 async function getOrigin() {
   const headersList = await headers();
@@ -130,33 +131,25 @@ export async function signUpAction(formData: FormData) {
     company,
   });
 
+  const demoConfig = await getDemoConfig();
+  const demoTenantDefaults = buildDemoTenantDefaults(demoConfig);
+
   const { data: tenant, error: tenantError } = await adminClient
     .from("_0_tenants")
     .insert({
       nombre_empresa: company,
       estado: "pendiente_onboarding",
       email_contacto: email,
-      url_webhook: "https://n8n.oramis.ai/webhook/motor-ventas-chatwoot-fb-3-1-9c8f4b7a2d6e",
-      url_chatwoot: "chat.oramis.ai",
-      account_id: 4,
-      inbox_id: 4,
-      chatwoot_team_id_ventas: 5,
-      chatwoot_team_id_soporte: 6,
-      mensaje_identificador: "DEMO_ORAMIS_ONBOARDING",
-      info_empresa:
-        "Esta es una demo interactiva de Oramis generada automáticamente a partir de una muestra de productos del sitio web del comercio. No representa una operación comercial real todavía.",
-      info_general:
-        "Estás funcionando en modo demo. El objetivo es mostrar cómo Oramis podría responder consultas comerciales usando productos reales detectados desde la web del comercio. En esta demo no hay WhatsApp real conectado, no hay vendedor humano atendiendo y no se toman pedidos reales. Si el cliente quiere avanzar comercialmente, invitalo a contratar Oramis.",
-      info_contestar_producto:
-        "Para esta demo usá únicamente los productos cargados en la tabla del tenant. La demo puede contener solo una muestra parcial del catálogo, por ejemplo hasta 50 productos. Si el cliente pregunta por un producto que no está en la muestra, no inventes disponibilidad, precio ni variantes. Explicá brevemente que esta demo trabaja con una muestra parcial de productos y sugerí probar con otro producto de los cargados o revisar/editar el catálogo de la demo en https://www.oramis.ai/app/demo/preview.",
+      ...demoTenantDefaults,
       metadata: {
         origen: "signup",
         auth_user_id: signedUpUser.id,
+        demo_config_codigo: demoConfig.codigo,
         demo_chatwoot: {
-          account_id: 4,
-          inbox_id: 4,
-          team_id_ventas: 5,
-          team_id_soporte: 6,
+          account_id: demoConfig.account_id,
+          inbox_id: demoConfig.inbox_id,
+          team_id_ventas: demoConfig.chatwoot_team_id_ventas,
+          team_id_soporte: demoConfig.chatwoot_team_id_soporte,
           tipo: "onboarding_demo",
         },
       },

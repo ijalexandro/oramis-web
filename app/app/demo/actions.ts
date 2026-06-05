@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { buildDemoTenantDefaults, getDemoConfig } from "@/utils/oramis/demoConfig";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
 
 function cleanString(value: FormDataEntryValue | null) {
@@ -157,25 +158,34 @@ export async function createDemoAction(formData: FormData) {
       ? tenantActual.metadata
       : {};
 
+  const demoConfig = await getDemoConfig();
+  const demoTenantDefaults = buildDemoTenantDefaults(demoConfig);
+
   const { error: updateError } = await adminClient
     .from("_0_tenants")
     .update({
       estado: "demo",
       sitio_web: urlSitio,
-      url_webhook: "https://n8n.oramis.ai/webhook/motor-ventas-chatwoot-fb-3-1-9c8f4b7a2d6e",
-      url_chatwoot: "chat.oramis.ai",
-      account_id: 4,
-      inbox_id: 4,
+      ...demoTenantDefaults,
       tabla_productos: tablaDemoNombre,
       tabla_productos_reducida: tablaDemoNombre,
-      chatwoot_team_id_ventas: 5,
-      chatwoot_team_id_soporte: 6,
       metadata: {
         ...currentMetadata,
+        demo_config_codigo: demoConfig.codigo,
+        demo_chatwoot: {
+          account_id: demoConfig.account_id,
+          inbox_id: demoConfig.inbox_id,
+          team_id_ventas: demoConfig.chatwoot_team_id_ventas,
+          team_id_soporte: demoConfig.chatwoot_team_id_soporte,
+          tipo: "onboarding_demo",
+        },
         onboarding_demo: {
           url_sitio: urlSitio,
           tabla_demo_nombre: tablaDemoNombre,
           productos_detectados: productosDetectados,
+          productos_max_demo: demoConfig.productos_max_demo,
+          scraper_flujo_default: demoConfig.scraper_flujo,
+          scraper_metodo_default: demoConfig.scraper_metodo,
           requiere_carga_manual: Boolean(scraperResult.requiere_carga_manual),
           puede_probar_demo: Boolean(scraperResult.puede_probar_demo),
           resultado_scraper: scraperResult.resultado_scraper || null,
