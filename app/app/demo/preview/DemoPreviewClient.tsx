@@ -589,7 +589,21 @@ function DemoModal({ onClose }: { onClose: () => void }) {
             return currentMessages;
           }
 
-          return normalized;
+          const normalizedIds = new Set(normalized.map((message) => message.id));
+
+          const localMessagesStillPending = currentMessages.filter((message) => {
+            if (!String(message.id).startsWith("local-")) return false;
+
+            const alreadyReturnedByServer = normalized.some(
+              (serverMessage) =>
+                serverMessage.direction === message.direction &&
+                serverMessage.content.trim() === message.content.trim()
+            );
+
+            return !alreadyReturnedByServer && !normalizedIds.has(message.id);
+          });
+
+          return [...normalized, ...localMessagesStillPending];
         });
 
         if (newOutgoing && !firstReplyAt) {
