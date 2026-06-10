@@ -581,6 +581,13 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         if (newOutgoing && !firstReplyAt) {
           firstReplyAt = Date.now();
           lastMessageSignature = messageSignature;
+
+          // Ya llegó una respuesta visible: dejamos de mostrar "escribiendo"
+          // y liberamos el input, pero seguimos unos segundos más en polling
+          // silencioso por si llega una foto o un segundo mensaje.
+          setIsTyping(false);
+          setIsSending(false);
+
           continue;
         }
 
