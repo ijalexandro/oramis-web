@@ -514,6 +514,8 @@ function DemoModal({ onClose }: { onClose: () => void }) {
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const startedRef = useRef(false);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -541,6 +543,18 @@ function DemoModal({ onClose }: { onClose: () => void }) {
 
     start();
   }, []);
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    const end = messagesEndRef.current;
+
+    if (!container || !end) return;
+
+    end.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  }, [messages, isTyping]);
 
   async function pollForReply(currentConversation: DemoConversationState, previousOutgoingIds: Set<string>) {
     const startedAt = Date.now();
@@ -686,7 +700,10 @@ function DemoModal({ onClose }: { onClose: () => void }) {
               </p>
             </div>
 
-            <div className="h-[500px] overflow-y-auto bg-[#e9f8ef] p-4">
+            <div
+              ref={messagesContainerRef}
+              className="h-[500px] overflow-y-auto bg-[#e9f8ef] p-4"
+            >
               {messages.length === 0 && !isTyping ? (
                 <div className="flex h-full items-center justify-center text-center">
                   <div className="rounded-3xl bg-white/80 p-5 shadow-sm">
@@ -705,6 +722,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   ))}
 
                   {isTyping ? <TypingBubble /> : null}
+                  <div ref={messagesEndRef} />
                 </div>
               )}
             </div>
