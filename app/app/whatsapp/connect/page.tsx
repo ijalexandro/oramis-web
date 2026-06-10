@@ -15,7 +15,18 @@ const META_APP_ID =
 const META_WHATSAPP_CONFIGURATION_ID =
   process.env.NEXT_PUBLIC_META_WHATSAPP_CONFIGURATION_ID || "828535606751091";
 
-export default async function WhatsAppConnectPage() {
+type WhatsAppConnectPageProps = {
+  searchParams?: Promise<{
+    debug?: string;
+  }>;
+};
+
+export default async function WhatsAppConnectPage({
+  searchParams,
+}: WhatsAppConnectPageProps) {
+  const params = await searchParams;
+  const debugMode = params?.debug === "1";
+
   const context = await getCurrentTenantContext();
   const sectionPermissions = getSectionPermissions(context?.membership);
   const tenant = context?.tenant;
@@ -47,6 +58,7 @@ export default async function WhatsAppConnectPage() {
           <WhatsAppEmbeddedSignupTest
             appId={META_APP_ID}
             configurationId={META_WHATSAPP_CONFIGURATION_ID}
+            debugMode={debugMode}
           />
         )}
       </section>

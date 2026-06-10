@@ -200,7 +200,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </div>
               )}
 
-{deleted && (
+              {deleted && (
                 <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-800 shadow-sm">
                   ✅ Usuario eliminado del negocio.
                 </div>
@@ -208,6 +208,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
               {false && null}
             </div>
+
+            <AdminWhatsAppCard />
 
             <div className="space-y-4">
               {usuarios.map((usuario) => (
@@ -234,6 +236,42 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         )}
       </section>
     </main>
+  );
+}
+
+function AdminWhatsAppCard() {
+  return (
+    <div className="rounded-[1.5rem] border border-emerald-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
+            Canales de atención
+          </p>
+
+          <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#07111f]">
+            WhatsApp Business
+          </h2>
+
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-500">
+            Conectá tu cuenta de WhatsApp Business para recibir, responder y
+            automatizar mensajes de tus clientes desde Oramis.
+          </p>
+
+          <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-500">
+            Oramis usará esta conexión únicamente para enviar y recibir mensajes
+            en nombre de tu negocio, centralizar conversaciones y derivarlas a
+            agentes humanos cuando sea necesario.
+          </p>
+        </div>
+
+        <a
+          href="/app/whatsapp/connect"
+          className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-6 py-3 text-sm font-black text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-600"
+        >
+          Conectar WhatsApp
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -525,19 +563,6 @@ function CheckboxField({
       {label}
     </label>
   );
-}
-
-function formatInvitationStatus(status: string | null) {
-  if (!status) return "pendiente";
-
-  const normalized = status.toLowerCase();
-
-  if (normalized === "activo") return "activo";
-  if (normalized === "enviado") return "enviada";
-  if (normalized === "reenviado") return "reenviada";
-  if (normalized === "pendiente_rate_limit") return "email pendiente";
-
-  return status;
 }
 
 function Badge({ active }: { active: boolean }) {
