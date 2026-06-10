@@ -570,7 +570,13 @@ function DemoModal({ onClose }: { onClose: () => void }) {
           .map((message) => `${message.id}:${message.attachments?.length || 0}`)
           .join("|");
 
-        setMessages(normalized);
+        setMessages((currentMessages) => {
+          if (normalized.length === 0 && currentMessages.length > 0) {
+            return currentMessages;
+          }
+
+          return normalized;
+        });
 
         if (newOutgoing && !firstReplyAt) {
           firstReplyAt = Date.now();
