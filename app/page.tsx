@@ -403,9 +403,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          <div className="mx-auto mt-5 w-full max-w-[380px] rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur">
-          </div>
         </div>
       </section>
 
