@@ -405,24 +405,6 @@ export default function Home() {
           </div>
 
           <div className="mx-auto mt-5 w-full max-w-[380px] rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur">
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div>
-                <p className="text-xs font-bold text-slate-400">Detectó</p>
-                <p className="mt-1 text-sm font-black text-[#07111f]">Compra</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400">Armó</p>
-                <p className="mt-1 text-sm font-black text-emerald-600">
-                  Carrito
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400">Deriva</p>
-                <p className="mt-1 text-sm font-black text-[#07111f]">
-                  Vendedor
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
