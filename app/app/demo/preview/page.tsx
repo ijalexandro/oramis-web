@@ -41,6 +41,7 @@ async function getDemoProducts() {
       tableName: null,
       products: [] as DemoProduct[],
       maxProducts: 50,
+      contractAttemptInProgress: false,
       error: "No encontramos una tabla de productos para esta demo.",
     };
   }
@@ -49,10 +50,12 @@ async function getDemoProducts() {
   const demoConfig = await getDemoConfig();
   const maxProducts = demoConfig.productos_max_demo;
 
+  const tenantId = context.tenant.tenant_id;
+
   const { data, error } = await adminClient
     .from(tableName)
     .select("id,titulo,descripcion,precio_oferta,url_imagen,url_producto")
-    .eq("tenant_id", context.tenant.tenant_id)
+    .eq("tenant_id", tenantId)
     .neq("estado", "inactivo")
     .order("id", { ascending: true })
     .limit(maxProducts);
@@ -69,6 +72,7 @@ async function getDemoProducts() {
       tableName,
       products: [] as DemoProduct[],
       maxProducts,
+      contractAttemptInProgress: false,
       error: "No pudimos leer los productos de esta demo.",
     };
   }
@@ -82,11 +86,62 @@ async function getDemoProducts() {
     producto_url: item.url_producto || null,
   }));
 
+  const contractStatusesInProgress = [
+    "pendiente_contacto",
+    "custom_solicitado",
+    "calculado",
+  ];
+
+  const email = String(context.user.email || context.membership.email || "")
+    .trim()
+    .toLowerCase();
+
+  let contractAttemptInProgress = false;
+
+  const { data: tenantContractAttempt, error: tenantContractError } = await adminClient
+    .from("contratacion_intentos")
+    .select("id,estado")
+    .eq("tenant_id", tenantId)
+    .in("estado", contractStatusesInProgress)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (tenantContractError) {
+    console.error("DEMO_CONTRACT_ATTEMPT_TENANT_READ_ERROR:", {
+      tenantContractError,
+      tenantId,
+    });
+  }
+
+  contractAttemptInProgress = Boolean(tenantContractAttempt?.id);
+
+  if (!contractAttemptInProgress && email) {
+    const { data: emailContractAttempt, error: emailContractError } = await adminClient
+      .from("contratacion_intentos")
+      .select("id,estado")
+      .eq("email", email)
+      .in("estado", contractStatusesInProgress)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (emailContractError) {
+      console.error("DEMO_CONTRACT_ATTEMPT_EMAIL_READ_ERROR:", {
+        emailContractError,
+        email,
+      });
+    }
+
+    contractAttemptInProgress = Boolean(emailContractAttempt?.id);
+  }
+
   return {
     context,
     tableName,
     products,
     maxProducts,
+    contractAttemptInProgress,
     error: null as string | null,
   };
 }
@@ -96,12 +151,13 @@ export default async function DemoPreviewPage({
 }: {
   searchParams?: { error?: string; saved?: string; try?: string };
 }) {
-  const { products, maxProducts, error } = await getDemoProducts();
+  const { products, maxProducts, contractAttemptInProgress, error } = await getDemoProducts();
 
   return (
     <DemoPreviewClient
       products={products}
       maxProducts={maxProducts}
+      contractAttemptInProgress={contractAttemptInProgress}
       error={searchParams?.error || error}
       savedToken={searchParams?.saved || null}
       openDemo={searchParams?.try === "1"}

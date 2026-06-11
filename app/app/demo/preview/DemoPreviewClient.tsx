@@ -72,12 +72,14 @@ function downloadProductsCsv(products: DemoProduct[]) {
 export function DemoPreviewClient({
   products,
   maxProducts,
+  contractAttemptInProgress,
   error,
   savedToken,
   openDemo,
 }: {
   products: DemoProduct[];
   maxProducts: number;
+  contractAttemptInProgress: boolean;
   error: string | null;
   savedToken: string | null;
   openDemo: boolean;
@@ -158,8 +160,17 @@ export function DemoPreviewClient({
               href={CONTRACT_URL}
               className="rounded-full border border-slate-200 bg-white px-9 py-4 text-center text-base font-black text-slate-800 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
             >
-              Quiero contratar
+              {contractAttemptInProgress ? "Contratación en curso" : "Quiero contratar"}
             </a>
+
+            {hasProducts ? (
+              <a
+                href="/app/demo/new"
+                className="rounded-full border border-emerald-200 bg-emerald-50 px-9 py-4 text-center text-base font-black text-emerald-800 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-100"
+              >
+                Probar otra web
+              </a>
+            ) : null}
           </div>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-2 text-sm font-black text-slate-500">
@@ -169,6 +180,11 @@ export function DemoPreviewClient({
                 : "Catálogo pendiente"}
             </span>
 
+            {contractAttemptInProgress ? (
+              <span className="rounded-full bg-amber-50 px-4 py-2 text-amber-700">
+                Ya registramos tu solicitud de contratación
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -250,12 +266,20 @@ export function DemoPreviewClient({
             </h2>
           </div>
 
-          <a
-            href={CONTRACT_URL}
-            className="rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-950/20 transition hover:bg-emerald-600"
-          >
-            Quiero contratar Oramis
-          </a>
+          <div className="flex flex-col gap-2">
+            {contractAttemptInProgress ? (
+              <p className="text-sm font-bold leading-6 text-emerald-100">
+                Tu solicitud ya está en curso. Podés volver a abrirla si querés revisar o reenviar datos.
+              </p>
+            ) : null}
+
+            <a
+              href={CONTRACT_URL}
+              className="rounded-full bg-emerald-500 px-7 py-4 text-center text-base font-black text-white shadow-xl shadow-emerald-950/20 transition hover:bg-emerald-600"
+            >
+              {contractAttemptInProgress ? "Ver contratación" : "Quiero contratar Oramis"}
+            </a>
+          </div>
         </div>
       </section>
 
