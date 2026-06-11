@@ -77,6 +77,8 @@ export function DemoPreviewClient({
   savedToken,
   openDemo,
   importedCount,
+  importedTotal,
+  importedOmitted,
 }: {
   products: DemoProduct[];
   maxProducts: number;
@@ -85,6 +87,8 @@ export function DemoPreviewClient({
   savedToken: string | null;
   openDemo: boolean;
   importedCount: string | null;
+  importedTotal: string | null;
+  importedOmitted: string | null;
 }) {
   const hasProducts = products.length > 0;
   const shouldOpenDemo = Boolean(openDemo && hasProducts);
@@ -254,6 +258,8 @@ export function DemoPreviewClient({
             maxProducts={maxProducts}
             onTryDemo={() => setIsDemoOpen(true)}
             importedCount={importedCount}
+            importedTotal={importedTotal}
+            importedOmitted={importedOmitted}
           />
         </section>
       ) : null}
@@ -374,15 +380,17 @@ function ProductTable({
   maxProducts,
   onTryDemo,
   importedCount,
+  importedTotal,
+  importedOmitted,
 }: {
   products: DemoProduct[];
   maxProducts: number;
   onTryDemo: () => void;
   importedCount: string | null;
+  importedTotal: string | null;
+  importedOmitted: string | null;
 }) {
   const [selectedDeleteIds, setSelectedDeleteIds] = useState<Set<number>>(new Set());
-  const [csvText, setCsvText] = useState("");
-  const [csvFileName, setCsvFileName] = useState("");
   const availableRows = Math.max(0, maxProducts - products.length);
   const emptyRows = Array.from({ length: Math.min(5, availableRows) });
   const reachedLimit = products.length >= maxProducts;
@@ -421,7 +429,11 @@ function ProductTable({
       <form id="reset-demo-site-form" action={resetDemoSiteAction} />
       {importedCount ? (
         <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black leading-6 text-emerald-800">
-          CSV importado correctamente. Se reemplazaron {importedCount} productos en esta demo.
+          CSV importado correctamente. Se importaron {importedCount}
+          {importedTotal && importedTotal !== importedCount ? ` de ${importedTotal}` : ""} productos válidos en esta demo.
+          {importedOmitted && Number(importedOmitted) > 0
+            ? ` Se omitieron ${importedOmitted} por el límite máximo de ${maxProducts}.`
+            : ""}
         </div>
       ) : null}
 
@@ -488,6 +500,7 @@ function ProductTable({
 
     <form
       action={importDemoProductsCsvAction}
+      encType="multipart/form-data"
       className="mt-5 flex flex-col gap-3 rounded-3xl border border-emerald-100 bg-emerald-50/60 p-4 lg:flex-row lg:items-center lg:justify-between"
     >
       <div className="min-w-0">
@@ -506,38 +519,17 @@ function ProductTable({
           Descargar CSV
         </button>
 
-        <input type="hidden" name="csv_text" value={csvText} />
-
-        <label className="inline-flex cursor-pointer items-center rounded-full bg-[#07111f] px-4 py-2.5 text-xs font-black text-white transition hover:bg-emerald-600">
-          Seleccionar CSV
-          <input
-            type="file"
-            name="csv_file"
-            accept=".csv,text/csv"
-            className="sr-only"
-            onChange={async (event) => {
-              const file = event.target.files?.[0];
-
-              if (!file) {
-                setCsvText("");
-                setCsvFileName("");
-                return;
-              }
-
-              setCsvFileName(file.name);
-              setCsvText(await file.text());
-            }}
-          />
-        </label>
-
-        <span className="max-w-[180px] truncate text-xs font-semibold text-slate-500">
-          {csvFileName || "Sin archivo"}
-        </span>
+        <input
+          type="file"
+          name="csv_file"
+          accept=".csv,text/csv"
+          required
+          className="max-w-[280px] text-xs font-semibold text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-[#07111f] file:px-4 file:py-2.5 file:text-xs file:font-black file:text-white hover:file:bg-emerald-600"
+        />
 
         <button
           type="submit"
-          disabled={!csvText}
-          className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600"
         >
           Importar y reemplazar
         </button>

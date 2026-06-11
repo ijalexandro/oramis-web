@@ -149,8 +149,16 @@ async function getDemoProducts() {
 export default async function DemoPreviewPage({
   searchParams,
 }: {
-  searchParams?: { error?: string; saved?: string; try?: string; imported?: string };
+  searchParams?: Promise<{
+    error?: string;
+    saved?: string;
+    try?: string;
+    imported?: string;
+    total?: string;
+    omitted?: string;
+  }>;
 }) {
+  const params = searchParams ? await searchParams : {};
   const { products, maxProducts, contractAttemptInProgress, error } = await getDemoProducts();
 
   return (
@@ -158,10 +166,12 @@ export default async function DemoPreviewPage({
       products={products}
       maxProducts={maxProducts}
       contractAttemptInProgress={contractAttemptInProgress}
-      error={searchParams?.error || error}
-      savedToken={searchParams?.saved || null}
-      openDemo={searchParams?.try === "1"}
-      importedCount={searchParams?.imported || null}
+      error={params.error || error}
+      savedToken={params.saved || null}
+      openDemo={params.try === "1"}
+      importedCount={params.imported || null}
+      importedTotal={params.total || null}
+      importedOmitted={params.omitted || null}
     />
   );
 }

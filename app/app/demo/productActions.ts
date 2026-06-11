@@ -292,7 +292,8 @@ export async function importDemoProductsCsvAction(formData: FormData) {
     redirect("/app/demo/preview?error=Seleccioná un archivo CSV.");
   }
 
-  const csvText = await file.text();
+  let csvText = await file.text();
+  csvText = csvText.replace(/^\uFEFF/, "");
 
   if (!csvText.trim()) {
     redirect("/app/demo/preview?error=El CSV está vacío.");
@@ -308,7 +309,7 @@ export async function importDemoProductsCsvAction(formData: FormData) {
   const demoConfig = await getDemoConfig();
   const maxDemoProducts = demoConfig.productos_max_demo;
 
-  const parsedProducts = rows
+  const validProducts = rows
     .slice(1)
     .map((cells) => {
       const row = headers.reduce<Record<string, string>>((acc, header, index) => {
@@ -333,11 +334,21 @@ export async function importDemoProductsCsvAction(formData: FormData) {
         url_imagen: getCsvValue(row, ["imagen_url", "url_imagen", "image", "image_url", "foto"]),
       };
     })
-    .filter((product) => product.titulo)
-    .slice(0, maxDemoProducts);
+    .filter((product) => product.titulo);
+
+  const parsedProducts = validProducts.slice(0, maxDemoProducts);
+  const omittedProducts = Math.max(0, validProducts.length - parsedProducts.length);
 
   if (parsedProducts.length === 0) {
-    redirect("/app/demo/preview?error=El CSV no tiene productos válidos. La columna nombre_producto o titulo es obligatoria.");
+    console.error("DEMO_PRODUCT_CSV_EMPTY_AFTER_PARSE:", {
+      headers,
+      firstRow: rows[1] || null,
+      rowsCount: rows.length,
+    });
+
+    redirect(
+      "/app/demo/preview?error=El CSV no tiene productos válidos. Usá una columna nombre_producto, nombre o titulo."
+    );
   }
 
   const adminClient = createAdminClient();
@@ -386,7 +397,15 @@ export async function importDemoProductsCsvAction(formData: FormData) {
   }
 
   revalidatePath("/app/demo/preview");
-  redirect(`/app/demo/preview?saved=${Date.now()}&imported=${parsedProducts.length}`);
+
+  const params = new URLSearchParams({
+    saved: String(Date.now()),
+    imported: String(parsedProducts.length),
+    total: String(validProducts.length),
+    omitted: String(omittedProducts),
+  });
+
+  redirect(`/app/demo/preview?${params.toString()}`);
 }
 
 export async function resetDemoSiteAction() {
