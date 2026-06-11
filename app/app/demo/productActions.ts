@@ -19,7 +19,16 @@ function getIndexedValues(formData: FormData, key: string) {
   return formData.getAll(key).map((value) => cleanString(value));
 }
 
+function detectCsvDelimiter(text: string) {
+  const firstLine = text.split(/\r?\n/)[0] || "";
+  const semicolonCount = (firstLine.match(/;/g) || []).length;
+  const commaCount = (firstLine.match(/,/g) || []).length;
+
+  return semicolonCount > commaCount ? ";" : ",";
+}
+
 function parseCsvRows(text: string) {
+  const delimiter = detectCsvDelimiter(text);
   const rows: string[][] = [];
   let row: string[] = [];
   let value = "";
@@ -40,7 +49,7 @@ function parseCsvRows(text: string) {
       continue;
     }
 
-    if (char === "," && !inQuotes) {
+    if (char === delimiter && !inQuotes) {
       row.push(value.trim());
       value = "";
       continue;
