@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { getCurrentTenantContext } from "@/utils/oramis/currentTenant";
+import { getDemoConfig } from "@/utils/oramis/demoConfig";
 import { DemoPreviewClient } from "./DemoPreviewClient";
 
 export type DemoProduct = {
@@ -39,11 +40,14 @@ async function getDemoProducts() {
       context,
       tableName: null,
       products: [] as DemoProduct[],
+      maxProducts: 50,
       error: "No encontramos una tabla de productos para esta demo.",
     };
   }
 
   const adminClient = createAdminClient();
+  const demoConfig = await getDemoConfig();
+  const maxProducts = demoConfig.productos_max_demo;
 
   const { data, error } = await adminClient
     .from(tableName)
@@ -51,7 +55,7 @@ async function getDemoProducts() {
     .eq("tenant_id", context.tenant.tenant_id)
     .neq("estado", "inactivo")
     .order("id", { ascending: true })
-    .limit(100);
+    .limit(maxProducts);
 
   if (error) {
     console.error("DEMO_PRODUCTS_READ_ERROR:", {
@@ -64,6 +68,7 @@ async function getDemoProducts() {
       context,
       tableName,
       products: [] as DemoProduct[],
+      maxProducts,
       error: "No pudimos leer los productos de esta demo.",
     };
   }
@@ -81,6 +86,7 @@ async function getDemoProducts() {
     context,
     tableName,
     products,
+    maxProducts,
     error: null as string | null,
   };
 }
@@ -90,11 +96,12 @@ export default async function DemoPreviewPage({
 }: {
   searchParams?: { error?: string; saved?: string; try?: string };
 }) {
-  const { products, error } = await getDemoProducts();
+  const { products, maxProducts, error } = await getDemoProducts();
 
   return (
     <DemoPreviewClient
       products={products}
+      maxProducts={maxProducts}
       error={searchParams?.error || error}
       savedToken={searchParams?.saved || null}
       openDemo={searchParams?.try === "1"}

@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import type { ReactNode } from "react";
 import type { DemoProduct } from "./page";
-import { resetDemoSiteAction, saveDemoProductsAction } from "../productActions";
+import {
+  importDemoProductsCsvAction,
+  resetDemoSiteAction,
+  saveDemoProductsAction,
+} from "../productActions";
 import {
   listDemoMessagesAction,
   sendDemoMessageAction,
@@ -26,13 +30,54 @@ function isPlaceholderImage(url: string | null) {
   return url.startsWith("data:image/gif;base64");
 }
 
+function escapeCsvValue(value: string | null | undefined) {
+  const clean = String(value || "");
+  return `"${clean.replace(/"/g, '""')}"`;
+}
+
+function downloadProductsCsv(products: DemoProduct[]) {
+  const headers = [
+    "nombre_producto",
+    "descripcion",
+    "precio",
+    "producto_url",
+    "imagen_url",
+  ];
+
+  const rows = products.map((product) => [
+    product.nombre_producto || "",
+    product.descripcion || "",
+    product.precio || "",
+    product.producto_url || "",
+    isPlaceholderImage(product.imagen_url) ? "" : product.imagen_url || "",
+  ]);
+
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => row.map(escapeCsvValue).join(",")),
+  ].join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "oramis-productos-demo.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export function DemoPreviewClient({
   products,
+  maxProducts,
   error,
   savedToken,
   openDemo,
 }: {
   products: DemoProduct[];
+  maxProducts: number;
   error: string | null;
   savedToken: string | null;
   openDemo: boolean;
@@ -186,7 +231,11 @@ export function DemoPreviewClient({
 
 
 
-          <ProductTable products={products} />
+          <ProductTable
+            products={products}
+            maxProducts={maxProducts}
+            onTryDemo={() => setIsDemoOpen(true)}
+          />
         </section>
       ) : null}
 
@@ -293,15 +342,91 @@ function PreviewCard({
   );
 }
 
-function ProductTable({ products }: { products: DemoProduct[] }) {
-  const maxProducts = 50;
+function ProductTable({
+  products,
+  maxProducts,
+  onTryDemo,
+}: {
+  products: DemoProduct[];
+  maxProducts: number;
+  onTryDemo: () => void;
+}) {
+  const [selectedDeleteIds, setSelectedDeleteIds] = useState<Set<number>>(new Set());
   const availableRows = Math.max(0, maxProducts - products.length);
   const emptyRows = Array.from({ length: Math.min(5, availableRows) });
   const reachedLimit = products.length >= maxProducts;
+  const allSelected = products.length > 0 && selectedDeleteIds.size === products.length;
+
+  useEffect(() => {
+    setSelectedDeleteIds(new Set());
+  }, [products]);
+
+  function toggleAllDeletes() {
+    setSelectedDeleteIds((current) => {
+      if (current.size === products.length) {
+        return new Set();
+      }
+
+      return new Set(products.map((product) => product.id));
+    });
+  }
+
+  function toggleDelete(productId: number) {
+    setSelectedDeleteIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(productId)) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+
+      return next;
+    });
+  }
 
   return (
     <>
       <form id="reset-demo-site-form" action={resetDemoSiteAction} />
+      <form id="import-products-csv-form" action={importDemoProductsCsvAction} />
+
+      <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-emerald-100 bg-emerald-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-black text-emerald-900">Edición rápida por CSV</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-emerald-900/70">
+            Podés descargar el catálogo, editarlo y volver a subirlo. Al importar, se reemplaza la tabla actual
+            y se toman como máximo {maxProducts} productos.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:min-w-[280px]">
+          <button
+            type="button"
+            onClick={() => downloadProductsCsv(products)}
+            className="rounded-full border border-emerald-200 bg-white px-4 py-2.5 text-xs font-black text-emerald-800 transition hover:border-emerald-400"
+          >
+            Descargar CSV
+          </button>
+
+          <label className="block">
+            <input
+              form="import-products-csv-form"
+              type="file"
+              name="csv_file"
+              accept=".csv,text/csv"
+              className="block w-full text-xs font-semibold text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-[#07111f] file:px-4 file:py-2.5 file:text-xs file:font-black file:text-white hover:file:bg-emerald-600"
+            />
+          </label>
+
+          <button
+            type="submit"
+            form="import-products-csv-form"
+            className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            Importar y reemplazar
+          </button>
+        </div>
+      </div>
 
       <form action={saveDemoProductsAction} className="mt-6">
       <div className="max-h-[520px] overflow-auto rounded-3xl border border-slate-200">
@@ -313,13 +438,28 @@ function ProductTable({ products }: { products: DemoProduct[] }) {
               <th className="w-[95px] px-2 py-2">Precio</th>
               <th className="w-[170px] px-2 py-2">URL producto</th>
               <th className="w-[170px] px-2 py-2">URL imagen</th>
-              <th className="w-[70px] px-2 py-2 text-center">Borrar</th>
+              <th className="w-[95px] px-2 py-2 text-center">
+                <label className="inline-flex cursor-pointer items-center justify-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAllDeletes}
+                    className="h-4 w-4 rounded border-slate-300 text-red-500"
+                  />
+                  <span aria-hidden="true">🛒</span>
+                </label>
+              </th>
             </tr>
           </thead>
 
           <tbody>
             {products.map((product) => (
-              <ProductRow key={product.id} product={product} />
+              <ProductRow
+                key={product.id}
+                product={product}
+                isDeleteSelected={selectedDeleteIds.has(product.id)}
+                onDeleteChange={() => toggleDelete(product.id)}
+              />
             ))}
 
             {emptyRows.map((_, index) => (
@@ -335,18 +475,34 @@ function ProductTable({ products }: { products: DemoProduct[] }) {
             ? "Llegaste al máximo de 50 productos para esta demo."
             : "Podés cargar hasta 50 productos de muestra."}
         </p>
-        <SaveProductsButton />
+        <SaveProductsButton hasProducts={products.length > 0} onTryDemo={onTryDemo} />
       </div>
     </form>
     </>
   );
 }
 
-function SaveProductsButton() {
+function SaveProductsButton({
+  hasProducts,
+  onTryDemo,
+}: {
+  hasProducts: boolean;
+  onTryDemo: () => void;
+}) {
   const { pending } = useFormStatus();
 
   return (
     <div className="flex flex-col items-end gap-2">
+      {hasProducts ? (
+        <button
+          type="button"
+          onClick={onTryDemo}
+          className="rounded-full border border-emerald-200 bg-emerald-50 px-6 py-3 text-sm font-black text-emerald-800 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-100"
+        >
+          Probar demo ahora
+        </button>
+      ) : null}
+
       <button
         type="submit"
         disabled={pending}
@@ -373,7 +529,15 @@ function SaveProductsButton() {
   );
 }
 
-function ProductRow({ product }: { product: DemoProduct }) {
+function ProductRow({
+  product,
+  isDeleteSelected,
+  onDeleteChange,
+}: {
+  product: DemoProduct;
+  isDeleteSelected: boolean;
+  onDeleteChange: () => void;
+}) {
   return (
     <tr className="border-t border-slate-200 align-top">
       <td className="px-2 py-2">
@@ -409,12 +573,17 @@ function ProductRow({ product }: { product: DemoProduct }) {
         />
       </td>
       <td className="px-2 py-2 text-center">
-        <input
-          type="checkbox"
-          name="delete_id"
-          value={product.id}
-          className="h-5 w-5 rounded border-slate-300 text-red-500"
-        />
+        <label className="inline-flex cursor-pointer items-center justify-center gap-2">
+          <input
+            type="checkbox"
+            name="delete_id"
+            value={product.id}
+            checked={isDeleteSelected}
+            onChange={onDeleteChange}
+            className="h-5 w-5 rounded border-slate-300 text-red-500"
+          />
+          <span aria-hidden="true" className="text-sm">🛒</span>
+        </label>
       </td>
     </tr>
   );
@@ -460,7 +629,7 @@ function CellInput({
       name={name}
       defaultValue={defaultValue}
       placeholder={placeholder}
-      className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold text-slate-800 outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+      className="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-normal text-slate-800 outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
     />
   );
 }
@@ -480,7 +649,7 @@ function CellTextarea({
       defaultValue={defaultValue}
       placeholder={placeholder}
       rows={2}
-      className="w-full resize-y rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold leading-5 text-slate-800 outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+      className="w-full resize-y rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-normal leading-5 text-slate-800 outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
     />
   );
 }

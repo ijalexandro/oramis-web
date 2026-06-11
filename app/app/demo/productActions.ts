@@ -19,6 +19,82 @@ function getIndexedValues(formData: FormData, key: string) {
   return formData.getAll(key).map((value) => cleanString(value));
 }
 
+function parseCsvRows(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let value = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const nextChar = text[i + 1];
+
+    if (char === '"' && inQuotes && nextChar === '"') {
+      value += '"';
+      i += 1;
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(value.trim());
+      value = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && nextChar === "\n") {
+        i += 1;
+      }
+
+      row.push(value.trim());
+      value = "";
+
+      if (row.some((cell) => cell.trim())) {
+        rows.push(row);
+      }
+
+      row = [];
+      continue;
+    }
+
+    value += char;
+  }
+
+  row.push(value.trim());
+
+  if (row.some((cell) => cell.trim())) {
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function normalizeCsvHeader(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "_");
+}
+
+function getCsvValue(row: Record<string, string>, keys: string[]) {
+  for (const key of keys) {
+    const value = row[key];
+
+    if (value !== undefined && value !== null && String(value).trim()) {
+      return String(value).trim();
+    }
+  }
+
+  return "";
+}
+
 export async function saveDemoProductsAction(formData: FormData) {
   const context = await getCurrentTenantContext();
 
@@ -182,6 +258,122 @@ export async function saveDemoProductsAction(formData: FormData) {
   redirect(`/app/demo/preview?saved=${Date.now()}&try=1`);
 }
 
+
+
+export async function importDemoProductsCsvAction(formData: FormData) {
+  const context = await getCurrentTenantContext();
+
+  if (!context?.user) {
+    redirect("/login");
+  }
+
+  if (!context.tenant || !context.membership) {
+    redirect("/app/demo/new");
+  }
+
+  const tableName = String(context.tenant.tabla_productos || "").trim();
+
+  if (!tableName || !isSafeTableName(tableName)) {
+    redirect("/app/demo/preview?error=No encontramos una tabla de productos válida.");
+  }
+
+  const file = formData.get("csv_file");
+
+  if (!(file instanceof File) || !file.name) {
+    redirect("/app/demo/preview?error=Seleccioná un archivo CSV.");
+  }
+
+  const csvText = await file.text();
+  const rows = parseCsvRows(csvText);
+
+  if (rows.length < 2) {
+    redirect("/app/demo/preview?error=El CSV no tiene productos para importar.");
+  }
+
+  const headers = rows[0].map(normalizeCsvHeader);
+  const demoConfig = await getDemoConfig();
+  const maxDemoProducts = demoConfig.productos_max_demo;
+
+  const parsedProducts = rows
+    .slice(1)
+    .map((cells) => {
+      const row = headers.reduce<Record<string, string>>((acc, header, index) => {
+        acc[header] = cells[index] || "";
+        return acc;
+      }, {});
+
+      const titulo = getCsvValue(row, [
+        "nombre_producto",
+        "nombre",
+        "titulo",
+        "producto",
+        "name",
+        "title",
+      ]);
+
+      return {
+        titulo,
+        descripcion: getCsvValue(row, ["descripcion", "description", "detalle"]),
+        precio_oferta: getCsvValue(row, ["precio", "precio_oferta", "price"]),
+        url_producto: getCsvValue(row, ["producto_url", "url_producto", "link", "url"]),
+        url_imagen: getCsvValue(row, ["imagen_url", "url_imagen", "image", "image_url", "foto"]),
+      };
+    })
+    .filter((product) => product.titulo)
+    .slice(0, maxDemoProducts);
+
+  if (parsedProducts.length === 0) {
+    redirect("/app/demo/preview?error=El CSV no tiene productos válidos. La columna nombre_producto o titulo es obligatoria.");
+  }
+
+  const adminClient = createAdminClient();
+  const tenantId = context.tenant.tenant_id;
+  const now = new Date().toISOString();
+
+  const { error: deactivateError } = await adminClient
+    .from(tableName)
+    .update({
+      estado: "inactivo",
+      updated_at: now,
+    })
+    .eq("tenant_id", tenantId)
+    .neq("estado", "inactivo");
+
+  if (deactivateError) {
+    console.error("DEMO_PRODUCT_CSV_DEACTIVATE_ERROR:", {
+      deactivateError,
+      tableName,
+      tenantId,
+    });
+
+    redirect("/app/demo/preview?error=No pudimos reemplazar los productos actuales.");
+  }
+
+  const { error: insertError } = await adminClient.from(tableName).insert(
+    parsedProducts.map((product) => ({
+      tenant_id: tenantId,
+      ...product,
+      estado: "activo",
+      editable_manual: true,
+      atributos_json: {},
+      created_at: now,
+      updated_at: now,
+    }))
+  );
+
+  if (insertError) {
+    console.error("DEMO_PRODUCT_CSV_INSERT_ERROR:", {
+      insertError,
+      tableName,
+      tenantId,
+    });
+
+    redirect("/app/demo/preview?error=No pudimos importar el CSV.");
+  }
+
+  revalidatePath("/app/demo/preview");
+  redirect(`/app/demo/preview?saved=${Date.now()}&try=1`);
+}
 
 export async function resetDemoSiteAction() {
   const context = await getCurrentTenantContext();
