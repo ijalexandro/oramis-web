@@ -86,6 +86,47 @@ async function getCurrentUserId() {
   }
 }
 
+async function resolveTenantByEmail(adminClient: ReturnType<typeof createAdminClient>, email: string) {
+  const normalizedEmail = cleanString(email).toLowerCase();
+
+  if (!normalizedEmail) {
+    return {
+      tenant_id: null as number | null,
+      user_id: null as string | null,
+    };
+  }
+
+  const { data: tenant } = await adminClient
+    .from("_0_tenants")
+    .select("tenant_id")
+    .eq("email_contacto", normalizedEmail)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!tenant?.tenant_id) {
+    return {
+      tenant_id: null as number | null,
+      user_id: null as string | null,
+    };
+  }
+
+  const { data: membership } = await adminClient
+    .from("usuarios_tenants")
+    .select("user_id")
+    .eq("tenant_id", tenant.tenant_id)
+    .eq("email", normalizedEmail)
+    .eq("activo", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return {
+    tenant_id: Number(tenant.tenant_id),
+    user_id: membership?.user_id || null,
+  };
+}
+
 export async function validateDiscountCodeAction(input: {
   code: string;
   email: string;
@@ -243,10 +284,11 @@ export async function validateDiscountCodeAction(input: {
 export async function saveContractAttemptAction(input: SaveContractAttemptInput) {
   const adminClient = createAdminClient();
   const currentUserId = await getCurrentUserId();
+  const resolvedByEmail = await resolveTenantByEmail(adminClient, input.email);
 
   const payload = {
-    tenant_id: input.tenant_id || null,
-    user_id: input.user_id || currentUserId,
+    tenant_id: input.tenant_id || resolvedByEmail.tenant_id || null,
+    user_id: input.user_id || currentUserId || resolvedByEmail.user_id,
 
     nombre: cleanString(input.nombre) || null,
     apellido: cleanString(input.apellido) || null,
