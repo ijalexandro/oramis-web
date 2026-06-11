@@ -657,7 +657,7 @@ export function ContratarClient({
                     ) : null}
 
                     <p className="mt-3 text-xs font-bold leading-5 text-emerald-900/75">
-                      Los precios no incluyen impuestos aplicables.
+                      Los precios no incluyen impuestos aplicables. La facturación se realiza en ARS al tipo de cambio oficial vigente al momento de la emision del link de pago o factura.
                     </p>
                   </div>
 

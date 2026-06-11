@@ -500,7 +500,6 @@ function ProductTable({
 
     <form
       action={importDemoProductsCsvAction}
-      encType="multipart/form-data"
       className="mt-5 flex flex-col gap-3 rounded-3xl border border-emerald-100 bg-emerald-50/60 p-4 lg:flex-row lg:items-center lg:justify-between"
     >
       <div className="min-w-0">
