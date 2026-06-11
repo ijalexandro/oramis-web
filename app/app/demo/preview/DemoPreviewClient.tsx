@@ -76,6 +76,7 @@ export function DemoPreviewClient({
   error,
   savedToken,
   openDemo,
+  importedCount,
 }: {
   products: DemoProduct[];
   maxProducts: number;
@@ -83,6 +84,7 @@ export function DemoPreviewClient({
   error: string | null;
   savedToken: string | null;
   openDemo: boolean;
+  importedCount: string | null;
 }) {
   const hasProducts = products.length > 0;
   const shouldOpenDemo = Boolean(openDemo && hasProducts);
@@ -244,6 +246,7 @@ export function DemoPreviewClient({
             products={products}
             maxProducts={maxProducts}
             onTryDemo={() => setIsDemoOpen(true)}
+            importedCount={importedCount}
           />
         </section>
       ) : null}
@@ -363,12 +366,16 @@ function ProductTable({
   products,
   maxProducts,
   onTryDemo,
+  importedCount,
 }: {
   products: DemoProduct[];
   maxProducts: number;
   onTryDemo: () => void;
+  importedCount: string | null;
 }) {
   const [selectedDeleteIds, setSelectedDeleteIds] = useState<Set<number>>(new Set());
+  const [csvText, setCsvText] = useState("");
+  const [csvFileName, setCsvFileName] = useState("");
   const availableRows = Math.max(0, maxProducts - products.length);
   const emptyRows = Array.from({ length: Math.min(5, availableRows) });
   const reachedLimit = products.length >= maxProducts;
@@ -405,6 +412,12 @@ function ProductTable({
   return (
     <>
       <form id="reset-demo-site-form" action={resetDemoSiteAction} />
+      {importedCount ? (
+        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-800">
+          CSV importado: {importedCount} productos actualizados.
+        </div>
+      ) : null}
+
       <form action={saveDemoProductsAction} className="mt-6">
       <div className="max-h-[520px] overflow-auto rounded-3xl border border-slate-200">
         <table className="min-w-[900px] w-full border-collapse bg-white text-xs">
@@ -423,7 +436,7 @@ function ProductTable({
                     onChange={toggleAllDeletes}
                     className="h-4 w-4 rounded border-slate-300 text-red-500"
                   />
-                  <span aria-hidden="true">🛒</span>
+                  <span aria-hidden="true">🗑️</span>
                 </label>
               </th>
             </tr>
@@ -486,17 +499,38 @@ function ProductTable({
           Descargar CSV
         </button>
 
-        <input
-          type="file"
-          name="csv_file"
-          accept=".csv,text/csv"
-          required
-          className="max-w-[260px] text-xs font-semibold text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-[#07111f] file:px-4 file:py-2.5 file:text-xs file:font-black file:text-white hover:file:bg-emerald-600"
-        />
+        <input type="hidden" name="csv_text" value={csvText} />
+
+        <label className="inline-flex cursor-pointer items-center rounded-full bg-[#07111f] px-4 py-2.5 text-xs font-black text-white transition hover:bg-emerald-600">
+          Seleccionar CSV
+          <input
+            type="file"
+            name="csv_file"
+            accept=".csv,text/csv"
+            className="sr-only"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+
+              if (!file) {
+                setCsvText("");
+                setCsvFileName("");
+                return;
+              }
+
+              setCsvFileName(file.name);
+              setCsvText(await file.text());
+            }}
+          />
+        </label>
+
+        <span className="max-w-[180px] truncate text-xs font-semibold text-slate-500">
+          {csvFileName || "Sin archivo"}
+        </span>
 
         <button
           type="submit"
-          className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600"
+          disabled={!csvText}
+          className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Importar
         </button>
@@ -590,7 +624,7 @@ function ProductRow({
             onChange={onDeleteChange}
             className="h-5 w-5 rounded border-slate-300 text-red-500"
           />
-          <span aria-hidden="true" className="text-sm">🛒</span>
+          <span aria-hidden="true" className="text-sm">🗑️</span>
         </label>
       </td>
     </tr>

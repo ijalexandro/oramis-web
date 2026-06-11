@@ -149,7 +149,7 @@ async function getDemoProducts() {
 export default async function DemoPreviewPage({
   searchParams,
 }: {
-  searchParams?: { error?: string; saved?: string; try?: string };
+  searchParams?: { error?: string; saved?: string; try?: string; imported?: string };
 }) {
   const { products, maxProducts, contractAttemptInProgress, error } = await getDemoProducts();
 
@@ -161,6 +161,7 @@ export default async function DemoPreviewPage({
       error={searchParams?.error || error}
       savedToken={searchParams?.saved || null}
       openDemo={searchParams?.try === "1"}
+      importedCount={searchParams?.imported || null}
     />
   );
 }
