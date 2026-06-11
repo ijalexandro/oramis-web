@@ -21,11 +21,7 @@ export default async function AppPage() {
 
   const tenantStatus = normalizeStatus(context.tenant.estado);
 
-  if (tenantStatus === "pendiente_onboarding") {
-    redirect("/app/demo/new");
-  }
-
-  if (tenantStatus === "demo") {
+  if (tenantStatus === "pendiente_onboarding" || tenantStatus === "demo") {
     if (context.tenant.tabla_productos) {
       redirect("/app/demo/preview");
     }
