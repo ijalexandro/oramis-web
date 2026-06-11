@@ -140,7 +140,7 @@ export function DemoPreviewClient({
                 onClick={() => setIsDemoOpen(true)}
                 className="rounded-full bg-emerald-500 px-9 py-4 text-base font-black text-white shadow-xl shadow-emerald-200 transition hover:bg-emerald-600"
               >
-                Probar ahora
+                Probar demo
               </button>
             ) : null}
 
@@ -163,14 +163,7 @@ export function DemoPreviewClient({
               {contractAttemptInProgress ? "Contratación en curso" : "Quiero contratar"}
             </a>
 
-            {hasProducts ? (
-              <a
-                href="/app/demo/new"
-                className="rounded-full border border-emerald-200 bg-emerald-50 px-9 py-4 text-center text-base font-black text-emerald-800 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-100"
-              >
-                Probar otra web
-              </a>
-            ) : null}
+
           </div>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-2 text-sm font-black text-slate-500">
@@ -412,46 +405,6 @@ function ProductTable({
   return (
     <>
       <form id="reset-demo-site-form" action={resetDemoSiteAction} />
-      <form id="import-products-csv-form" action={importDemoProductsCsvAction} />
-
-      <div className="mt-5 flex flex-col gap-3 rounded-3xl border border-emerald-100 bg-emerald-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-black text-emerald-900">Edición rápida por CSV</p>
-          <p className="mt-1 text-xs font-semibold leading-5 text-emerald-900/70">
-            Podés descargar el catálogo, editarlo y volver a subirlo. Al importar, se reemplaza la tabla actual
-            y se toman como máximo {maxProducts} productos.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-2 sm:min-w-[280px]">
-          <button
-            type="button"
-            onClick={() => downloadProductsCsv(products)}
-            className="rounded-full border border-emerald-200 bg-white px-4 py-2.5 text-xs font-black text-emerald-800 transition hover:border-emerald-400"
-          >
-            Descargar CSV
-          </button>
-
-          <label className="block">
-            <input
-              form="import-products-csv-form"
-              type="file"
-              name="csv_file"
-              accept=".csv,text/csv"
-              className="block w-full text-xs font-semibold text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-[#07111f] file:px-4 file:py-2.5 file:text-xs file:font-black file:text-white hover:file:bg-emerald-600"
-            />
-          </label>
-
-          <button
-            type="submit"
-            form="import-products-csv-form"
-            className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600"
-          >
-            Importar y reemplazar
-          </button>
-        </div>
-      </div>
-
       <form action={saveDemoProductsAction} className="mt-6">
       <div className="max-h-[520px] overflow-auto rounded-3xl border border-slate-200">
         <table className="min-w-[900px] w-full border-collapse bg-white text-xs">
@@ -494,39 +447,70 @@ function ProductTable({
       </div>
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs font-semibold leading-5 text-slate-500">
-          {reachedLimit
-            ? "Llegaste al máximo de 50 productos para esta demo."
-            : "Podés cargar hasta 50 productos de muestra."}
+        <button
+          type="button"
+          onClick={onTryDemo}
+          disabled={products.length === 0}
+          className="rounded-full border border-emerald-200 bg-emerald-50 px-6 py-3 text-sm font-black text-emerald-800 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Probar demo ahora
+        </button>
+
+        <SaveProductsButton />
+      </div>
+
+      <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
+        {reachedLimit
+          ? `Llegaste al máximo de ${maxProducts} productos para esta demo.`
+          : `Podés cargar hasta ${maxProducts} productos de muestra.`}
+      </p>
+    </form>
+
+    <form
+      action={importDemoProductsCsvAction}
+      className="mt-5 flex flex-col gap-3 rounded-3xl border border-emerald-100 bg-emerald-50/60 p-4 lg:flex-row lg:items-center lg:justify-between"
+    >
+      <div className="min-w-0">
+        <p className="text-sm font-black text-emerald-900">Edición rápida por CSV</p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-emerald-900/70">
+          Descargá, editá y volvé a subir. Al importar, reemplaza la tabla actual y toma como máximo {maxProducts} productos.
         </p>
-        <SaveProductsButton hasProducts={products.length > 0} onTryDemo={onTryDemo} />
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={() => downloadProductsCsv(products)}
+          className="rounded-full border border-emerald-200 bg-white px-4 py-2.5 text-xs font-black text-emerald-800 transition hover:border-emerald-400"
+        >
+          Descargar CSV
+        </button>
+
+        <input
+          type="file"
+          name="csv_file"
+          accept=".csv,text/csv"
+          required
+          className="max-w-[260px] text-xs font-semibold text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-[#07111f] file:px-4 file:py-2.5 file:text-xs file:font-black file:text-white hover:file:bg-emerald-600"
+        />
+
+        <button
+          type="submit"
+          className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600"
+        >
+          Importar
+        </button>
       </div>
     </form>
     </>
   );
 }
 
-function SaveProductsButton({
-  hasProducts,
-  onTryDemo,
-}: {
-  hasProducts: boolean;
-  onTryDemo: () => void;
-}) {
+function SaveProductsButton() {
   const { pending } = useFormStatus();
 
   return (
     <div className="flex flex-col items-end gap-2">
-      {hasProducts ? (
-        <button
-          type="button"
-          onClick={onTryDemo}
-          className="rounded-full border border-emerald-200 bg-emerald-50 px-6 py-3 text-sm font-black text-emerald-800 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-100"
-        >
-          Probar demo ahora
-        </button>
-      ) : null}
-
       <button
         type="submit"
         disabled={pending}
