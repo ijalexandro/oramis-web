@@ -277,17 +277,16 @@ export async function importDemoProductsCsvAction(formData: FormData) {
     redirect("/app/demo/preview?error=No encontramos una tabla de productos válida.");
   }
 
-  const csvTextFromForm = cleanString(formData.get("csv_text"));
   const file = formData.get("csv_file");
 
-  let csvText = csvTextFromForm;
-
-  if (!csvText && file instanceof File && file.name) {
-    csvText = await file.text();
+  if (!(file instanceof File) || !file.name) {
+    redirect("/app/demo/preview?error=Seleccioná un archivo CSV.");
   }
 
-  if (!csvText) {
-    redirect("/app/demo/preview?error=Seleccioná un archivo CSV.");
+  const csvText = await file.text();
+
+  if (!csvText.trim()) {
+    redirect("/app/demo/preview?error=El CSV está vacío.");
   }
 
   const rows = parseCsvRows(csvText);
