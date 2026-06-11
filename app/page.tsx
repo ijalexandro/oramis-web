@@ -287,16 +287,16 @@ export default function Home() {
             Tu WhatsApp vendiendo con productos reales
           </div>
 
-          <h1 className="max-w-4xl text-5xl font-black tracking-[-0.06em] text-[#07111f] sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-4xl text-4xl font-black tracking-[-0.045em] text-[#07111f] sm:text-5xl lg:text-6xl">
             Convertí conversaciones en ventas.
           </h1>
 
-          <p className="mt-6 max-w-2xl text-xl font-medium leading-9 text-slate-600">
+          <p className="mt-6 max-w-2xl text-lg font-medium leading-8 text-slate-600">
             Oramis atiende consultas, recomienda productos, muestra fotos, arma
             carritos y deriva oportunidades listas a tu equipo comercial.
           </p>
 
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-500">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-500">
             Probalo con productos tomados desde tu propia web y descubrí cómo
             vendería en conversaciones reales con clientes.
           </p>
@@ -437,7 +437,7 @@ export default function Home() {
               <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
                 Cómo funciona
               </p>
-              <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] text-[#07111f] lg:text-5xl">
+              <h2 className="mt-4 text-3xl font-black tracking-[-0.035em] text-[#07111f] lg:text-4xl">
                 Probalo gratis con tus productos.
               </h2>
               <p className="mt-5 text-lg font-medium leading-8 text-slate-600">
@@ -470,16 +470,18 @@ export default function Home() {
       </section>
 
       <section id="que-hace" className="mx-auto max-w-[1240px] px-5 py-16 lg:px-0 lg:py-20">
-        <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr]">
-          <div className="rounded-[2.2rem] border border-slate-200 bg-white p-8 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
-              Qué hace Oramis
-            </p>
-            <h2 className="mt-4 text-4xl font-black tracking-[-0.04em]">
-              Atiende, recomienda y vende.
-            </h2>
+        <div className="mx-auto mb-8 max-w-3xl text-center">
+          <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-600">
+            Qué hace Oramis
+          </p>
+          <h2 className="mt-4 text-3xl font-black tracking-[-0.035em] sm:text-4xl">
+            Atiende, recomienda y vende.
+          </h2>
+        </div>
 
-            <div className="mt-8 w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-[#eef4ef] p-4 sm:p-5 lg:p-6">
+        <div className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr]">
+          <div className="order-2 rounded-[2.2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:order-2">
+            <div className="w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-[#eef4ef] p-4 sm:p-5 lg:p-6">
               <div className="mx-auto w-full max-w-[420px] rounded-[2.4rem] border border-slate-200 bg-white p-3 shadow-xl shadow-emerald-950/10">
                 <div className="overflow-hidden rounded-[1.8rem] border border-slate-200 bg-[#e9f8ef]">
                   <div className="bg-[#075e54] px-4 py-3 text-white">
@@ -548,16 +550,16 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="order-1 grid gap-4 sm:grid-cols-2 lg:order-1">
             {capabilities.map((capability) => (
               <div
                 key={capability.title}
-                className="group rounded-[1.7rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-950/5"
+                className="group rounded-[1.7rem] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-950/5"
               >
                 <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-lg font-black text-emerald-600 ring-1 ring-emerald-100">
                   ✓
                 </div>
-                <h3 className="text-lg font-black leading-6 text-[#07111f]">
+                <h3 className="text-base font-black leading-6 text-[#07111f]">
                   {capability.title}
                 </h3>
                 <p className="mt-3 text-sm font-medium leading-6 text-slate-600">
@@ -612,7 +614,7 @@ export default function Home() {
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
             Activá Oramis
           </p>
-          <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] text-[#07111f] lg:text-5xl">
+          <h2 className="mt-4 text-3xl font-black tracking-[-0.035em] text-[#07111f] lg:text-4xl">
             Hacé que Oramis venda junto a tu equipo.
           </h2>
           <p className="mx-auto mt-5 max-w-3xl text-lg font-medium leading-8 text-slate-600">

@@ -370,7 +370,7 @@ export function ContratarClient({
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
             Contratá Oramis
           </p>
-          <h1 className="mt-5 text-4xl font-black tracking-[-0.055em] lg:text-5xl">
+          <h1 className="mt-5 text-3xl font-black tracking-[-0.045em] lg:text-4xl">
             Activá un vendedor IA para tu negocio.
           </h1>
           <p className="mt-5 text-base font-semibold leading-7 text-slate-300">
@@ -401,7 +401,7 @@ export function ContratarClient({
               <p className="mt-6 text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
                 Solicitud recibida
               </p>
-              <h2 className="mt-4 max-w-2xl text-4xl font-black tracking-[-0.055em] text-slate-950">
+              <h2 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.045em] text-slate-950">
                 Gracias. Vamos a contactarte para continuar.
               </h2>
               <p className="mt-4 max-w-xl text-base font-semibold leading-7 text-slate-500">
@@ -641,7 +641,7 @@ export function ContratarClient({
                     <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">
                       {isCustom ? "Custom" : plan?.nombre}
                     </p>
-                    <h2 className="mt-3 text-4xl font-black tracking-[-0.055em] text-slate-950">
+                    <h2 className="mt-3 text-3xl font-black tracking-[-0.045em] text-slate-950">
                       {isCustom
                         ? "A medida"
                         : discountApplied
@@ -656,7 +656,9 @@ export function ContratarClient({
                       </p>
                     ) : null}
 
-
+                    <p className="mt-3 text-xs font-bold leading-5 text-emerald-900/75">
+                      Los precios no incluyen impuestos aplicables.
+                    </p>
                   </div>
 
                   <div className="rounded-3xl bg-white p-5 shadow-sm">
@@ -683,6 +685,12 @@ export function ContratarClient({
                         : "A medida"
                     }
                   />
+                </div>
+
+                <div className="mt-5 rounded-3xl border border-emerald-200 bg-white/70 p-4 text-xs font-bold leading-5 text-emerald-950">
+                  Si el volumen se acerca al límite incluido, te vamos a avisar para cambiar de plan.
+                  Si se supera el límite de conversaciones en más de un 5%, se pausan las respuestas con IA
+                  hasta actualizar el plan. La plataforma queda activa para que el equipo pueda seguir contestando manualmente.
                 </div>
               </div>
 
