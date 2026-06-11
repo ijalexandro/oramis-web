@@ -278,7 +278,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="relative mx-auto grid max-w-[1240px] items-center gap-12 px-5 py-12 sm:px-5 lg:grid-cols-[0.96fr_1.04fr] lg:px-0 lg:py-20 xl:gap-14">
+      <section className="relative mx-auto grid max-w-[1240px] items-center gap-12 px-5 py-12 sm:px-5 lg:grid-cols-[0.96fr_1.04fr] lg:px-0 lg:py-16 xl:gap-14">
         <div className="absolute left-1/2 top-0 -z-10 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-200/35 blur-3xl" />
 
         <div>
@@ -408,7 +408,7 @@ export default function Home() {
 
       <section
         id="como-funciona"
-        className="border-y border-slate-200 bg-white px-5 py-20 lg:px-8"
+        className="border-y border-slate-200 bg-white px-5 py-16 lg:px-8"
       >
         <div className="mx-auto max-w-[1240px]">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
@@ -448,7 +448,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="que-hace" className="mx-auto max-w-[1240px] px-5 py-16 lg:px-0 lg:py-20">
+      <section id="que-hace" className="mx-auto max-w-[1240px] px-5 py-16 lg:px-0 lg:py-16">
         <div className="mx-auto mb-8 max-w-3xl text-center">
           <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-600">
             Qué hace Oramis
@@ -552,7 +552,7 @@ export default function Home() {
 
       <section
         id="conversaciones"
-        className="border-y border-slate-200 bg-[#eef8f2] px-5 py-20 lg:px-8"
+        className="border-y border-slate-200 bg-[#eef8f2] px-5 py-16 lg:px-8"
       >
         <div className="mx-auto grid max-w-[1240px] gap-8 lg:grid-cols-2">
           <div className="rounded-[2.2rem] bg-[#07111f] p-8 text-white shadow-xl shadow-slate-300">
@@ -588,7 +588,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-5 py-20 text-center lg:px-0">
+      <section className="mx-auto max-w-[1240px] px-5 py-16 text-center lg:px-0">
         <div className="mx-auto max-w-5xl">
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-600">
             Activá Oramis
