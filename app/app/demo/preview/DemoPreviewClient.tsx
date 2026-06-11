@@ -88,19 +88,20 @@ export function DemoPreviewClient({
 }) {
   const hasProducts = products.length > 0;
   const shouldOpenDemo = Boolean(openDemo && hasProducts);
-  const [isCatalogOpen, setIsCatalogOpen] = useState(!hasProducts);
+  const shouldOpenCatalog = !hasProducts || Boolean(importedCount);
+  const [isCatalogOpen, setIsCatalogOpen] = useState(shouldOpenCatalog);
   const [isDemoOpen, setIsDemoOpen] = useState(shouldOpenDemo);
   const [modulePreview, setModulePreview] = useState<ModulePreview>(null);
   const catalogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!hasProducts) {
+    if (!hasProducts || importedCount) {
       setIsCatalogOpen(true);
       setTimeout(() => {
         catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
-  }, [hasProducts]);
+  }, [hasProducts, importedCount]);
 
   useEffect(() => {
     if (!savedToken) return;
@@ -174,6 +175,12 @@ export function DemoPreviewClient({
                 ? `Demo cargada con ${products.length} productos de muestra`
                 : "Catálogo pendiente"}
             </span>
+
+            {importedCount ? (
+              <span className="rounded-full bg-emerald-100 px-4 py-2 text-emerald-800">
+                CSV importado: {importedCount} productos reemplazados
+              </span>
+            ) : null}
 
             {contractAttemptInProgress ? (
               <span className="rounded-full bg-amber-50 px-4 py-2 text-amber-700">
@@ -413,8 +420,8 @@ function ProductTable({
     <>
       <form id="reset-demo-site-form" action={resetDemoSiteAction} />
       {importedCount ? (
-        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-800">
-          CSV importado: {importedCount} productos actualizados.
+        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black leading-6 text-emerald-800">
+          CSV importado correctamente. Se reemplazaron {importedCount} productos en esta demo.
         </div>
       ) : null}
 
@@ -532,7 +539,7 @@ function ProductTable({
           disabled={!csvText}
           className="rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Importar
+          Importar y reemplazar
         </button>
       </div>
     </form>
